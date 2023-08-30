@@ -14,7 +14,26 @@ let table_rows = [
     ]
 
 const RightDepartment = () => {
-  const [selectedFile, setSelectedFile] = useState(null);
+    const [isCsvRead, setIsCsvRead] = useState(false); 
+    const [csvData, setCsvData] = useState([]); // State to hold parsed CSV data
+
+    const handleFileChange = (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        Papa.parse(file, {
+          complete: (result) => {
+              // result.data contains the parsed CSV data as an array of arrays
+              setCsvData(result.data);
+              setIsCsvRead(true); // Set the flag to indicate successful CSV reading
+              // console.log('CSV file successfully read:', result.data);
+          },
+          error: (error) => {
+              console.error("Error reading CSV:", error);
+              setIsCsvRead(false); // Set the flag to indicate unsuccessful CSV reading
+          },
+        });
+      }
+    };
 
   
   return (
@@ -23,8 +42,7 @@ const RightDepartment = () => {
           <h3 className='font-bold'>Eligble Students of Monsoon 2023</h3>
           <label className='bg-[#3dafaa] text-white px-4 py-2 rounded cursor-pointer font-bold'>
             Upload
-            <input type="file" accept=".csv" className="hidden"  /> 
-            {/* onchange handle file upload */}
+            <input type="file" accept=".csv" className="hidden" onClick={handleFileChange}/>
           </label>
         </div>
         <Tablestudents table_cols = {cols} table_heading = {table_heading_two} table_rows = {table_rows}/>

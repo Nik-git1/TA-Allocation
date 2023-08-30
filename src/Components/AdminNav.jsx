@@ -12,7 +12,7 @@ const LeftDepartment = () => {
       <button className='left-dpt-button mt-2'>
         Something-1
       </button>
-      <button className='left-dpt-button mt-2'>
+      <button className='left-dpt-button mt-2 mb-2'>
         Something-2
       </button>
     </div>
