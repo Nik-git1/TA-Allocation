@@ -7,11 +7,11 @@ const Tablestudents = (props) => {
       <table className="w-full border-collapse border mt-8">
         <thead>
           <tr>
-            <th colSpan={props.table_cols.length} className="bg-gray-300 text-center font-bold p-2">
+            <th colSpan={props.table_cols.length} className="bg-[#3dafaa] text-center font-bold p-2 text-white">
               {props.table_heading}
             </th>
           </tr>
-          <tr className="bg-gray-300">
+          <tr className="bg-[#3dafaa] text-white">
             {props.table_cols.map((col, index) => (
               <th className='border p-2 text-center' key={index}>{col}</th>
             ))}
@@ -28,6 +28,8 @@ const Tablestudents = (props) => {
         </tbody>
       </table>
     </div>
+
+
   );
 };
 
