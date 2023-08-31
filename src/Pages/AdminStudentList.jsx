@@ -1,22 +1,20 @@
-import React from 'react'
-import "../App.css"
-import LeftDepartment from '../Components/AdminNav'
-import RightDepartment from './RightDepartment'
-
+import React from 'react';
+import LeftDepartment from '../Components/AdminNav';
+import RightDepartment from './RightDepartment';
 
 const Main = () => {
   return (
     <div>
-      <div className='grid-container'>
-        <div className='column left-container-dpt'>
-            <LeftDepartment/>
+      <div className='grid grid-cols-1 md:grid-cols-7 h-screen'>
+        <div className='md:col-span-1'>
+          <LeftDepartment />
         </div>
-        <div className='column right-container-dpt'>
-            <RightDepartment/>
-        </div>    
+        <div className='md:col-span-6 mt-6'>
+          <RightDepartment />
+        </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default Main
+export default Main;

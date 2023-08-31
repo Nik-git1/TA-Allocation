@@ -45,8 +45,7 @@ const RightDepartment = () => {
             <input type="file" accept=".csv" className="hidden" onClick={handleFileChange}/>
           </label>
         </div>
-        <Tablestudents table_cols = {cols} table_heading = {table_heading_two} table_rows = {table_rows}/>
-        <Tablestudents table_cols = {cols} table_heading = {table_heading_three} table_rows = {table_rows}/>        
+        <Tablestudents table_cols = {cols} table_heading = {table_heading_two} table_rows = {table_rows}/>      
     </div>
   )
 }
