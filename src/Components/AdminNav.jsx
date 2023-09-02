@@ -3,18 +3,20 @@ import React from 'react';
 
 const LeftDepartment = () => {
   return (
-    <div className='sidebar bg-gray-300'>
-      <img className='iiitd-img h-16 w-full relative pt-5' src='./images/iiitd_img.png' alt='not available'/>
-      <h4 className='text-center mt-4'>CSE<br/>Department</h4>
-      <button className='left-dpt-button mt-4'>
-        Courses List
-      </button>
-      <button className='left-dpt-button mt-2'>
-        Something-1
-      </button>
-      <button className='left-dpt-button mt-2'>
-        Something-2
-      </button>
+    <div className='bg-[#3dafaa] h-screen w-auto'>
+      <div className='bg-white'>
+        <img className='h-16 w-full relative pt-5' src='./images/iiitd_img.png' alt='not available'/>
+        <h4 className='text-center mt-4 font-bold'>CSE<br/>Department</h4>
+      </div>
+      <div className='bg-white h-4'></div>
+      <div className='flex flex-col'>
+        <button className='bg-[#3dafaa] h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold'>Dash Board</button>        
+        <hr className='border-t-2'/>
+        <button className='bg-[#3dafaa] h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold'>Student Lists</button>
+        <hr className='border-t-2'/>
+        <button className='bg-[#3dafaa] h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold'>Rounds</button>
+        <hr className='border-t-2'/>
+      </div>
     </div>
   );
 };
