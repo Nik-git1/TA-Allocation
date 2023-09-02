@@ -39,7 +39,7 @@ const RightDepartment = () => {
   return (
     <div className='mt-2'>
       <h3 className='font-bold ml-2'>Eligble Students of Monsoon 2023</h3>
-      <Tablestudents table_cols = {cols} table_heading = {table_heading_two} table_rows = {table_rows}/>      
+      <Tablestudents/>      
     </div>
   )
 }
