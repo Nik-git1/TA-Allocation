@@ -1,21 +1,20 @@
-const connectToMongo = require('./db');
-const express = require('express')
-var cors = require('cors') 
+const express = require("express");
+const errorHandler = require("./middleware/errorHandler");
+const connectDb = require("./config/dbConnection");
+const dotenv = require("dotenv").config();
+var cors = require('cors')
 
-connectToMongo();
-const app = express()
-const port = 5000
+const app = express();
+const port = process.env.PORT || 5000;
 
+connectDb();
 app.use(cors())
-app.use(express.json())
-
-// // Available Routes
-app.use('/api/auth', require('./routes/student'))
-app.use('/api/course', require('./routes/course.js'))
-app.use('/api/allocation', require('./routes/allocation'))
-
-
+app.use(express.json());
+app.use("/api/student", require("./routes/studentRoutes"));
+app.use("/api/course", require("./routes/courseRoutes"));
+app.use("/api/allocation", require("./routes/allocationRoutes"));
+app.use(errorHandler);
 
 app.listen(port, () => {
-  console.log(`iNotebook backend listening at http://localhost:${port}`)
-})
+    console.log(`Server is running on port ${port}`);
+});

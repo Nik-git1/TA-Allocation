@@ -1,48 +1,46 @@
 const mongoose = require('mongoose');
 
 const studentSchema = new mongoose.Schema({
-  Name: {
-    type: String,
-    required: true,
-  },
-  EmailID: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  Gender: {
-    type: String,
-    enum: ['Male', 'Female', 'Other'], // Adjust the enum values as needed
-  },
-  Program: {
-    type: String,
-    required: true,
-  },
-  Department: {
-    type: String,
-    required: true,
-  },
-  RollNo: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  MandatoryTA: {
-    type: Boolean,
-    required: true,
-    default:false,
-  },
-  Year: {
-    type: Number,
-    required: true,
-  },
-  Allocated: {
-    type: Boolean,
-    required: true,
-    default:false, // Set a default value or adjust as needed
-  },
+    name: {
+        type: String,
+        required: true,
+    },
+    emailId: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+    gender: {
+        type: String,
+        enum: ['Male', 'Female', 'Other'], // Adjust the enum values as needed
+    },
+    program: {
+        type: String,
+        required: true,
+    },
+    department: {
+        type: String,
+        required: true,
+    },
+    rollNo: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+    mandatoryTa: {
+        type: Boolean,
+        required: true,
+        default: false,
+    },
+    year: {
+        type: Number,
+        required: true,
+    },
+    allocated: {
+        type: Boolean,
+        required: true,
+        default: false, // Set a default value or adjust as needed
+    },
 });
 
-const Student = mongoose.model('Student', studentSchema);
-
-module.exports = Student;
+module.exports = mongoose.model('Student', studentSchema);

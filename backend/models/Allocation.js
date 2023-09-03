@@ -1,40 +1,38 @@
 const mongoose = require('mongoose');
 
 const allocationSchema = new mongoose.Schema({
-  StudentName: {
-    type: String,
-    required: true,
-  },
-  EmailID: {
-    type: String,
-    required: true,
-  },
-  RollNo: {
-    type: String,
-    required: true,
-  },
-  StudentDepartment: {
-    type: String,
-    required: true,
-  },
-  CourseDepartment: {
-    type: String,
-    required: true,
-  },
-  AllocatedOn: {
-    type: Date,
-    default: Date.now, // Set a default value to the current date and time
-  },
-  CourseName: {
-    type: String,
-    required: true,
-  },
-  CourseCode: {
-    type: String,
-    required: true,
-  },
+    studentName: {
+        type: String,
+        required: true,
+    },
+    emailId: {
+        type: String,
+        required: true,
+    },
+    rollNo: {
+        type: String,
+        required: true,
+    },
+    studentDepartment: {
+        type: String,
+        required: true,
+    },
+    courseDepartment: {
+        type: String,
+        required: true,
+    },
+    allocatedOn: {
+        type: Date,
+        default: Date.now, // Set a default value to the current date and time
+    },
+    courseName: {
+        type: String,
+        required: true,
+    },
+    courseCode: {
+        type: String,
+        required: true,
+    },
 });
 
-const Allocation = mongoose.model('Allocation', allocationSchema);
-
-module.exports = Allocation;
+module.exports = mongoose.model('Allocation', allocationSchema);
