@@ -3,10 +3,7 @@ import { AiOutlineSearch } from 'react-icons/ai';
 import "../App.css";
 
 const Department = (props) => {
-  const textStyle = {
-    fontSize: "24px",
-    fontWeight: "bold",
-  };
+
 
   return (
     <div className="">
