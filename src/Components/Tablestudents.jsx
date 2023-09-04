@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AiOutlineSearch } from 'react-icons/ai';
 import "../App.css";
 import Papa from 'papaparse';
@@ -6,6 +6,12 @@ import Papa from 'papaparse';
 const Tablestudents = () => {
   const [isCsvRead, setIsCsvRead] = useState(false);
   const [csvData, setCsvData] = useState([]); // State to hold parsed CSV data
+  const [invalidHeaders, setInvalidHeaders] = useState(new Set());
+
+  const allowedHeaders = new Set([
+    'name', 'emailid', 'gender', 'program', 'department',
+    'rollno', 'mandatoryta', 'year', 'allocated'
+  ]);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -13,8 +19,20 @@ const Tablestudents = () => {
       Papa.parse(file, {
         complete: (result) => {
           // result.data contains the parsed CSV data as an array of arrays
-          setCsvData(result.data);
-          setIsCsvRead(true); // Set the flag to indicate successful CSV reading
+          const headerRow = result.data[0];
+          const updatedHeaderRow = headerRow.map((header, index) => {
+            const updatedHeader = String(header).replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+            if (allowedHeaders.has(updatedHeader)) {
+              return updatedHeader;
+            } else {
+              setInvalidHeaders((prevInvalidHeaders) => new Set(prevInvalidHeaders).add(index));
+              return header;
+            }
+          });
+
+          // Update the state with the modified header row and valid data rows
+          setCsvData([updatedHeaderRow, ...result.data.slice(1)]);
+          setIsCsvRead(true);
         },
         error: (error) => {
           console.error("Error reading CSV:", error);
@@ -52,14 +70,16 @@ const Tablestudents = () => {
       <table className="w-full border-collapse border mt-4">
         <thead>
           <tr>
-            <th colSpan={csvData[0]?.length} className="bg-[#3dafaa] text-center font-bold p-2 text-white">
+            <th colSpan={csvData[0]?.length - invalidHeaders.size} className="bg-[#3dafaa] text-center font-bold p-2 text-white">
               CSV Data
             </th>
           </tr>
           {csvData.length > 0 && (
             <tr className="bg-[#3dafaa] text-white">
               {csvData[0].map((col, index) => (
-                <th className='border p-2 text-center' key={index}>{col}</th>
+                !invalidHeaders.has(index) && (                 
+                  <th className='border p-2 text-center' key={index}>{col}</th>
+                )
               ))}
             </tr>
           )}
@@ -68,7 +88,9 @@ const Tablestudents = () => {
           {csvData.slice(1).map((row, index) => (
             <tr className='text-center' key={index}>
               {row.map((data, ind) => (
-                <td className='border p-2' key={ind}>{data}</td>
+                !invalidHeaders.has(ind) && (
+                  <td className='border p-2' key={ind}>{data}</td>
+                )
               ))}
             </tr>
           ))}
