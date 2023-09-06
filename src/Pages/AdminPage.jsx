@@ -10,10 +10,10 @@ import CoursePage from '../Components/coursePage'; // Import the CoursePage comp
 
 const AdminPage = () => {
   return (
-    <div>
+    <div className=''>
       <AdminNav />
       <div className="flex">
-        <div className="w-1/6 min-w-[300px]">
+        <div className="w-1/6 min-w-[300px] z-10">
           <SideBar />
         </div>
         <div className="flex-1">

@@ -22,7 +22,7 @@ const Tablestudents = () => {
     } else {
       // Render the header row using students[0] when students are available
       return (
-        <tr className="bg-[#3dafaa] text-white">
+        <tr className="bg-[#3dafaa] text-white sticky top-28">
           {Object.values(students[0]).map((data, index) => (
             <th className='border p-2 text-center' key={index}>{data}</th>
           ))}
@@ -32,12 +32,12 @@ const Tablestudents = () => {
   };
 
   return (
-    <div>
+    <div className='overscroll-contain'>
       <table className="w-full border-collapse border mt-4">
         <thead>
           {renderHeaderRow()}
         </thead>
-        <tbody>
+        <tbody className='overscroll-contain'>
           {students.slice(1).map((student, index) => (
             <tr className='text-center' key={index}>
               {Object.values(student).map((data, ind) => (
