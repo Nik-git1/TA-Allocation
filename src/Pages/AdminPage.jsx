@@ -3,7 +3,6 @@ import AdminNav from '../Components/AdminNavbar';
 import SideBar from '../Components/Sidebar';
 import AdminStudent from '../Components/AdminStudent';
 import AdminCourse from '../Components/AdminCourse';
-import Footer from '../Components/footer';
 import { useLocation , BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Department from '../Components/DeptView';
 import CoursePage from '../Components/coursePage'; // Import the CoursePage component

@@ -84,9 +84,9 @@ const Department = () => {
           </form>
         </div>
       </div>
-
-      <table className="w-full border-collapse border mt-4">
-        <thead>
+      <div className="max-w-[1230px] max-h-[1000px] overflow-auto mt-4 ">
+      <table className=" border-collapse border">
+        <thead className="sticky top-0">
           <tr>
             <th
               colSpan={filteredCourses.length}
@@ -125,6 +125,7 @@ const Department = () => {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 };
