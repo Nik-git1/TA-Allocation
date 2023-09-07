@@ -7,6 +7,7 @@ import Footer from '../Components/footer';
 import { useLocation , BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Department from '../Components/DeptView';
 import CoursePage from '../Components/coursePage'; // Import the CoursePage component
+import DashboardCardList from '../Components/DashboardCardList';
 
 const AdminPage = () => {
   return (
@@ -21,6 +22,7 @@ const AdminPage = () => {
             <Route element={<AdminStudent />} path='/' />
             <Route element={<AdminCourse />} path='/course' />
             <Route element={<Department />} path='/allocate' />
+            <Route element={<DashboardCardList />} path='/dashboard' />
             <Route element={<CoursePage />} path='/course/:courseName' /> {/* Add the dynamic route */}
           </Routes>
         </div>
