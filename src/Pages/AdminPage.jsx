@@ -7,13 +7,13 @@ import Footer from '../Components/footer';
 import { useLocation , BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Department from '../Components/DeptView';
 import CoursePage from '../Components/coursePage'; // Import the CoursePage component
- 
+
 const AdminPage = () => {
   return (
-    <div className=''>
-      <AdminNav />
+    <div className='fixed w-full'>
+      <AdminNav /> 
       <div className="flex">
-        <div className="w-1/6 min-w-[300px] z-10">
+        <div className="w-1/6 min-w-[300px]">
           <SideBar />
         </div>
         <div className="flex-1">
