@@ -25,7 +25,7 @@ const AdminNav = () => {
 
 
   return (
-    <div className="bg-white sticky top-0">
+    <div className="bg-white">
       <div className="flex items-center">
         {/* Image */}
         <img className="h-16 relative pt-5" src="./images/iiitd_img.png" alt="not available" />

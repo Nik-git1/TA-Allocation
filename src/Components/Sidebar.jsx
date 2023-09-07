@@ -3,8 +3,7 @@ import { Link } from 'react-router-dom';
 
 const SideBar = () => {
   return (
-    <div className='bg-[#3dafaa] h-screen w-[250px] fixed text-center'>
-      <div className='bg-white h-4'></div>
+    <div className='bg-[#3dafaa] h-screen text-center w-[285px] mt-4'>
       <div className='flex flex-col'>
         <Link to="/dashboard" className='bg-[#3dafaa]   p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold'>
           Dashboard
