@@ -4,6 +4,7 @@ import { BiSolidEditAlt } from 'react-icons/bi';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 import { RxCross2 } from 'react-icons/rx';
 import { PiCheckBold } from 'react-icons/pi';
+import Swal from 'sweetalert2'
 
 const CourseTable = () => {
   const { course, setCourse } = useContext(CourseContext);
@@ -26,17 +27,47 @@ const CourseTable = () => {
     setEditingRow(-1);
   };
 
+  const handleDelete = (rowIndex) => {
+    // Implement your delete logic here
+    // For demo purposes, we'll directly update the course data
+    const updatedCourse = [...course];
+    updatedCourse.splice(rowIndex, 1);
+    setCourse(updatedCourse);
+  };
+
+  const deleteAlert = (rowIndex) => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleDelete(rowIndex);
+        Swal.fire(
+          'Deleted!',
+          'Your file has been deleted.',
+          'success'
+        )
+      }
+    })
+  }
+
   const renderRow = (student, index) => {
     const isEditing = index === editingRow;
+    const editingRowClass = 'bg-gray-300'; // Define the CSS class for the editing row background color
 
     return (
-      <tr className='text-center' key={index}>
+      <tr className={`text-center ${isEditing ? editingRowClass : ''}`} key={index}>
         {Object.keys(student).map((key, ind) => (
           <td className='border p-2' key={ind}>
             {isEditing ? (
               <input
                 type='text'
-                value={course[index][key]} // Use the course data for input value
+                value={course[index][key]}
                 onChange={(e) => {
                   const updatedCourse = [...course];
                   updatedCourse[index][key] = e.target.value;
@@ -44,7 +75,7 @@ const CourseTable = () => {
                 }}
               />
             ) : (
-              course[index][key] // Use the course data for display
+              course[index][key]
             )}
           </td>
         ))}
@@ -74,7 +105,7 @@ const CourseTable = () => {
               </button>
               <button
                 className='bg-red-500 text-white px-2 py-1 rounded-md flex items-center'
-                onClick={() => handleDelete(index)}
+                onClick={() => deleteAlert(index)}
               >
                 <RiDeleteBin6Line /> Delete
               </button>
@@ -85,14 +116,6 @@ const CourseTable = () => {
     );
   };
 
-  const handleDelete = (rowIndex) => {
-    // Implement your delete logic here
-    // For demo purposes, we'll directly update the course data
-    const updatedCourse = [...course];
-    updatedCourse.splice(rowIndex, 1);
-    setCourse(updatedCourse);
-  };
-  
   const renderHeaderRow = () => {
     if (course.length === 0) {
       return (
@@ -104,10 +127,9 @@ const CourseTable = () => {
       );
     } else {
       return (
-        
         <tr className="bg-[#3dafaa] text-white">
-          {Object.keys(course[0]).map((key, index) => (
-            <th className='border p-2 text-center' key={index}>{key}</th>
+          {Object.keys(course[0]).map((data, index) => (
+            <th className='border p-2 text-center' key={index}>{data}</th>
           ))}
           <th className='border p-2 text-center'>Actions</th>
         </tr>
