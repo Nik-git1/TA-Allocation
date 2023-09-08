@@ -32,9 +32,9 @@ const CourseTable = () => {
   };
 
   return (
-    <div>
-      <table className="w-full border-collapse border mt-4">
-        <thead>
+    <div className='overflow-auto max-w-[1230px] max-h-[1000px] mt-4'>
+      <table className="w-full border-collapse border">
+        <thead className='sticky top-0'>
           {renderHeaderRow()}
         </thead>
         <tbody>
