@@ -26,6 +26,7 @@ const Tablestudents = () => {
           {Object.values(students[0]).map((data, index) => (
             <th className='border p-2 text-center' key={index}>{data}</th>
           ))}
+          <th className='border p-2 text-center'>Edit</th>
         </tr>
       );
     }
@@ -45,6 +46,11 @@ const Tablestudents = () => {
               {Object.values(student).map((data, ind) => (
                 <td className='border p-2' key={ind}>{data}</td>
               ))}
+              <td className='border p-2'>
+                <button className='bg-blue-500 text-white px-2 py-1 rounded-md'>
+                  Edit
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
