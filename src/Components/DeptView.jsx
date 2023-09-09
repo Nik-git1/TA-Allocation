@@ -97,7 +97,7 @@ const Department = () => {
           </tr>
           {filteredCourses.length > 0 && (
             <tr className="bg-[#3dafaa] text-white">
-              {Object.keys(filteredCourses[0]).map((col, index) => (
+              {Object.values(filteredCourses[0]).map((col, index) => (
                 <th className="border p-2 text-center" key={index}>
                   {col}
                 </th>

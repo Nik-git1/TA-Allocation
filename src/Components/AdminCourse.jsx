@@ -41,8 +41,8 @@ const CourseTable = () => {
       text: "You won't be able to revert this!",
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
       confirmButtonText: 'Yes, delete it!'
     }).then((result) => {
       if (result.isConfirmed) {
@@ -128,7 +128,7 @@ const CourseTable = () => {
     } else {
       return (
         <tr className="bg-[#3dafaa] text-white">
-          {Object.keys(course[0]).map((data, index) => (
+          {Object.values(course[0]).map((data, index) => (
             <th className='border p-2 text-center' key={index}>{data}</th>
           ))}
           <th className='border p-2 text-center'>Actions</th>
@@ -141,7 +141,7 @@ const CourseTable = () => {
     <div className='overflow-auto max-w-[1230px] max-h-[1000px] mt-4'>
       <table className='w-full border-collapse border'>
         <thead className='sticky top-0'>{renderHeaderRow()}</thead>
-        <tbody>{course.map((student, index) => renderRow(student, index))}</tbody>
+        <tbody>{course.slice(1).map((student, index) => renderRow(student, index))}</tbody>
       </table>
     </div>
   );
