@@ -4,8 +4,8 @@ import SideBar from '../Components/Sidebar';
 import AdminStudent from '../Components/AdminStudent';
 import AdminCourse from '../Components/AdminCourse';
 import { useLocation , BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Department from '../Components/DeptView';
-import CoursePage from '../Components/coursePage'; // Import the CoursePage component
+import Department from '../Components/AdminAllocate';
+import CoursePage from '../Components/CoursePage'; // Import the CoursePage component
 import DashboardCardList from '../Components/DashboardCardList';
 
 const AdminPage = () => {

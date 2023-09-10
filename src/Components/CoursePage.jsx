@@ -11,19 +11,19 @@ const CoursePage = () => {
 
   const allocatedStudents = students.filter(
     (student) =>
-    student[2] === selectedDepartment && 
-    student[3] === "Yes" && 
-    student[4] === selectedCourse
+    student[2] === selectedDepartment 
+    // student[3] === "Yes" && 
+    // student[4] === selectedCourse
   );
 
   const availableStudents = students.filter(
     (student) =>
-      student[2] === selectedDepartment && 
-      student[3] === "No" 
+      student[2] === selectedDepartment
+      //  && 
+      // student[3] === "No" 
   );
 
   const handleStudentIdClick = (id) => {
-
     console.log(id)
     allocateStudent(id,selectedCourse);
     setClickedStudentName(id);
@@ -31,7 +31,7 @@ const CoursePage = () => {
 
 
   useEffect(() => {
-    console.log(availableStudents)
+    console.log(students)
   }, [students]);
 
   return (

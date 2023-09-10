@@ -43,7 +43,7 @@ const StudentState = (props) => {
 
   return (
     <StudentContext.Provider
-      value={{ students, getStudentsFromFile,allocateStudent,setStudents }}
+      value={{ students,getStudentsFromFile,allocateStudent,setStudents }}
     >
       {props.children}
     </StudentContext.Provider>
