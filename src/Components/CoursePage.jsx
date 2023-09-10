@@ -5,37 +5,42 @@ import DepartmentContext from "../context/DepartmentContext";
 
 const CoursePage = () => {
   const { selectedCourse } = useContext(CourseContext);
-  const { students, allocateStudent } = useContext(StudentContext);
+  const { students, allocateStudent, deallocateStudent } = useContext(
+    StudentContext
+  );
   const { selectedDepartment } = useContext(DepartmentContext);
   const [clickedStudentName, setClickedStudentName] = useState(null);
+  const [allocatedStudents, setAllocatedStudents] = useState([]);
 
-  const allocatedStudents = students.filter(
-    (student) =>
-    student[2] === selectedDepartment 
-    // student[3] === "Yes" && 
-    // student[4] === selectedCourse
-  );
+  // useEffect to update allocatedStudents when students array changes
+  useEffect(() => {
+    const updatedAllocatedStudents = students.filter(
+      (student) =>
+        student[2] === selectedDepartment &&
+        student[3] === "Yes" &&
+        student[4] === selectedCourse
+    );
+    setAllocatedStudents(updatedAllocatedStudents);
+  }, [students, selectedDepartment, selectedCourse]);
 
-  const availableStudents = students.filter(
-    (student) =>
-      student[2] === selectedDepartment
-      //  && 
-      // student[3] === "No" 
-  );
-
-  const handleStudentIdClick = (id) => {
-    console.log(id)
-    allocateStudent(id,selectedCourse);
+  const Allocate = (id) => {
+    console.log(id);
+    allocateStudent(id, selectedCourse);
     setClickedStudentName(id);
   };
 
+  const DeAllocate = (id) => {
+    console.log("in" + id);
+    deallocateStudent(id, selectedCourse);
+    setClickedStudentName(id);
+  };
 
   useEffect(() => {
-    console.log(students)
-  }, [students]);
+    console.log(students);
+  }, [allocatedStudents]);
 
   return (
-    <div>
+    <div style={{ maxHeight: "900px", overflow: "auto" }}>
       <h1 className="text-[#3dafaa] text-3xl font-bold m-5">
         {selectedCourse}
       </h1>
@@ -49,18 +54,20 @@ const CoursePage = () => {
             <tr className="bg-[#3dafaa] text-white">
               <th className="border p-2 text-center">ID</th>
               <th className="border p-2 text-center">Name</th>
+              <th className="border p-2 text-center">Action</th>
             </tr>
           </thead>
           <tbody>
             {allocatedStudents.map((student, index) => (
               <tr className="text-center" key={index}>
                 <td className="border p-2">{student[0]}</td>
+                <td className="border p-2">{student[1]}</td>
                 <td className="border p-2">
                   <button
-                    onClick={() => handleStudentIdClick(student[0])}
-                    className="bg-[#3dafaa] text-white px-4 py-2 rounded cursor-pointer font-bold"
+                    onClick={() => DeAllocate(student[0])}
+                    className={`bg-[#af6d3d] text-white px-4 py-2 rounded cursor-pointer font-bold`}
                   >
-                    {student[1]}
+                    Deallocate
                   </button>
                 </td>
               </tr>
@@ -78,18 +85,24 @@ const CoursePage = () => {
             <tr className="bg-[#3dafaa] text-white">
               <th className="border p-2 text-center">ID</th>
               <th className="border p-2 text-center">Name</th>
+              <th className="border p-2 text-center">Course</th>
+              <th className="border p-2 text-center">Action</th>
             </tr>
           </thead>
           <tbody>
-            {availableStudents.map((student, index) => (
+            {students.map((student, index) => (
               <tr className="text-center" key={index}>
                 <td className="border p-2">{student[0]}</td>
+                <td className="border p-2">{student[1]}</td>
                 <td className="border p-2">
                   <button
-                    onClick={() => handleStudentIdClick(student[0])}
-                    className="bg-[#3dafaa] text-white px-4 py-2 rounded cursor-pointer font-bold"
+                    onClick={() => Allocate(student[0])}
+                    className={`bg-[#3dafaa] text-white px-4 py-2 rounded cursor-pointer font-bold`}
+                    disabled={student[3] === "Yes"}
                   >
-                    {student[1]}
+                    {student[3] === "Yes"
+                      ? `Allocated to ${student[4]}`
+                      : "Allocate"}
                   </button>
                 </td>
               </tr>

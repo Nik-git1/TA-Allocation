@@ -37,13 +37,24 @@ const StudentState = (props) => {
     setStudents(updatedStudents);
   };
 
+  const deallocateStudent = (studentId, courseName) => {
+    const updatedStudents = students.map((student) => {
+      if (student[0] === studentId) {
+        student[3] = "No"; 
+        student[4] = 'null'; 
+      }
+      return student;
+    });
+    setStudents(updatedStudents);
+  };
+
   useEffect(() => {
     console.log(students);
   }, [students]);
 
   return (
     <StudentContext.Provider
-      value={{ students,getStudentsFromFile,allocateStudent,setStudents }}
+      value={{ students,getStudentsFromFile,allocateStudent,setStudents,deallocateStudent }}
     >
       {props.children}
     </StudentContext.Provider>

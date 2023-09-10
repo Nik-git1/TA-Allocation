@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom"; // Import Link and useHist
 import CourseContext from "../context/CourseContext";
 import DepartmentContext from "../context/DepartmentContext"; 
 import AllocateHeader from "./AllocateHeader";
+
 const Department = () => {
   const [filteredCourses, setfilteredCourses] = useState([])
   const { course, updateSelectedCourse } = useContext(CourseContext);
@@ -28,52 +29,53 @@ const Department = () => {
     navigateTo(`/course/${courseName}`);
   };
 
+  const renderHeaderRow = () => {
+    if (course.length === 0) {
+      return (
+        <tr>
+          <th className="bg-[#3dafaa] text-center font-bold p-2 text-white">
+            Course Data
+          </th>
+        </tr>
+      );
+    } else {
+      return (
+        <tr className="bg-[#3dafaa] text-white">
+          {Object.values(course[0]).map((data, index) => (
+            <th className='border p-2 text-center' key={index}>{data}</th>
+          ))}
+          <th className='border p-2 text-center'>Actions</th>
+        </tr>
+      );
+    }
+  };
+
   return (
     <div>
-     <AllocateHeader/>
+      <AllocateHeader/>
       <div className="max-w-[83vw] max-h-[1500px] overflow-auto mt-4 ">
-   
-      <table className=" border-collapse border">
-        <thead className="sticky top-0">
-          <tr>
-            <th
-              colSpan={filteredCourses.length}
-              className="bg-[#3dafaa] text-center font-bold p-2 text-white sticky -top-10"
-            >
-              Courses
-            </th>
-          </tr>
-          {filteredCourses.length > 0 && (
-            <tr className="bg-[#3dafaa] text-white">
-              {Object.values(filteredCourses[0]).map((col, index) => (
-                <th className="border p-2 text-center" key={index}>
-                  {col}
-                </th>
-              ))}
-            </tr>
-          )}
-        </thead>
-        <tbody>
-          {filteredCourses.map((row, index) => (
-            <tr className="text-center" key={index}>
-              {Object.values(row).map((data, ind) => (
-                <td className="border p-2" key={ind}>
-                  {data}
+        <table className="border-collapse border">
+        <thead className='sticky top-0'>{renderHeaderRow()}</thead>
+          <tbody>
+            {filteredCourses.map((row, index) => (
+              <tr className="text-center" key={index}>
+                {Object.values(row).map((data, ind) => (
+                  <td className="border p-2" key={ind}>
+                    {data}
+                  </td>
+                ))}
+                <td className="border p-2">
+                  <button
+                    onClick={() => allocateCourse(row[5])} // Assuming course name is in the 6th column (index 5)
+                    className="bg-[#3dafaa] text-white px-4 py-2 rounded cursor-pointer font-bold"
+                  >
+                    Allocate
+                  </button>
                 </td>
-              ))}
-              <td className="border p-2">
-                <button
-                  onClick={() => allocateCourse(row[5])} // Assuming course name is in the 6th column (index 5)
-                  className="bg-[#3dafaa] text-white px-4 py-2 rounded cursor-pointer font-bold"
-                >
-                  Allocate
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
