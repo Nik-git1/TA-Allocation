@@ -8,10 +8,12 @@ const courseSchema = new mongoose.Schema({
     code: {
         type: String,
         required: true,
+        unique: true
     },
     name: {
         type: String,
         required: true,
+        unique: true
     },
     instructor: {
         type: String,
@@ -20,6 +22,7 @@ const courseSchema = new mongoose.Schema({
     acronym: {
         type: String,
         required: true,
+        unique: true
     },
     offeredTo: {
         type: String,
