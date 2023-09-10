@@ -40,7 +40,7 @@ const CourseState = (props)=> {
 
 
   return (
-    <CourseContext.Provider value={{ course, getCourse,selectedCourse,updateSelectedCourse }}>
+    <CourseContext.Provider value={{ course, getCourse,selectedCourse,updateSelectedCourse,setCourse }}>
       {props.children}
     </CourseContext.Provider>
   );

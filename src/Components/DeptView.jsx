@@ -84,9 +84,9 @@ const Department = () => {
           </form>
         </div>
       </div>
-
-      <table className="w-full border-collapse border mt-4">
-        <thead>
+      <div className="max-w-[1230px] max-h-[1000px] overflow-auto mt-4 ">
+      <table className=" border-collapse border">
+        <thead className="sticky top-0">
           <tr>
             <th
               colSpan={filteredCourses.length}
@@ -97,7 +97,7 @@ const Department = () => {
           </tr>
           {filteredCourses.length > 0 && (
             <tr className="bg-[#3dafaa] text-white">
-              {Object.keys(filteredCourses[0]).map((col, index) => (
+              {Object.values(filteredCourses[0]).map((col, index) => (
                 <th className="border p-2 text-center" key={index}>
                   {col}
                 </th>
@@ -125,6 +125,7 @@ const Department = () => {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 };
