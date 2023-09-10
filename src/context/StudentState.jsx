@@ -5,6 +5,33 @@ import StudentContext from "./StudentContext";
 const StudentState = (props) => {
   const initStudents = []; 
   const [students, setStudents] = useState(initStudents);
+  const [log, setLog] = useState([])
+
+  const logAction = (action,id,studentName,courseName) => {
+    const timestamp = new Date().toLocaleString(); // Format the timestamp
+
+    const user = "Admin"; // Replace with actual student data or identifier
+    // Create a new log entry
+    const logEntry = {
+      id,
+      studentName,
+      action,
+      user,
+      timestamp,
+      courseName, 
+    };
+    // Update the log state with the new entry by appending it to the existing log array
+    setLog((prevLog) => [...prevLog, logEntry]);
+
+    console.log(log)
+  };
+
+  useEffect(() => {
+    console.log(log)
+  }, [log])
+  
+
+  
 
   const getStudentsFromFile = (event) => {
     const file = event.target.files[0]; // Use event.target.files[0] to get the first selected file
@@ -37,7 +64,7 @@ const StudentState = (props) => {
     setStudents(updatedStudents);
   };
 
-  const deallocateStudent = (studentId, courseName) => {
+  const deallocateStudent = (studentId) => {
     const updatedStudents = students.map((student) => {
       if (student[0] === studentId) {
         student[3] = "No"; 
@@ -50,7 +77,7 @@ const StudentState = (props) => {
 
   return (
     <StudentContext.Provider
-      value={{ students,getStudentsFromFile,allocateStudent,setStudents,deallocateStudent }}
+      value={{ students,getStudentsFromFile,allocateStudent,setStudents,deallocateStudent,logAction,log }}
     >
       {props.children}
     </StudentContext.Provider>

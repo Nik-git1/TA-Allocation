@@ -5,11 +5,11 @@ import DepartmentContext from "../context/DepartmentContext";
 
 const CoursePage = () => {
   const { selectedCourse,selectedCourseTA } = useContext(CourseContext);
-  const { students, allocateStudent, deallocateStudent } = useContext(
+  const { students, allocateStudent, deallocateStudent,logAction } = useContext(
     StudentContext
   );
   const { selectedDepartment } = useContext(DepartmentContext);
-  const [clickedStudentName, setClickedStudentName] = useState(null);
+  const [clickedStudentName, setClickedStudentName] = useState(null);//might be unneccesary
   const [allocatedStudents, setAllocatedStudents] = useState([]);
 
   // useEffect to update allocatedStudents when students array changes
@@ -23,22 +23,23 @@ const CoursePage = () => {
     setAllocatedStudents(updatedAllocatedStudents);
   }, [students, selectedDepartment, selectedCourse]);
 
-  const Allocate = (id) => {
-    console.log(allocatedStudents.length)
-    if(allocatedStudents.length < selectedCourseTA){
+  const Allocate = (id,name) => {
+    if (allocatedStudents.length < selectedCourseTA) {
       console.log(id);
-     allocateStudent(id, selectedCourse);
+      allocateStudent(id, selectedCourse);
       setClickedStudentName(id);
-    }else{
-      console.log("max TAs reached")
+      logAction("Allocate",id,name,selectedCourse);
+    } else {
+      console.log("max TAs reached");
     }
-    
   };
 
-  const DeAllocate = (id) => {
+
+  const DeAllocate = (id,name) => {
     console.log("in" + id);
-    deallocateStudent(id, selectedCourse);
+    deallocateStudent(id);
     setClickedStudentName(id);
+    logAction("DeAllocate",id,name,selectedCourse);
   };
 
   useEffect(() => {
@@ -70,7 +71,7 @@ const CoursePage = () => {
                 <td className="border p-2">{student[1]}</td>
                 <td className="border p-2">
                   <button
-                    onClick={() => DeAllocate(student[0])}
+                    onClick={() => DeAllocate(student[0],student[1])}
                     className={`bg-[#ff0909] text-white px-4 py-2 rounded cursor-pointer font-bold`}
                   >
                     Deallocate
@@ -102,7 +103,7 @@ const CoursePage = () => {
                 <td className="border p-2">{student[1]}</td>
                 <td className="border p-2">
                   <button
-                    onClick={() => Allocate(student[0])}
+                    onClick={() => Allocate(student[0],student[1])}
                     className={`bg-[#3dafaa] text-white px-4 py-2 rounded cursor-pointer font-bold`}
                     disabled={student[3] === "Yes"}
                   >
