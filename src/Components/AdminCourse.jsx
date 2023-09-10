@@ -57,9 +57,14 @@ const CourseTable = () => {
   }
 
   const renderRow = (student, index) => {
+    // Skip the first row in the table body
+    if (index === 0) {
+      return null;
+    }
+  
     const isEditing = index === editingRow;
     const editingRowClass = 'bg-gray-300'; // Define the CSS class for the editing row background color
-
+  
     return (
       <tr className={`text-center ${isEditing ? editingRowClass : ''}`} key={index}>
         {Object.keys(student).map((key, ind) => (
@@ -115,13 +120,14 @@ const CourseTable = () => {
       </tr>
     );
   };
+  
 
   const renderHeaderRow = () => {
     if (course.length === 0) {
       return (
         <tr>
           <th className="bg-[#3dafaa] text-center font-bold p-2 text-white">
-            XLSX Data
+            Course Data
           </th>
         </tr>
       );
@@ -138,7 +144,7 @@ const CourseTable = () => {
   };
 
   return (
-    <div className='overflow-auto max-w-[1230px] max-h-[1000px] mt-4'>
+    <div className='overflow-auto max-w-[83vw] max-h-[1000px] mt-4'>
       <table className='w-full border-collapse border'>
         <thead className='sticky top-0'>{renderHeaderRow()}</thead>
         <tbody>{course.slice(1).map((student, index) => renderRow(student, index))}</tbody>

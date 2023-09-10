@@ -4,9 +4,10 @@ import SideBar from '../Components/Sidebar';
 import AdminStudent from '../Components/AdminStudent';
 import AdminCourse from '../Components/AdminCourse';
 import { useLocation , BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Department from '../Components/DeptView';
-import CoursePage from '../Components/coursePage'; // Import the CoursePage component
+import Department from '../Components/AdminAllocate';
+import CoursePage from '../Components/CoursePage'; // Import the CoursePage component
 import DashboardCardList from '../Components/DashboardCardList';
+import AdminLog from '../Components/AdminLog'
 
 const AdminPage = () => {
   return (
@@ -22,7 +23,8 @@ const AdminPage = () => {
             <Route element={<AdminCourse />} path='/course' />
             <Route element={<Department />} path='/allocate' />
             <Route element={<DashboardCardList />} path='/dashboard' />
-            <Route element={<CoursePage />} path='/course/:courseName' /> {/* Add the dynamic route */}
+            <Route element={<CoursePage />} path='/course/:courseName' /> 
+            <Route element={<AdminLog />} path='/log' /> 
           </Routes>
         </div>
       </div>

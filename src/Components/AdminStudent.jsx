@@ -58,9 +58,13 @@ const Tablestudents = () => {
   }
 
   const renderRow = (student, index) => {
+    if (index === 0) {
+      return null;
+    }
+  
     const isEditing = index === editingRow;
     const editingRowClass = 'bg-gray-300'; // Define the CSS class for the editing row background color
-
+  
     return (
       <tr className={`text-center ${isEditing ? editingRowClass : ''}`} key={index}>
         {Object.keys(student).map((key, ind) => (
@@ -116,7 +120,7 @@ const Tablestudents = () => {
       </tr>
     );
   };
-
+  
   const renderHeaderRow = () => {
     if (students.length === 0) {
       // Render the header row with "XLSX Data" when there are no students
@@ -142,7 +146,7 @@ const Tablestudents = () => {
 
   return (
     
-    <div className='overflow-auto max-w-[1230px] max-h-[1000px] mt-4'>
+    <div className='overflow-auto max-w-[83vw] max-h-[1000px] mt-4'>
       
       <table className="w-full border-collapse border">
         <thead className='sticky top-0'>
