@@ -7,6 +7,7 @@ const CourseState = (props)=> {
   const [course, setCourse] = useState(initCourse);
 
   const [selectedCourse,setSelectedCourse] = useState("CSE");
+  const [selectedCourseTA, setselectedCourseTA] = useState(0);
 
   const getCourse = (event) => {
     const file = event.target.files[0]; // Use event.target.files[0] to get the first selected file
@@ -29,18 +30,14 @@ const CourseState = (props)=> {
   };
 
   const updateSelectedCourse = (courseName) => {
-    console.log(courseName)
     setSelectedCourse(courseName);
+    const selectedCourseData = course.find((row) => row[5] === courseName);
+
+    setselectedCourseTA(selectedCourseData[10])
   };
 
-
-  useEffect(() => {
-    console.log(selectedCourse);
-  }, [selectedCourse]);
-
-
   return (
-    <CourseContext.Provider value={{ course, getCourse,selectedCourse,updateSelectedCourse,setCourse }}>
+    <CourseContext.Provider value={{ course, getCourse,selectedCourse,updateSelectedCourse,setCourse,selectedCourseTA }}>
       {props.children}
     </CourseContext.Provider>
   );

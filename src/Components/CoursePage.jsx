@@ -4,7 +4,7 @@ import StudentContext from "../context/StudentContext";
 import DepartmentContext from "../context/DepartmentContext";
 
 const CoursePage = () => {
-  const { selectedCourse } = useContext(CourseContext);
+  const { selectedCourse,selectedCourseTA } = useContext(CourseContext);
   const { students, allocateStudent, deallocateStudent } = useContext(
     StudentContext
   );
@@ -24,9 +24,15 @@ const CoursePage = () => {
   }, [students, selectedDepartment, selectedCourse]);
 
   const Allocate = (id) => {
-    console.log(id);
-    allocateStudent(id, selectedCourse);
-    setClickedStudentName(id);
+    console.log(allocatedStudents.length)
+    if(allocatedStudents.length < selectedCourseTA){
+      console.log(id);
+     allocateStudent(id, selectedCourse);
+      setClickedStudentName(id);
+    }else{
+      console.log("max TAs reached")
+    }
+    
   };
 
   const DeAllocate = (id) => {
@@ -36,7 +42,7 @@ const CoursePage = () => {
   };
 
   useEffect(() => {
-    console.log(students);
+    console.log(selectedCourseTA)
   }, [allocatedStudents]);
 
   return (
@@ -65,7 +71,7 @@ const CoursePage = () => {
                 <td className="border p-2">
                   <button
                     onClick={() => DeAllocate(student[0])}
-                    className={`bg-[#af6d3d] text-white px-4 py-2 rounded cursor-pointer font-bold`}
+                    className={`bg-[#ff0909] text-white px-4 py-2 rounded cursor-pointer font-bold`}
                   >
                     Deallocate
                   </button>

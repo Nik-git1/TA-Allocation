@@ -48,10 +48,6 @@ const StudentState = (props) => {
     setStudents(updatedStudents);
   };
 
-  useEffect(() => {
-    console.log(students);
-  }, [students]);
-
   return (
     <StudentContext.Provider
       value={{ students,getStudentsFromFile,allocateStudent,setStudents,deallocateStudent }}
