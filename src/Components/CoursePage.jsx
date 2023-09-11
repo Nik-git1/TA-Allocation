@@ -32,11 +32,16 @@ const CoursePage = () => {
       logAction("Allocate",id,name,selectedCourse);
     } else {
       console.log("max TAs reached");
-      Swal.fire(
-        "Can't Allocate!",
-        'TA allocation limit exceeded.',
-        'success'
-      )
+      // Swal.fire(
+      //   "Can't Allocate!",
+      //   'TA allocation limit exceeded.',
+      //   'success'
+      // )
+      Swal.fire({
+        icon: 'error',
+        title: "Can't Allocate!",
+        text: 'TA allocation limit exceeded.',
+      })
     }
   };
 
