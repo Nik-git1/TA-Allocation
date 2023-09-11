@@ -3,9 +3,12 @@ import React from 'react'
 const DashboardCardList = () => {
   const list = [
     {dept_name : "CSE",dept_admin_name:"Name",total_courses: 10,total_ta_needed: 100,total_ta_alloted: 72,ta_lef:28},
-    {dept_name : "CSE",dept_admin_name:"Name",total_courses: 10,total_ta_needed: 100,total_ta_alloted: 72,ta_lef:28},
-    {dept_name : "CSE",dept_admin_name:"Name",total_courses: 10,total_ta_needed: 100,total_ta_alloted: 72,ta_lef:28},
-    {dept_name : "CSE",dept_admin_name:"Name",total_courses: 10,total_ta_needed: 100,total_ta_alloted: 72,ta_lef:28},
+    {dept_name : "CB",dept_admin_name:"Name",total_courses: 10,total_ta_needed: 100,total_ta_alloted: 72,ta_lef:28},
+    {dept_name : "MATHS",dept_admin_name:"Name",total_courses: 10,total_ta_needed: 100,total_ta_alloted: 72,ta_lef:28},
+    {dept_name : "HCD",dept_admin_name:"Name",total_courses: 10,total_ta_needed: 100,total_ta_alloted: 72,ta_lef:28},
+    {dept_name : "ECE",dept_admin_name:"Name",total_courses: 10,total_ta_needed: 100,total_ta_alloted: 72,ta_lef:28},
+    {dept_name : "SSH",dept_admin_name:"Name",total_courses: 10,total_ta_needed: 100,total_ta_alloted: 72,ta_lef:28},
+
   ]
 
   return (

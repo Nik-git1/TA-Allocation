@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import CourseContext from "../context/CourseContext";
 import StudentContext from "../context/StudentContext";
 import DepartmentContext from "../context/DepartmentContext";
+import Swal from 'sweetalert2'
 
 const CoursePage = () => {
   const { selectedCourse,selectedCourseTA } = useContext(CourseContext);
@@ -31,6 +32,11 @@ const CoursePage = () => {
       logAction("Allocate",id,name,selectedCourse);
     } else {
       console.log("max TAs reached");
+      Swal.fire(
+        "Can't Allocate!",
+        'TA allocation limit exceeded.',
+        'success'
+      )
     }
   };
 

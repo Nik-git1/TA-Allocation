@@ -24,6 +24,7 @@ const AdminNav = () => {
   const placeholderText = location.pathname === '/course' ? 'Search Course':'Search Student..';
   const isAllocate = location.pathname === '/allocate';
   const isDashboard = location.pathname === '/dashboard';
+  const isLogs = location.pathname === '/log';
   
   const [title,setTitle] = useState('Eligible Students of Monsoon 2023');
   const [buttontext, setButtonText] = useState('Student');
@@ -52,7 +53,7 @@ const AdminNav = () => {
   }, [isAllocate,isCourseRoute]);
 
   const renderSearchBarAndUploadButton = () => {
-    if (isAllocate || isDashboard || location.pathname.startsWith('/course/')) {
+    if (isAllocate || isDashboard || location.pathname.startsWith('/course/') || isLogs) {
       return null;
     } else {
       return (
