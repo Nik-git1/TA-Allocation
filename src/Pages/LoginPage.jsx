@@ -5,20 +5,31 @@ const LoginPage = () => {
   const [selectedOption, setSelectedOption] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate(); // Initialize the navigate function
+  const [signInButton,setsignInButton] = useState(false)
+  const navigate = useNavigate(); 
 
   const handleLoginOptionClick = (option) => {
     setSelectedOption(option);
   };
-
+  const handleTaForm = () => {
+    navigate(`/TaForm`);
+  }
+  const handleSignIn = () => {
+    setsignInButton(true)
+  }
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Check if email and password are filled and a login option is selected
-    if (email && password && selectedOption) {
-      // Navigate to the selected option's URL
-      navigate(`/${selectedOption}`);
-    } else {
-      alert("Please select an option, and fill in both email and password fields.");
+    
+    if (signInButton) {
+      if (email && password && selectedOption){
+        navigate(`/${selectedOption}`);
+      }
+      else if (!selectedOption){
+        alert("Please select an option:(Admin, Department, Professor).");
+      }
+      else{
+        alert("Please fill in both email and password fields.");
+      }
     }
   };
 
@@ -34,8 +45,18 @@ const LoginPage = () => {
           className="max-w-[700px] w-full mx-auto bg-white p-8 px-8 rounded-lg"
           onSubmit={handleSubmit}
         >
-          <h2 className="text-4xl text-black font-bold text-center">SIGN IN</h2>
-          <div className="flex-auto">
+          <div className="flex justify-center items-center">
+            <img src="./images/iiitd_img.png" className="max-w-[200px]" alt="" />
+          </div>
+          <p className='text-gray-600 text-xs mt-2'>For students:</p>
+          <div>
+            <button className='w-full my-2 py-2 bg-[#3dafaa] shadow-lg shadow-[#3dafaa]/50 hover:shadow-[#3dafaa]/40 text-white font-semibold rounded-lg' onClick={handleTaForm}>
+              TA Form
+            </button>
+          </div>
+          <hr className='border-2 border-[#7d7f7f]' />
+          <p className='text-gray-600 text-xs mt-2'>Log in as:</p>
+          <div className="flex-auto mt-1">
             <button
               className={`px-4 py-2 rounded-full cursor-pointer border ${
                 selectedOption === 'admin' ? 'bg-[#3dafaa] text-white' : 'border-[#3dafaa] hover:bg-[#3dafaa] hover:text-white'
@@ -61,6 +82,8 @@ const LoginPage = () => {
               Professor
             </button>
           </div>
+          <div className='justify-center items-center'>
+          </div>
           <div className="flex flex-col text-black py-2">
             <label>Email Id</label>
             <input
@@ -85,6 +108,7 @@ const LoginPage = () => {
           <button
             type="submit"
             className="w-full my-5 py-2 bg-[#3dafaa] shadow-lg shadow-[#3dafaa]/50 hover:shadow-[#3dafaa]/40 text-white font-semibold rounded-lg"
+            onClick={handleSignIn}
           >
             Sign In
           </button>

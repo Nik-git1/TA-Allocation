@@ -10,7 +10,7 @@ import AdminPage from "./Pages/AdminPage";
 import Department from "./Pages/DepartmentPage";
 import Student from "./Pages/Student";
 import Professor from "./Pages/ProfessorPage";
-
+import Form from "./Pages/Form"
 import StudentState from "./context/StudentState";
 import CourseState from "./context/CourseState";
 import DepartmentState from "./context/DepartmentState";
@@ -26,6 +26,7 @@ const App = () => {
             <Route element={<Student />} path="/student/*"></Route>
             <Route element={<Professor />} path="/professor/*"></Route>
             <Route element={<LoginPage />} path="/"></Route>
+            <Route element={<Form />} path="/TaForm"></Route>
           </Routes>
         </DepartmentState>
       </CourseState>
