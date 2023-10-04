@@ -19,12 +19,12 @@ const AdminNav = () => {
     }
   };
   const location = useLocation();
-
-  const isCourseRoute = location.pathname === '/course';
-  const placeholderText = location.pathname === '/course' ? 'Search Course':'Search Student..';
-  const isAllocate = location.pathname === '/allocate';
-  const isDashboard = location.pathname === '/dashboard';
-  const isLogs = location.pathname === '/log';
+  console.log(location.pathname)
+  const isCourseRoute = location.pathname === '/admin/course';
+  const placeholderText = location.pathname === '/admin/course' ? 'Search Course...':'Search Student..';
+  const isAllocate = location.pathname === '/admin/allocate';
+  const isDashboard = location.pathname === '/admin/dashboard';
+  const isLogs = location.pathname === '/admin/log';
   
   const [title,setTitle] = useState('Eligible Students of Monsoon 2023');
   const [buttontext, setButtonText] = useState('Student');
@@ -53,7 +53,7 @@ const AdminNav = () => {
   }, [isAllocate,isCourseRoute]);
 
   const renderSearchBarAndUploadButton = () => {
-    if (isAllocate || isDashboard || location.pathname.startsWith('/course/') || isLogs) {
+    if (isAllocate || isDashboard  || isLogs) {
       return null;
     } else {
       return (

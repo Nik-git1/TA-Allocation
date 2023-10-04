@@ -21,7 +21,7 @@ const AdminPage = () => {
           <Routes>
             <Route element={<AdminStudent />} path="/" />
             <Route element={<AdminCourse />} path="/course" />
-            <Route element={<Department />} path="/admin/allocate" />
+            <Route element={<Department />} path="/allocate" />
             <Route element={<DashboardCardList />} path="/dashboard" />
             <Route element={<CoursePage />} path="/course/:courseName" />
             <Route element={<AdminLog />} path="/log" />

@@ -26,7 +26,7 @@ const Department = () => {
   // Function to update selected course and route to the course page
   const allocateCourse = (courseName) => {
     updateSelectedCourse(courseName);
-    navigateTo(`/course/${courseName}`);
+    navigateTo(`/admin/course/${courseName}`);
   };
 
   const renderHeaderRow = () => {

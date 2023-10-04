@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState,useContext } from "react";
+import CourseContext from '../context/CourseContext';
 
 const Form = () => {
   const [program, setProgram] = useState({
    btech_3rd: false,
    btech_4th: false,
   });
-
+  const { course, setCourse } = useContext(CourseContext);
+  console.log(course);
   const handleProgramChange = (e) => {
     const { name, checked } = e.target;
 
@@ -29,10 +31,27 @@ const Form = () => {
   };
 
   return (
-    <div className="bg-[#3dafaa] h-screen flex flex-col items-center">
-      <div className="bg-white rounded mt-4 flex flex-col items-center">
-        <h2 className="font-bold text-[#3dafaa]">TA Preference Form</h2>
-        <form className="mb-2 mx-2">
+    <div className="h-screen flex flex-col items-center">
+      {/* <img
+        src="./images/iiitdrndblock2.jpeg"
+        className="h-full w-auto object-contain filter blur-sm absolute inset-0"
+        alt="Sample image"
+      /> */}
+      <style>
+        {`
+          body {
+            background-image: url(${"./images/iiitdrndblock2.jpeg"});
+            background-size: cover;
+            background-position: center;
+            background-repeat:no-repeat;
+            background-attachment: fixed;
+            backdrop-filter: blur(4px);
+          }
+        `}
+      </style>
+      <div className="bg-white rounded mt-6 flex flex-col items-center z-10 overflow-auto max-h-screen">
+        <h2 className="font-bold text-[#3dafaa] text-xl mx-6 mt-4 sticky top-0">TA Preference Form</h2>
+        <form className="mb-2 mx-2 w-[300px] overflow-auto max-h-screen">
           <div className="flex flex-col text-black py-1">
             <label className="font-bold">Email Id</label>
             <input
