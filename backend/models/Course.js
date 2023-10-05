@@ -1,9 +1,31 @@
 const mongoose = require( 'mongoose' );
 
+const courseSectionSchema = new mongoose.Schema( {
+    professor: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Professor',
+    },
+    totalStudents: {
+        type: Number,
+        required: true,
+    },
+    taStudentRatio: {
+        type: Number,
+        required: true,
+        min: 1
+    },
+    taRequired: Number,
+    taAllocated: [ {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Student',
+    } ],
+} );
+
 const courseSchema = new mongoose.Schema( {
     name: {
         type: String,
         required: true,
+        unique: true,
     },
     code: {
         type: String,
@@ -20,29 +42,12 @@ const courseSchema = new mongoose.Schema( {
         ref: 'JM',
         required: true,
     },
-    professor: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Professor',
-    },
     credits: {
         type: Number,
         required: true,
         default: 4,
     },
-    totalStudents: {
-        type: Number,
-        required: true,
-    },
-    taStudentRatio: {
-        type: Number,
-        required: true,
-        min: 1
-    },
-    taRequired: Number,
-    taAllocated: [ {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Student',
-    } ],
+    sections: [ courseSectionSchema ],
 } );
 
 module.exports = mongoose.model( 'Course', courseSchema );;
