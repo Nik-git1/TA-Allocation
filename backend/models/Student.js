@@ -42,6 +42,7 @@ const studentSchema = new mongoose.Schema( {
     allocatedTA: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Course',
+        default: null,
     },
     cgpa: {
         type: Number,
