@@ -10,7 +10,11 @@ const courseSchema = new mongoose.Schema( {
         required: true,
         unique: true,
     },
-    acronym: String,
+    acronym: {
+        type: String,
+        required: true,
+        unique: true,
+    },
     department: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'JM',
@@ -20,9 +24,20 @@ const courseSchema = new mongoose.Schema( {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Professor',
     },
-    credits: Number,
-    totalStudents: Number,
-    taStudentRatio: String, // You can validate the format separately
+    credits: {
+        type: Number,
+        required: true,
+        default: 4,
+    },
+    totalStudents: {
+        type: Number,
+        required: true,
+    },
+    taStudentRatio: {
+        type: Number,
+        required: true,
+        min: 1
+    },
     taRequired: Number,
     taAllocated: [ {
         type: mongoose.Schema.Types.ObjectId,
