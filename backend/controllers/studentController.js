@@ -169,22 +169,39 @@ const updateStudent = asyncHandler( async ( req, res ) =>
 //@access public
 const deleteStudent = asyncHandler( async ( req, res ) =>
 {
-    // const student = await Student.findOne( {
-    //     $or: [
-    //         { emailId: req.params.id },
-    //         { rollNo: req.params.id },
-    //     ]
-    // } );
+    const studentId = req.params.id;
 
-    const student = await Student.findById( req.params.id );
-
-    if ( !student || student.length === 0 )
+    try
     {
-        res.status( 404 );
-        throw new Error( "No Student Found" );
+        // Step 1: Validate that the student exists
+        const student = await Student.findById( studentId );
+        if ( !student )
+        {
+            return res.status( 404 ).json( { message: 'Student not found' } );
+        }
+
+        // Step 2: Check if the student is allocated to a course
+        if ( student.allocatedTA )
+        {
+            // If allocated, find the associated course
+            const course = await Course.findById( student.allocatedTA );
+
+            if ( course )
+            {
+                // Remove the student from the "taAllocated" list of the course
+                course.taAllocated.pull( studentId );
+                await course.save();
+            }
+        }
+
+        // Step 3: Delete the student
+        await Student.findByIdAndRemove( studentId );
+
+        return res.status( 200 ).json( { message: 'Student deleted successfully' } );
+    } catch ( error )
+    {
+        return res.status( 500 ).json( { message: 'Internal server error', error: error.message } );
     }
-    await Student.deleteOne( { _id: student.id } );
-    res.status( 200 ).json( { message: "Student Data Deleted Successfully" } );
 } );
 
 module.exports = { getStudent, addStudent, updateStudent, deleteStudent, getStudents };
