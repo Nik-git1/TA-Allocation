@@ -158,17 +158,17 @@ const updateStudent = asyncHandler( async ( req, res ) =>
         }
 
         // Step 2: Check and restrict updates to allocationStatus and allocatedTA
-        if ( updates.allocationStatus )
+        if ( 'allocationStatus' in updates )
         {
             delete updates.allocationStatus;
         }
-        if ( updates.allocatedTA )
+        if ( 'allocatedTA' in updates )
         {
             delete updates.allocatedTA;
         }
 
         // Step 3: Update the department reference based on the department name
-        if ( updates.department )
+        if ( 'department' in updates )
         {
             const jmDepartment = await JM.findOne( { department: updates.department } );
             if ( jmDepartment )
@@ -180,12 +180,36 @@ const updateStudent = asyncHandler( async ( req, res ) =>
             }
         }
 
-        if ( updates.departmentPreferences.length !== 2 || updates.nonDepartmentPreferences.length !== 5 || updates.nonPreferences.length !== 3 )
+        if ( 'departmentPreferences' in updates && updates.departmentPreferences.length > 2 )
         {
-            return res.status( 400 ).json( { message: 'Incorrect no. of preferences entered' } );
+            return res.status( 400 ).json( { message: 'Atmost 2 departmental preferences allowed' } );
+        }
+        if ( 'nonDepartmentPreferences' in updates && updates.nonDepartmentPreferences.length > 5 )
+        {
+            return res.status( 400 ).json( { message: 'Atmost 5 normal preferences allowed' } );
+        }
+        if ( 'nonPreferences' in updates && updates.nonPreferences.length > 3 )
+        {
+            return res.status( 400 ).json( { message: 'Atmost 3 non-preferences allowed' } );
         }
 
-        // Step 4: Update the student with validated values
+        // Step 4: Check if the courses in updated departmentPreferences are of the same department
+        if ( 'departmentPreferences' in updates )
+        {
+            const newDepartmentPrefs = updates.departmentPreferences;
+            const departmentMatch = await Promise.all( newDepartmentPrefs.map( async ( pref ) =>
+            {
+                const course = await Course.findById( pref.course );
+                return course && course.department.equals( student.department );
+            } ) );
+
+            if ( departmentMatch.includes( false ) )
+            {
+                return res.status( 400 ).json( { message: 'Course department must match student department for all courses in department preferences' } );
+            }
+        }
+
+        // Step 5: Update the student with validated values
         const updatedStudent = await Student.findByIdAndUpdate( studentId, updates, { new: true } );
 
         return res.status( 200 ).json( { message: 'Student updated successfully', student: updatedStudent } );

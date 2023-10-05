@@ -60,13 +60,28 @@ const studentSchema = new mongoose.Schema( {
                 enum: [ 'A+(10)', 'A(10)', 'A-(9)', 'B(8)', 'B-(7)', 'C(6)', 'C-(5)', 'D(4)', 'F(2)', 'Course Not Done' ],
             }
         } ],
-        validate: {
-            validator: function ( prefs )
+        validate: [
             {
-                return prefs.length === 2;
+                validator: function ( prefs )
+                {
+                    return prefs.length <= 2;
+                },
+                message: 'Enter atmost 2 departmental course preferences',
             },
-            message: 'Enter exactly 2 departmental course preferences',
-        },
+            {
+                validator: async function ( prefs )
+                {
+                    // Validate that the department of the student matches the department of all courses
+                    const student = this;
+                    const departmentsMatch = await Promise.all( prefs.map( async ( pref ) =>
+                    {
+                        const course = await mongoose.model( 'Course' ).findById( pref.course );
+                        return course && course.department.equals( student.department );
+                    } ) );
+                    return departmentsMatch.every( ( match ) => match === true );
+                },
+                message: 'Course department must match student department for all courses in department preferences',
+            }, ],
     },
     nonDepartmentPreferences: {
         type: [ {
@@ -82,9 +97,9 @@ const studentSchema = new mongoose.Schema( {
         validate: {
             validator: function ( prefs )
             {
-                return prefs.length === 5;
+                return prefs.length <= 5;
             },
-            message: 'Enter exactly 5 non departmental course preferences',
+            message: 'Enter atmost 5 non departmental course preferences',
         },
     },
     nonPreferences: {
@@ -95,9 +110,9 @@ const studentSchema = new mongoose.Schema( {
         validate: {
             validator: function ( prefs )
             {
-                return prefs.length === 3;
+                return prefs.length <= 3;
             },
-            message: 'Enter exactly 3 not preferenced courses',
+            message: 'Enter atmost 3 not preferenced courses',
         },
     },
 } );
