@@ -13,7 +13,7 @@ app.use( errorHandler );
 app.use( express.json() );
 app.use( "/api/student", require( "./routes/studentRoutes" ) );
 app.use( "/api/course", require( "./routes/courseRoutes" ) );
-app.use( "/api/allocation", require( "./routes/allocationRoutes" ) );
+app.use( "/api/allocation", require( "./routes/oldRoutes/allocationRoutes" ) );
 app.use( "/api/faculty", require( "./routes/facultyRoutes" ) );
 
 app.listen( port, () =>

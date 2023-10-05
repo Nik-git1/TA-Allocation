@@ -1,6 +1,6 @@
 const asyncHandler = require( 'express-async-handler' );
 const Allocation = require( "../models/Allocation" );
-const Course = require( "../models/Course" );
+const Course = require( "../../models/Course" );
 
 //@desc Get filtered allocations
 //@route GET /api/allocation?filters

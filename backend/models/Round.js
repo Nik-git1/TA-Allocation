@@ -2,21 +2,21 @@ const mongoose = require( 'mongoose' );
 
 const roundSchema = new mongoose.Schema(
     {
-        current_round: {
+        currentRound: {
             type: Number,
             required: true,
             unique: true,
         },
         ongoing: {
             type: Boolean,
-            required: true,
             default: true,
         },
-        start_date: {
-            type: String,
+        startDate: {
+            type: Date,
+            default: Date.now,
         },
-        end_date: {
-            type: String,
+        endDate: {
+            type: Date,
         },
     },
     {
@@ -27,4 +27,4 @@ const roundSchema = new mongoose.Schema(
     }
 );
 
-module.exports = mongoose.model( 'Round', roundSchema );
+module.exports = mongoose.model( 'Round', roundSchema );;

@@ -1,29 +1,27 @@
 const mongoose = require( 'mongoose' );
+const argon2 = require( 'argon2' );
 
 const adminSchema = new mongoose.Schema(
     {
-        email_id: {
+        emailId: {
             type: String,
             required: true,
             unique: true,
         },
-        password: {
+        hashedPassword: {
             type: String,
             required: true,
         },
-        jm_access: {
+        jmAccess: {
             type: Boolean,
-            required: true,
             default: false,
         },
-        professor_access: {
+        professorAccess: {
             type: Boolean,
-            required: true,
             default: false,
         },
-        student_form_access: {
+        studentFormAccess: {
             type: Boolean,
-            required: true,
             default: false,
         },
     },
@@ -34,5 +32,24 @@ const adminSchema = new mongoose.Schema(
         }
     }
 );
+
+adminSchema.pre( 'save', async function ( next )
+{
+    const admin = this;
+
+    // Check if the password has been modified
+    if ( !admin.isModified( 'hashedPassword' ) ) return next();
+
+    try
+    {
+        // Hash the password
+        const hash = await argon2.hash( admin.hashedPassword );
+        admin.hashedPassword = hash;
+        next();
+    } catch ( err )
+    {
+        return next( err );
+    }
+} );
 
 module.exports = mongoose.model( 'Admin', adminSchema );
