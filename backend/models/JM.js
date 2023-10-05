@@ -3,12 +3,12 @@ const argon2 = require( 'argon2' );
 
 const jmSchema = new mongoose.Schema(
     {
-        email_id: {
+        emailId: {
             type: String,
             required: true,
             unique: true,
         },
-        password: {
+        hashedPassword: {
             type: String,
             required: true,
         },
@@ -30,13 +30,13 @@ jmSchema.pre( 'save', async function ( next )
     const user = this;
 
     // Check if the password has been modified
-    if ( !user.isModified( 'password' ) ) return next();
+    if ( !user.isModified( 'hashedPassword' ) ) return next();
 
     try
     {
         // Hash the password
-        const hash = await argon2.hash( user.password );
-        user.password = hash;
+        const hash = await argon2.hash( user.hashedPassword );
+        user.hashedPassword = hash;
         next();
     } catch ( err )
     {
