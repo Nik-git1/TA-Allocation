@@ -88,6 +88,68 @@ async function getCourseIdByName ( courseName )
 //@access public
 const addStudent = asyncHandler( async ( req, res ) =>
 {
+    const newStudents = req.body;
+
+    try
+    {
+        const invalidStudents = [];
+        const validStudents = [];
+
+        // Iterate through the new student entries
+        for ( const newStudent of newStudents )
+        {
+            // Check for collision based on emailId or rollNo
+            const existingStudent = await Student.findOne( {
+                $or: [ { emailId: newStudent.emailId }, { rollNo: newStudent.rollNo } ],
+            } );
+
+            if ( existingStudent )
+            {
+                // If a collision exists, add it to the invalidStudents list
+                invalidStudents.push( {
+                    student: newStudent,
+                    message: 'Duplicate emailId or rollNo',
+                } );
+            } else
+            {
+                // Validate the department reference
+                const jmDepartment = await JM.findOne( { department: newStudent.department } );
+                if ( !jmDepartment )
+                {
+                    invalidStudents.push( {
+                        student: newStudent,
+                        message: 'Invalid department name',
+                    } );
+                } else
+                {
+                    // Remove attributes that should not be provided during creation
+                    delete newStudent.allocatedTA;
+                    delete newStudent.allocationStatus;
+
+                    // Add the validated student to the validStudents list
+                    newStudent.department = jmDepartment._id;
+                    validStudents.push( newStudent );
+                }
+            }
+        }
+
+        // Insert valid students into the database
+        const insertedStudents = await Student.insertMany( validStudents );
+
+        // Return a response with colliding and invalid students
+        return res.status( 201 ).json( {
+            message: 'Students added successfully',
+            invalidStudents: invalidStudents,
+        } );
+    } catch ( error )
+    {
+        return res.status( 500 ).json( { message: 'Internal server error', error: error.message } );
+    }
+
+
+
+
+    ///////////////////////////////////////////////////////////////
     let requestBody = req.body;
 
     // Check if the request body is an array

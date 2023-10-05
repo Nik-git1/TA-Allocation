@@ -84,6 +84,16 @@ const addCourse = asyncHandler( async ( req, res ) =>
                 return res.status( 400 ).json( { message: 'All required fields must be provided' } );
             }
 
+            if ( parseInt( newCourse.taStudentRatio ) < 1 )
+            {
+                return res.status( 400 ).json( { message: 'TA to Student Ratio should be greater than 1' } );
+            }
+
+            if ( newCourse.taAllocated )
+            {
+                delete newCourse.taAllocated;
+            }
+
             // Calculate taRequired
 
             newCourse.taRequired = Math.floor( newCourse.totalStudents / newCourse.taStudentRatio );
@@ -146,59 +156,6 @@ const addCourse = asyncHandler( async ( req, res ) =>
     {
         return res.status( 500 ).json( { message: 'Internal server error', error: error.message } );
     }
-
-    ///////////////////////////////////////////////////
-
-    let requestBody = req.body;
-
-    // Check if the request body is an array
-    if ( !Array.isArray( requestBody ) )
-    {
-        // If it's not an array, convert it to an array with a single element
-        requestBody = [ requestBody ];
-    }
-
-    const updates = [];
-
-    for ( const courseData of requestBody )
-    {
-        const { code, name, acronym } = courseData;
-
-        // Check if a course with the same code, name or acronym already exists
-        const existingCourse = await Course.findOne( {
-            $or: [ { code }, { name }, { acronym } ],
-        } );
-
-        if ( existingCourse )
-        {
-            // If a course with the same name, code or acronym exists, update it and add it to the duplicates array
-            // await Course.findByIdAndUpdate( existingCourse.id, courseData );
-            updates.push( existingCourse );
-        } else
-        {
-            const { department, code, name, faculty, acronym, offeredTo, aboveHundred } = courseData;
-            if ( !name || !code || !faculty || !department || !acronym || !offeredTo )
-            {
-                res.status( 400 );
-                throw new Error( "Please fill all mandatory fields" );
-            }
-
-            const course = await Course.create( { department, code, name, faculty, acronym, offeredTo, aboveHundred } );
-            await Faculty.findByIdAndUpdate( faculty, { $push: { courses: course.id } } )
-        }
-    }
-
-    let responseMessage = { message: "Courses Added Successfully" }
-
-    if ( updates.length > 0 )
-    {
-        responseMessage = {
-            message: "Duplicate Entries Found. Data Updated with Latest Values",
-            updated: updates,
-        };
-    }
-
-    res.status( 201 ).json( responseMessage );
 } );
 
 //@desc Update course data
