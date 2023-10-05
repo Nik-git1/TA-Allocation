@@ -1,20 +1,14 @@
 const asyncHandler = require( 'express-async-handler' );
 const Student = require( "../models/Student" );
+const Course = require( "../models/Course" );
+const JM = require( "../models/JM" );
+
 
 //@desc Get student by ID
 //@route GET /api/student/:id
 //@access public
 const getStudent = asyncHandler( async ( req, res ) =>
 {
-    // If id is email or rollNo
-    // const student = await Student.findOne( {
-    //     $or: [
-    //         { emailId: req.params.id },
-    //         { rollNo: req.params.id },
-    //     ]
-    // } );
-
-    // If id is the id created by mongodb
     const student = await Student.findById( req.params.id );
 
     if ( !student || student.length === 0 )
@@ -30,18 +24,64 @@ const getStudent = asyncHandler( async ( req, res ) =>
 //@access public
 const getStudents = asyncHandler( async ( req, res ) =>
 {
-    const { program, department, year, gender, mandatoryTa } = req.query;
+    const { name, emailId, rollNo, program, department, taType, allocationStatus, allocatedTA, departmentPreference, nonDepartmentPreference, nonPreference } = req.query;
 
     const filter = {};
+    if ( name ) filter.name = name;
+    if ( emailId ) filter.emailId = emailId;
+    if ( rollNo ) filter.rollNo = rollNo;
     if ( program ) filter.program = program;
-    if ( department ) filter.department = department;
-    if ( gender ) filter.gender = gender;
-    if ( mandatoryTa ) filter.mandatoryTa = mandatoryTa === 'true';
-    if ( year ) filter.year = parseInt( year );
+    if ( taType ) filter.taType = taType;
+    if ( allocationStatus ) filter.allocationStatus = parseInt( allocationStatus );
+    try
+    {
+        if ( department )
+        {
+            const departmentId = await JM.findOne( { department: department } ).select( '_id' );
+            if ( departmentId )
+            {
+                filter.department = departmentId._id;
+            }
+        }
 
-    const filteredStudents = await Student.find( filter );
-    res.status( 200 ).json( filteredStudents );
+        // Check for allocatedTA filter
+        if ( allocatedTA )
+        {
+            filter.allocatedTA = await getCourseIdByName( allocatedTA );
+        }
+
+        // Check for departmentPreference filter
+        if ( departmentPreference )
+        {
+            filter[ 'departmentPreferences.course' ] = await getCourseIdByName( departmentPreference );
+        }
+
+        // Check for nonDepartmentPreference filter
+        if ( nonDepartmentPreference )
+        {
+            filter[ 'nonDepartmentPreferences.course' ] = await getCourseIdByName( nonDepartmentPreference );
+        }
+
+        // Check for nonPreference filter
+        if ( nonPreference )
+        {
+            filter[ 'nonPreferences' ] = await getCourseIdByName( nonPreference );
+        }
+
+        const filteredStudents = await Student.find( filter );
+        res.status( 200 ).json( filteredStudents );
+    } catch
+    {
+        return res.status( 500 ).json( { message: 'Internal server error', error: error.message } );
+    }
 } );
+
+// Function to get Course ID by name
+async function getCourseIdByName ( courseName )
+{
+    const course = await Course.findOne( { name: courseName } );
+    return course ? course._id : null;
+}
 
 //@desc Add new student
 //@route POST /api/student
