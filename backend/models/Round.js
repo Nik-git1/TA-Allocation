@@ -17,7 +17,6 @@ const roundSchema = new mongoose.Schema(
         },
         endDate: {
             type: Date,
-            default: null,
         },
     },
     {
