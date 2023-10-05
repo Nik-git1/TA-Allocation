@@ -145,23 +145,54 @@ const addStudent = asyncHandler( async ( req, res ) =>
 //@access public
 const updateStudent = asyncHandler( async ( req, res ) =>
 {
-    // const student = await Student.findOne( {
-    //     $or: [
-    //         { emailId: req.params.id },
-    //         { rollNo: req.params.id },
-    //     ]
-    // } );
+    const studentId = req.params.id;
+    const updates = req.body;
 
-    const student = await Student.findById( req.params.id );
-
-    if ( !student || student.length === 0 )
+    try
     {
-        res.status( 404 );
-        throw new Error( "No Student Found" );
-    }
+        // Step 1: Validate that the student exists
+        const student = await Student.findById( studentId );
+        if ( !student )
+        {
+            return res.status( 404 ).json( { message: 'Student not found' } );
+        }
 
-    await Student.findByIdAndUpdate( student.id, req.body );
-    res.status( 200 ).json( { message: "Student Data Updated Successfully" } );
+        // Step 2: Check and restrict updates to allocationStatus and allocatedTA
+        if ( updates.allocationStatus )
+        {
+            delete updates.allocationStatus;
+        }
+        if ( updates.allocatedTA )
+        {
+            delete updates.allocatedTA;
+        }
+
+        // Step 3: Update the department reference based on the department name
+        if ( updates.department )
+        {
+            const jmDepartment = await JM.findOne( { department: updates.department } );
+            if ( jmDepartment )
+            {
+                updates.department = jmDepartment._id;
+            } else
+            {
+                return res.status( 400 ).json( { message: 'Invalid department name' } );
+            }
+        }
+
+        if ( updates.departmentPreferences.length !== 2 || updates.nonDepartmentPreferences.length !== 5 || updates.nonPreferences.length !== 3 )
+        {
+            return res.status( 400 ).json( { message: 'Incorrect no. of preferences entered' } );
+        }
+
+        // Step 4: Update the student with validated values
+        const updatedStudent = await Student.findByIdAndUpdate( studentId, updates, { new: true } );
+
+        return res.status( 200 ).json( { message: 'Student updated successfully', student: updatedStudent } );
+    } catch ( error )
+    {
+        return res.status( 500 ).json( { message: 'Internal server error', error: error.message } );
+    }
 } );
 
 //@desc Delete student by id
