@@ -44,6 +44,6 @@ const courseSchema = new mongoose.Schema( {
     } ],
 } );
 
-courseSchema.index( { acronym: 1, professor: 1 }, { unique: true } );
+courseSchema.index( { acronym: 1, professor: 1, name: 1 }, { unique: true } );
 
 module.exports = mongoose.model( 'Course', courseSchema );;

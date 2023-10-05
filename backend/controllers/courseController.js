@@ -9,14 +9,6 @@ const Professor = require( "../models/Professor" );
 //@access public
 const getCourse = asyncHandler( async ( req, res ) =>
 {
-    // const course = await Course.findOne( {
-    //     $or: [
-    //         { code: req.params.id },
-    //         { name: req.params.id },
-    //         { acronym: req.params.id },
-    //     ]
-    // } );
-
     const course = await Course.findById( req.params.id );
 
     if ( !course || course.length === 0 )
@@ -39,25 +31,25 @@ const getCourses = asyncHandler( async ( req, res ) =>
     if ( code ) filter.code = code;
     if ( acronym ) filter.acronym = acronym;
     if ( credits ) filter.credits = parseInt( credits );
-    if ( department )
-    {
-        const departmentId = await JM.findOne( { department: department } ).select( '_id' );
-        if ( departmentId )
-        {
-            filter.department = departmentId._id;
-        }
-    }
-    if ( professor )
-    {
-        const professorId = await Professor.findOne( { name: professor } ).select( '_id' );
-        if ( professorId )
-        {
-            filter[ 'sections.professor' ] = professorId._id;
-        }
-    }
-
     try
     {
+        if ( department )
+        {
+            const departmentId = await JM.findOne( { department: department } ).select( '_id' );
+            if ( departmentId )
+            {
+                filter.department = departmentId._id;
+            }
+        }
+        if ( professor )
+        {
+            const professorId = await Professor.findOne( { name: professor } ).select( '_id' );
+            if ( professorId )
+            {
+                filter.professor = professorId._id;
+            }
+        }
+
         const filteredCourses = await Course.find( filter );
         res.status( 200 ).json( filteredCourses );
     } catch ( error )
@@ -71,6 +63,92 @@ const getCourses = asyncHandler( async ( req, res ) =>
 //@access public
 const addCourse = asyncHandler( async ( req, res ) =>
 {
+    const newCourses = req.body;
+
+    if ( !Array.isArray( newCourses ) )
+    {
+        newCourses = [ newCourses ];
+    }
+
+    try
+    {
+        const collidingCourses = [];
+        const invalidDeptCourses = [];
+        const invalidProfCourses = [];
+
+        for ( const newCourse of newCourses )
+        {
+            // Check if required fields are not empty and have correct values
+            if ( !newCourse.name || !newCourse.code || !newCourse.acronym || !newCourse.department || !newCourse.totalStudents || !newCourse.taStudentRatio )
+            {
+                return res.status( 400 ).json( { message: 'All required fields must be provided' } );
+            }
+
+            // Calculate taRequired
+
+            newCourse.taRequired = Math.floor( newCourse.totalStudents / newCourse.taStudentRatio );
+
+            // Handle "department" reference
+            if ( newCourse.department )
+            {
+                const jmDepartment = await JM.findOne( { department: newCourse.department } );
+                if ( jmDepartment )
+                {
+                    newCourse.department = jmDepartment._id;
+                } else
+                {
+                    invalidDeptCourses.push( newCourse );
+                    continue; // Skip adding this course
+                }
+            }
+
+            // Handle "professor" reference
+            if ( newCourse.professor )
+            {
+                const professor = await Professor.findOne( { name: newCourse.professor } );
+                if ( professor )
+                {
+                    newCourse.professor = professor._id;
+                } else
+                {
+                    invalidProfCourses.push( newCourse );
+                    // newCourse.professor = null; // Assign null if professor not found
+                    continue; // Skip adding this course
+                }
+            }
+
+            // Check for collisions based on the index
+            const existingCourse = await Course.findOne( {
+                acronym: newCourse.acronym,
+                professor: newCourse.professor,
+                name: newCourse.name,
+            } );
+            if ( existingCourse )
+            {
+                collidingCourses.push( newCourse );
+            } else
+            {
+                // Add the course to the database
+                const createdCourse = await Course.create( newCourse );
+            }
+        }
+
+        // Prepare the response
+        const response = {
+            message: 'Courses added successfully',
+            collide: collidingCourses,
+            invalid_dept: invalidDeptCourses,
+            invalid_prof: invalidProfCourses,
+        };
+
+        return res.status( 201 ).json( response );
+    } catch ( error )
+    {
+        return res.status( 500 ).json( { message: 'Internal server error', error: error.message } );
+    }
+
+    ///////////////////////////////////////////////////
+
     let requestBody = req.body;
 
     // Check if the request body is an array
@@ -128,16 +206,54 @@ const addCourse = asyncHandler( async ( req, res ) =>
 //@access public
 const updateCourse = asyncHandler( async ( req, res ) =>
 {
-    const course = await Course.findById( req.params.id );
+    const courseId = req.params.id;
+    const updates = req.body;
 
-    if ( !course || course.length === 0 )
+    try
     {
-        res.status( 404 );
-        throw new Error( "No Course Found" );
-    }
+        const course = await Course.findById( courseId );
+        if ( !course )
+        {
+            return res.status( 404 ).json( { message: 'Course not found' } );
+        }
 
-    await Course.findByIdAndUpdate( course.id, req.body );
-    res.status( 200 ).json( { message: "Course Updated Successfully" } );
+        if ( updates.department )
+        {
+            const jmDepartment = await JM.findOne( { department: updates.department } );
+            if ( !jmDepartment )
+            {
+                return res.status( 400 ).json( { message: 'Invalid Department value' } );
+            }
+            updates.department = jmDepartment._id;
+        }
+
+        if ( updates.professor )
+        {
+            const professor = await Professor.findOne( { name: updates.professor } );
+            if ( !professor )
+            {
+                return res.status( 400 ).json( { message: 'Invalid Professor value' } );
+            }
+            updates.professor = professor._id;
+        }
+
+        if ( parseInt( updates.taStudentRatio ) < 1 )
+        {
+            delete updates.taStudentRatio;
+        }
+
+        if ( updates.taAllocated )
+        {
+            delete updates.taAllocated;
+        }
+
+        const updatedCourse = await Course.findByIdAndUpdate( courseId, updates, { new: true } );
+
+        return res.status( 200 ).json( { message: 'Course updated successfully', course: updatedCourse } );
+    } catch ( error )
+    {
+        return res.status( 500 ).json( { message: 'Internal server error', error: error.message } );
+    }
 } );
 
 //@desc Delete a course by ID
@@ -149,21 +265,27 @@ const deleteCourse = asyncHandler( async ( req, res ) =>
 
     try
     {
-        // Find the course by ID and delete it
-        const course = await Course.findByIdAndRemove( courseId );
-
+        // Step 1: Validate that the course exists
+        const course = await Course.findById( courseId );
         if ( !course )
         {
-            return res.status( 404 ).json( { error: 'Course not found' } );
+            return res.status( 404 ).json( { message: 'Course not found' } );
         }
 
-        // Update the students who were allocated to this course
+        // Step 2: Get the list of student IDs from the allocatedTA field
+        const studentIds = course.taAllocated;
+
+        // Step 3: Set taAllocated to null for students in the list
         await Student.updateMany(
-            { allocatedTA: course._id },
+            { _id: { $in: studentIds } },
             { $set: { allocatedTA: null } }
         );
 
-        res.status( 204 ).end(); // Respond with a successful status and no content
+        // Step 4: Delete the course
+        await Course.findByIdAndRemove( courseId );
+
+        return res.status( 200 ).json( { message: 'Course deleted successfully' } );
+
     } catch ( error )
     {
         // Handle any potential errors
