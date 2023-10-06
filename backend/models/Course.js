@@ -8,26 +8,42 @@ const courseSchema = new mongoose.Schema( {
     code: {
         type: String,
         required: true,
-        unique: true,
     },
-    acronym: String,
+    acronym: {
+        type: String,
+        required: true,
+    },
     department: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'JM',
         required: true,
     },
+    credits: {
+        type: Number,
+        required: true,
+        default: 4,
+    },
     professor: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Professor',
+        default: null,
     },
-    credits: Number,
-    totalStudents: Number,
-    taStudentRatio: String, // You can validate the format separately
+    totalStudents: {
+        type: Number,
+        required: true,
+    },
+    taStudentRatio: {
+        type: Number,
+        required: true,
+        min: 1
+    },
     taRequired: Number,
     taAllocated: [ {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Student',
     } ],
 } );
+
+courseSchema.index( { acronym: 1, professor: 1, name: 1 }, { unique: true } );
 
 module.exports = mongoose.model( 'Course', courseSchema );;

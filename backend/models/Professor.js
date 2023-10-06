@@ -12,7 +12,7 @@ const professorSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
-        department: {
+        name: {
             type: String,
             required: true,
         }
