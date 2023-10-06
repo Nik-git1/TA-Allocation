@@ -116,6 +116,7 @@ const LoginPage = () => {
       const json = await response.json();
       if (json.success) {
         alert("OTP verified successfully.");
+        navigate("/TAform") // spell check please
         // Redirect to the appropriate page after OTP verification
       } else {
         alert("Invalid OTP.");

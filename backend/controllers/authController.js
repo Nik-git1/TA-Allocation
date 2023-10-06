@@ -26,7 +26,7 @@ const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
       user: 'nikhil20530@iiitd.ac.in',
-      pass: 'nikrandom@1',
+      pass: '', // use env file for this data , also kuch settings account ki change krni padti vo krliyo
     },
   });
 
