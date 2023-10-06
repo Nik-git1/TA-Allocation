@@ -1,5 +1,5 @@
 const mongoose = require( 'mongoose' );
-const argon2 = require( 'argon2' );
+// const argon2 = require( 'argon2' );
 
 const adminSchema = new mongoose.Schema(
     {
@@ -8,7 +8,7 @@ const adminSchema = new mongoose.Schema(
             required: true,
             unique: true,
         },
-        hashedPassword: {
+        Password:{
             type: String,
             required: true,
         },
@@ -32,24 +32,5 @@ const adminSchema = new mongoose.Schema(
         }
     }
 );
-
-adminSchema.pre( 'save', async function ( next )
-{
-    const admin = this;
-
-    // Check if the password has been modified
-    if ( !admin.isModified( 'hashedPassword' ) ) return next();
-
-    try
-    {
-        // Hash the password
-        const hash = await argon2.hash( admin.hashedPassword );
-        admin.hashedPassword = hash;
-        next();
-    } catch ( err )
-    {
-        return next( err );
-    }
-} );
 
 module.exports = mongoose.model( 'Admin', adminSchema );

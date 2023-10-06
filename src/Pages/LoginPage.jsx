@@ -1,34 +1,122 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 const LoginPage = () => {
-  const [selectedOption, setSelectedOption] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [signInButton,setsignInButton] = useState(false)
-  const navigate = useNavigate(); 
+  const [selectedOption, setSelectedOption] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [signInButton, setSignInButton] = useState(false);
+  const [TaOptionSelected, setTaOptionSelected] = useState(false);
+  const [OtpSent, setOtpSent] = useState(false);
+  const [Otp ,setOtp] =useState("");
+  const navigate = useNavigate();
+  const host = "http://localhost:5001";
 
   const handleLoginOptionClick = (option) => {
+    console.log(TaOptionSelected);
+    if (option === "TA") {
+      setTaOptionSelected(true);
+    } else {
+      setTaOptionSelected(false);
+      setOtpSent(false)
+    }
     setSelectedOption(option);
   };
+
   const handleTaForm = () => {
     navigate(`/TaForm`);
-  }
+  };
+
   const handleSignIn = () => {
-    setsignInButton(true)
-  }
+    setSignInButton(true);
+  };
+
+  const handleAdminLogin = async (e) => {
+    console.log("admin tried");
+    // Handle admin login logic here
+    if (email && password) {
+      const response = await fetch(`${host}/api/login/admin`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email_id: email, password: password }),
+      });
+      console.log(response);
+
+      const json = await response.json();
+      console.log(json);
+      if (json.success) {
+        console.log(json.authtoken);
+        localStorage.setItem("token", json.authtoken);
+        navigate("/admin");
+      } else {
+        alert("Login Error");
+      }
+    } else {
+      alert("Please fill in both email and password fields.");
+    }
+  };
+
+  const handleDepartmentLogin = () => {
+    // Handle department login logic here
+    if (email && password) {
+      // Navigate to department dashboard or perform the desired action
+      navigate("/department");
+    } else {
+      alert("Please fill in both email and password fields.");
+    }
+  };
+
+  const handleProfessorLogin = () => {
+    // Handle professor login logic here
+    if (email && password) {
+      // Navigate to professor dashboard or perform the desired action
+      navigate("/professor");
+    } else {
+      alert("Please fill in both email and password fields.");
+    }
+  };
+
+  const handleTAForm = () => {
+    if (email) {
+      console.log(email);
+    }
+  };
+  const handleSendOTP = () => {
+    
+    setOtpSent(true)
+  };
+  const handleVerifyOTP = () => {
+    if (email) {
+      console.log(email);
+    }
+  };
+  
+
+  
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (signInButton) {
-      if (email && password && selectedOption){
-        navigate(`/${selectedOption}`);
-      }
-      else if (!selectedOption){
-        alert("Please select an option:(Admin, Department, Professor).");
-      }
-      else{
-        alert("Please fill in both email and password fields.");
+      console.log(selectedOption);
+      switch (selectedOption) {
+        case "admin":
+          handleAdminLogin();
+          break;
+        case "department":
+          handleDepartmentLogin();
+          break;
+        case "professor":
+          handleProfessorLogin();
+          break;
+        case "TA":
+          handleTAForm();
+          break;
+        default:
+          alert("Please select an option: Admin, Department, Professor.");
+          break;
       }
     }
   };
@@ -46,72 +134,111 @@ const LoginPage = () => {
           onSubmit={handleSubmit}
         >
           <div className="flex justify-center items-center">
-            <img src="./images/iiitd_img.png" className="max-w-[200px]" alt="" />
+            <img
+              src="./images/iiitd_img.png"
+              className="max-w-[200px]"
+              alt=""
+            />
           </div>
-          <p className='text-gray-600 text-xs mt-2'>For students:</p>
+          <p className="text-gray-600 text-xs mt-2">For students:</p>
           <div>
-            <button className='w-full my-2 py-2 bg-[#3dafaa] shadow-lg shadow-[#3dafaa]/50 hover:shadow-[#3dafaa]/40 text-white font-semibold rounded-lg' onClick={handleTaForm}>
+            <button
+              className="w-full my-2 py-2 bg-[#3dafaa] shadow-lg shadow-[#3dafaa]/50 hover:shadow-[#3dafaa]/40 text-white font-semibold rounded-lg"
+              onClick={() => handleLoginOptionClick("TA")}
+            >
               TA Form
             </button>
           </div>
-          <hr className='border-2 border-[#7d7f7f]' />
-          <p className='text-gray-600 text-xs mt-2'>Log in as:</p>
+          <hr className="border-2 border-[#7d7f7f]" />
+          <p className="text-gray-600 text-xs mt-2">Log in as:</p>
           <div className="flex-auto mt-1">
             <button
               className={`px-4 py-2 rounded-full cursor-pointer border ${
-                selectedOption === 'admin' ? 'bg-[#3dafaa] text-white' : 'border-[#3dafaa] hover:bg-[#3dafaa] hover:text-white'
+                selectedOption === "admin"
+                  ? "bg-[#3dafaa] text-white"
+                  : "border-[#3dafaa] hover:bg-[#3dafaa] hover:text-white"
               } outline-none focus:border-[#3dafaa]`}
-              onClick={() => handleLoginOptionClick('admin')}
+              onClick={() => handleLoginOptionClick("admin")}
             >
               Admin
             </button>
             <button
               className={`px-4 py-2 rounded-full cursor-pointer border ${
-                selectedOption === 'department' ? 'bg-[#3dafaa] text-white' : 'border-[#3dafaa] hover:bg-[#3dafaa] hover:text-white mx-1'
+                selectedOption === "department"
+                  ? "bg-[#3dafaa] text-white"
+                  : "border-[#3dafaa] hover:bg-[#3dafaa] hover:text-white mx-1"
               } outline-none focus:border-[#3dafaa]`}
-              onClick={() => handleLoginOptionClick('department')}
+              onClick={() => handleLoginOptionClick("department")}
             >
               Department
             </button>
             <button
               className={`px-4 py-2 rounded-full cursor-pointer border ${
-                selectedOption === 'professor' ? 'bg-[#3dafaa] text-white' : 'border-[#3dafaa] hover:bg-[#3dafaa] hover:text-white'
+                selectedOption === "professor"
+                  ? "bg-[#3dafaa] text-white"
+                  : "border-[#3dafaa] hover:bg-[#3dafaa] hover:text-white"
               } outline-none focus:border-[#3dafaa]`}
-              onClick={() => handleLoginOptionClick('professor')}
+              onClick={() => handleLoginOptionClick("professor")}
             >
               Professor
             </button>
           </div>
-          <div className='justify-center items-center'>
-          </div>
-          <div className="flex flex-col text-black py-2">
-            <label>Email Id</label>
-            <input
-              className="text-black rounded-lg bg-white mt-2 p-2 border-2 border-gray-500 focus:bg-gray-200 focus:outline-none"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          <div className="flex flex-col text-black py-2">
-            <label>Password</label>
-            <input
-              className="text-black rounded-lg bg-white mt-2 p-2 border-2 border-gray-500 focus:bg-gray-200 focus:outline-none"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-          <div className="flex justify-between text-gray-600 py-2">
-            <p>Forgot Password?</p>
-          </div>
-          <button
-            type="submit"
-            className="w-full my-5 py-2 bg-[#3dafaa] shadow-lg shadow-[#3dafaa]/50 hover:shadow-[#3dafaa]/40 text-white font-semibold rounded-lg"
-            onClick={handleSignIn}
-          >
-            Sign In
-          </button>
+
+          <div className="justify-center items-center"></div>
+
+          {!OtpSent ? (
+            <div className="flex flex-col text-black py-2">
+              <label>Email Id</label>
+              <input
+                className="text-black rounded-lg bg-white mt-2 p-2 border-2 border-gray-500 focus:bg-gray-200 focus:outline-none"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+          ) : (
+            <div className="flex flex-col text-black py-2">
+              <label>Enter Otp</label>
+              <input
+                className="text-black rounded-lg bg-white mt-2 p-2 border-2 border-gray-500 focus:bg-gray-200 focus:outline-none"
+                type="Otp"
+                value={Otp}
+                onChange={(e) => setOtp(e.target.value)}
+              />
+            </div>
+          )}
+
+          {!TaOptionSelected ? (
+            <>
+              <div className="flex flex-col text-black py-2">
+                <label>Password</label>
+                <input
+                  className="text-black rounded-lg bg-white mt-2 p-2 border-2 border-gray-500 focus:bg-gray-200 focus:outline-none"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+              <div className="flex justify-between text-gray-600 py-2">
+                <p>Forgot Password?</p>
+              </div>
+              <button
+                type="submit"
+                className="w-full my-5 py-2 bg-[#3dafaa] shadow-lg shadow-[#3dafaa]/50 hover:shadow-[#3dafaa]/40 text-white font-semibold rounded-lg"
+                onClick={handleSignIn}
+              >
+                Sign In
+              </button>
+            </>
+          ) : (
+            <button
+              type="submit"
+              className="w-full my-5 py-2 bg-[#3dafaa] shadow-lg shadow-[#3dafaa]/50 hover:shadow-[#3dafaa]/40 text-white font-semibold rounded-lg"
+              onClick={OtpSent ? handleVerifyOTP : handleSendOTP}
+            >
+              {OtpSent ? "Verify OTP" : "Send OTP"}
+            </button>
+          )}
         </form>
       </div>
     </div>

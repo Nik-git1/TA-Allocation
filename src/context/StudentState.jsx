@@ -8,10 +8,8 @@ const StudentState = (props) => {
   const [log, setLog] = useState([])
 
   const logAction = (action,id,studentName,courseName) => {
-    const timestamp = new Date().toLocaleString(); // Format the timestamp
-
-    const user = "Admin"; // Replace with actual student data or identifier
-    // Create a new log entry
+    const timestamp = new Date().toLocaleString(); 
+    const user = "Admin"; 
     const logEntry = {
       id,
       studentName,

@@ -1,6 +1,6 @@
 const asyncHandler = require( 'express-async-handler' );
 const Course = require( "../models/Course" );
-const Faculty = require( "../models/Faculty" );
+const Faculty = require( "../models/Professor" );
 
 //@desc Get course by ID
 //@route GET /api/course/:id
