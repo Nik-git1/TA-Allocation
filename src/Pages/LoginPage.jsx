@@ -23,9 +23,6 @@ const LoginPage = () => {
     setSelectedOption(option);
   };
 
-  const handleTaForm = () => {
-    navigate(`/TaForm`);
-  };
 
   const handleSignIn = () => {
     setSignInButton(true);
@@ -83,13 +80,48 @@ const LoginPage = () => {
       console.log(email);
     }
   };
-  const handleSendOTP = () => {
-    
-    setOtpSent(true)
-  };
-  const handleVerifyOTP = () => {
+  const handleSendOTP = async () => {
+    console.log(email)
     if (email) {
-      console.log(email);
+      const response = await fetch(`${host}/api/login/sendotp`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email_id: email  }),
+      });
+
+      const json = await response.json();
+      if (json.success) {
+        setOtpSent(true);
+      } else {
+        alert("Failed to send OTP.");
+      }
+    } else {
+      alert("Please enter an email address.");
+    }
+    
+  };
+  const handleVerifyOTP = async () => {
+    console.log(Otp)
+    if (email && Otp) {
+      const response = await fetch(`${host}/api/login/verifyOTP`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: email, enteredOTP: Otp }),
+      });
+
+      const json = await response.json();
+      if (json.success) {
+        alert("OTP verified successfully.");
+        // Redirect to the appropriate page after OTP verification
+      } else {
+        alert("Invalid OTP.");
+      }
+    } else {
+      alert("Please enter an email and OTP.");
     }
   };
   
