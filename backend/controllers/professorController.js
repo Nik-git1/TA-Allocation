@@ -1,17 +1,14 @@
 const asyncHandler = require( 'express-async-handler' );
 const Professor = require( "../models/Professor" );
+const Course = require( "../models/Course" );
+const argon2 = require( 'argon2' );
+
 
 //@desc Get professor by ID
 //@route GET /api/professor/:id
 //@access public
 const getProfessor = asyncHandler( async ( req, res ) =>
 {
-    // If id is email or rollNo
-    // const professor = await Professor.findOne(
-    //         { emailId: req.params.id }
-    // );
-
-    // If id is the id created by mongodb
     const professor = await Professor.findById( req.params.id );
 
     if ( !professor || professor.length === 0 )
@@ -22,20 +19,26 @@ const getProfessor = asyncHandler( async ( req, res ) =>
     res.status( 200 ).json( professor );
 } );
 
-//@desc Get filtered faculties
+//@desc Get filtered professors
 //@route GET /api/professor?filters
 //@access public
 const getProfessors = asyncHandler( async ( req, res ) =>
 {
-    const { name, emailId, course } = req.query;
+    try
+    {
+        const { name, emailId } = req.query;
 
-    const filter = {};
-    if ( name ) filter.name = name;
-    if ( emailId ) filter.emailId = emailId;
-    if ( course ) filter.courses = { $in: [ mongoose.Types.ObjectId( course ) ] };
+        const filter = {};
+        if ( name ) filter.name = new RegExp( name, 'i' );
+        if ( emailId ) filter.emailId = new RegExp( emailId, 'i' );
 
-    const filteredProfessors = await Professor.find( filter );
-    res.status( 200 ).json( filteredProfessors );
+        const filteredProfessors = await Professor.find( filter );
+        res.status( 200 ).json( filteredProfessors );
+
+    } catch ( error )
+    {
+        res.status( 500 ).json( { message: 'Internal server error', error: error.message } );
+    }
 } );
 
 //@desc Add new professor
@@ -43,54 +46,74 @@ const getProfessors = asyncHandler( async ( req, res ) =>
 //@access public
 const addProfessor = asyncHandler( async ( req, res ) =>
 {
-    let requestBody = req.body;
-
-    // Check if the request body is an array
-    if ( !Array.isArray( requestBody ) )
+    try
     {
-        // If it's not an array, convert it to an array with a single element
-        requestBody = [ requestBody ];
-    }
+        let professorsToAdd = req.body;
 
-    const duplicates = [];
-
-    for ( const professorData of requestBody )
-    {
-        const { emailId } = professorData;
-
-        // Check if a professor with the same emailId already exists
-        const existingProfessor = await Professor.findOne( { emailId: emailId } );
-
-        if ( existingProfessor )
+        // If a single professor object is provided, convert it to an array of one professor
+        if ( !Array.isArray( professorsToAdd ) )
         {
-            // If a professor with the same emailId exists, update it and add it to the duplicates array
-            // await Professor.findByIdAndUpdate( existingProfessor.id, professorData );
-            duplicates.push( existingProfessor );
-        } else
-        {
-            const { name, emailId } = professorData;
-            if ( !name || !emailId )
-            {
-                res.status( 400 );
-                throw new Error( "Please fill all mandatory fields" );
-            }
-
-            await Professor.create( { name, emailId } );
+            professorsToAdd = [ professorsToAdd ];
         }
 
-    }
+        const invalidProfessors = [];
 
-    let responseMessage = { message: "Professors Added Successfully" }
+        for ( const professor of professorsToAdd )
+        {
+            // Check if all required fields are present
+            const requiredFields = [ 'emailId', 'password', 'name' ];
+            const missingFields = requiredFields.filter( ( field ) => !professor[ field ] );
+            if ( missingFields.length > 0 )
+            {
+                invalidProfessors.push( {
+                    professor: professor,
+                    message: `Missing required fields: ${ missingFields.join( ', ' ) }`,
+                } );
+                continue; // Skip this professor and move to the next one
+            }
 
-    if ( duplicates.length > 0 )
+            // Check for emailId collisions
+            const existingProfessor = await Professor.findOne( { emailId: professor.emailId } );
+            if ( existingProfessor )
+            {
+                invalidProfessors.push( {
+                    professor: professor,
+                    message: 'Email already taken',
+                } );
+                continue; // Skip this professor and move to the next one
+            }
+
+            // Hash the password using Argon2 before saving
+            try
+            {
+                const hash = await argon2.hash( professor.password );
+                professor.password = hash;
+            } catch ( error )
+            {
+                invalidProfessors.push( {
+                    professor: professor,
+                    message: 'Error hashing the password',
+                } );
+                continue; // Skip this professor and move to the next one
+            }
+        }
+
+        // Filter out invalid professors
+        professorsToAdd = professorsToAdd.filter( ( professor ) =>
+            !invalidProfessors.some( ( invalidProf ) => invalidProf.professor.emailId === professor.emailId )
+        );
+
+        // Insert valid professors into the database
+        await Professor.insertMany( professorsToAdd );
+
+        return res.status( 201 ).json( {
+            message: 'Professors added successfully',
+            invalidProfessors: invalidProfessors,
+        } );
+    } catch ( error )
     {
-        responseMessage = {
-            message: "Duplicate Entries Found",
-            duplicates: duplicates,
-        };
+        return res.status( 500 ).json( { message: 'Internal server error', error: error.message } );
     }
-
-    res.status( 201 ).json( responseMessage );
 } );
 
 //@desc Update professor data
@@ -98,20 +121,44 @@ const addProfessor = asyncHandler( async ( req, res ) =>
 //@access public
 const updateProfessor = asyncHandler( async ( req, res ) =>
 {
-    // const professor = await Professor.findOne( 
-    //         { emailId: req.params.id }
-    // );
+    const professorId = req.params.id;
+    const updates = req.body;
 
-    const professor = await Professor.findById( req.params.id );
-
-    if ( !professor || professor.length === 0 )
+    try
     {
-        res.status( 404 );
-        throw new Error( "No Professor Found" );
-    }
+        // Step 1: Validate that the professor exists
+        const professor = await Professor.findById( professorId );
+        if ( !professor )
+        {
+            return res.status( 404 ).json( { message: 'Professor not found' } );
+        }
 
-    await Professor.findByIdAndUpdate( professor.id, req.body );
-    res.status( 200 ).json( { message: "Professor Data Updated Successfully" } );
+        // Step 2: Check if emailId is being updated and if it collides with an existing email
+        if ( 'emailId' in updates && updates.emailId !== professor.emailId )
+        {
+            const existingProfessor = await Professor.findOne( { emailId: updates.emailId } );
+            if ( existingProfessor )
+            {
+                return res.status( 400 ).json( { message: 'Email already taken' } );
+            }
+        }
+
+        // Step 3: Check if password is being updated and perform necessary security checks
+        if ( 'password' in updates )
+        {
+            // Hash the new password
+            const hash = await argon2.hash( updates.password );
+            updates.password = hash;
+        }
+
+        // Step 4: Update the professor with the validated values
+        const updatedProfessor = await Professor.findByIdAndUpdate( professorId, updates, { new: true } );
+
+        return res.status( 200 ).json( { message: 'Professor updated successfully', professor: updatedProfessor } );
+    } catch ( error )
+    {
+        return res.status( 500 ).json( { message: 'Internal server error', error: error.message } );
+    }
 } );
 
 //@desc Delete professor by id
@@ -119,19 +166,28 @@ const updateProfessor = asyncHandler( async ( req, res ) =>
 //@access public
 const deleteProfessor = asyncHandler( async ( req, res ) =>
 {
-    // const professor = await Professor.findOne(
-    //         { emailId: req.params.id }
-    // );
+    const professorId = req.params.id;
 
-    const professor = await Professor.findById( req.params.id );
-
-    if ( !professor || professor.length === 0 )
+    try
     {
-        res.status( 404 );
-        throw new Error( "No Professor Found" );
+        // Check if the professor exists
+        const professor = await Professor.findById( professorId );
+        if ( !professor )
+        {
+            return res.status( 404 ).json( { message: 'Professor not found' } );
+        }
+
+        // Update related Courses by setting the "professor" field to null
+        await Course.updateMany( { professor: professorId }, { professor: null } );
+
+        // Delete the professor
+        await Professor.findByIdAndRemove( professorId );
+
+        return res.status( 200 ).json( { message: 'Professor deleted successfully' } );
+    } catch ( error )
+    {
+        return res.status( 500 ).json( { message: 'Internal server error', error: error.message } );
     }
-    await Professor.findByIdAndDelete( professor.id );
-    res.status( 200 ).json( { message: "Professor Data Deleted Successfully" } );
 } );
 
 module.exports = { getProfessor, addProfessor, updateProfessor, deleteProfessor, getProfessors };

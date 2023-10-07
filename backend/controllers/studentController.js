@@ -90,6 +90,13 @@ const addStudent = asyncHandler( async ( req, res ) =>
 {
     const newStudents = req.body;
 
+    // Check if the request body is an array
+    if ( !Array.isArray( newStudents ) )
+    {
+        // If it's not an array, convert it to an array with a single element
+        newStudents = [ newStudents ];
+    }
+
     try
     {
         const invalidStudents = [];
@@ -98,6 +105,39 @@ const addStudent = asyncHandler( async ( req, res ) =>
         // Iterate through the new student entries
         for ( const newStudent of newStudents )
         {
+            // Check if all required fields are present
+            const requiredFields = [ 'name', 'emailId', 'rollNo', 'program', 'department', 'taType' ];
+            const missingFields = requiredFields.filter( ( field ) => !newStudent[ field ] );
+            if ( missingFields.length > 0 )
+            {
+                invalidStudents.push( {
+                    student: newStudent,
+                    message: `Missing required fields: ${ missingFields.join( ', ' ) }`,
+                } );
+                continue; // Skip this student and move to the next one
+            }
+
+            // Validate program against enum list
+            const validPrograms = [ 'B.Tech 3rd Year', 'B.Tech 4th Year', 'M.Tech', 'PhD' ];
+            if ( !validPrograms.includes( newStudent.program ) )
+            {
+                invalidStudents.push( {
+                    student: newStudent,
+                    message: 'Invalid program value',
+                } );
+                continue; // Skip this student and move to the next one
+            }
+
+            // Check cgpa range
+            if ( newStudent.cgpa < 0 || newStudent.cgpa > 10 )
+            {
+                invalidStudents.push( {
+                    student: newStudent,
+                    message: 'CGPA out of range (0-10)',
+                } );
+                continue; // Skip this student and move to the next one
+            }
+
             // Check for collision based on emailId or rollNo
             const existingStudent = await Student.findOne( {
                 $or: [ { emailId: newStudent.emailId }, { rollNo: newStudent.rollNo } ],
@@ -123,8 +163,53 @@ const addStudent = asyncHandler( async ( req, res ) =>
                 } else
                 {
                     // Remove attributes that should not be provided during creation
-                    delete newStudent.allocatedTA;
-                    delete newStudent.allocationStatus;
+                    if ( newStudent.allocatedTA ) { delete newStudent.allocatedTA; }
+                    if ( newStudent.allocationStatus ) { delete newStudent.allocationStatus; }
+
+                    // Validate departmentPreferences
+                    if ( newStudent.departmentPreferences.length > 2 )
+                    {
+                        invalidStudents.push( {
+                            student: newStudent,
+                            message: 'More than allowed department preferences entered',
+                        } );
+                        continue; // Skip this student and move to the next one
+                    }
+                    // Validate nonDepartmentPreferences
+                    if ( newStudent.nonDepartmentPreferences.length > 5 )
+                    {
+                        invalidStudents.push( {
+                            student: newStudent,
+                            message: 'More than allowed normal preferences entered',
+                        } );
+                        continue; // Skip this student and move to the next one
+                    }
+
+                    // Validate nonPreferences
+                    if ( newStudent.nonPreferences.length > 3 )
+                    {
+                        invalidStudents.push( {
+                            student: newStudent,
+                            message: 'More than allowed non preferences entered',
+                        } );
+                        continue; // Skip this student and move to the next one
+                    }
+
+                    // Check if all courses in departmentPreferences are from the same department as the student
+                    const departmentMatch = await Promise.all( newStudent.departmentPreferences.map( async ( pref ) =>
+                    {
+                        const course = await mongoose.model( 'Course' ).findById( pref.course );
+                        return course && course.department.equals( jmDepartment._id );
+                    } ) );
+
+                    if ( departmentMatch.includes( false ) )
+                    {
+                        invalidStudents.push( {
+                            student: newStudent,
+                            message: 'Course department must match student department for all courses in department preferences',
+                        } );
+                        continue; // Skip this student and move to the next one
+                    }
 
                     // Add the validated student to the validStudents list
                     newStudent.department = jmDepartment._id;
@@ -134,7 +219,7 @@ const addStudent = asyncHandler( async ( req, res ) =>
         }
 
         // Insert valid students into the database
-        const insertedStudents = await Student.insertMany( validStudents );
+        await Student.insertMany( validStudents );
 
         // Return a response with colliding and invalid students
         return res.status( 201 ).json( {
@@ -145,61 +230,6 @@ const addStudent = asyncHandler( async ( req, res ) =>
     {
         return res.status( 500 ).json( { message: 'Internal server error', error: error.message } );
     }
-
-
-
-
-    ///////////////////////////////////////////////////////////////
-    let requestBody = req.body;
-
-    // Check if the request body is an array
-    if ( !Array.isArray( requestBody ) )
-    {
-        // If it's not an array, convert it to an array with a single element
-        requestBody = [ requestBody ];
-    }
-
-    const duplicates = [];
-
-    for ( const studentData of requestBody )
-    {
-        const { emailId, rollNo } = studentData;
-
-        // Check if a student with the same emailId or rollNo already exists
-        const existingStudent = await Student.findOne( {
-            $or: [ { emailId }, { rollNo } ],
-        } );
-
-        if ( existingStudent )
-        {
-            // If a student with the same emailId or rollNo exists, update it and add it to the duplicates array
-            await Student.findByIdAndUpdate( existingStudent.id, studentData );
-            duplicates.push( existingStudent );
-        } else
-        {
-            const { name, emailId, gender, program, department, rollNo, mandatoryTa, year } = studentData;
-            if ( !name || !emailId || !program || !department || !rollNo || !year )
-            {
-                res.status( 400 );
-                throw new Error( "Please fill all mandatory fields" );
-            }
-
-            await Student.create( { name, emailId, gender, program, department, rollNo, mandatoryTa, year } );
-        }
-
-    }
-
-    let responseMessage = { message: "Students Added Successfully" }
-
-    if ( duplicates.length > 0 )
-    {
-        responseMessage = {
-            message: "Duplicate Entries Found. Data Updated with Latest Values",
-            duplicates: duplicates,
-        };
-    }
-
-    res.status( 201 ).json( responseMessage );
 } );
 
 //@desc Update student data

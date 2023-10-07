@@ -8,7 +8,7 @@ const adminSchema = new mongoose.Schema(
             required: true,
             unique: true,
         },
-        Password:{
+        password: {
             type: String,
             required: true,
         },
@@ -32,5 +32,25 @@ const adminSchema = new mongoose.Schema(
         }
     }
 );
+
+
+// adminSchema.pre( 'save', async function ( next )
+// {
+//     const admin = this;
+
+//     // Check if the password has been modified
+//     if ( !admin.isModified( 'password' ) ) return next();
+
+//     try
+//     {
+//         // Hash the password
+//         const hash = await argon2.hash( admin.password );
+//         admin.password = hash;
+//         next();
+//     } catch ( err )
+//     {
+//         return next( err );
+//     }
+// } );
 
 module.exports = mongoose.model( 'Admin', adminSchema );
