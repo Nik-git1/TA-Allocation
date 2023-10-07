@@ -2,6 +2,8 @@ const asyncHandler = require( 'express-async-handler' );
 const mongoose = require( 'mongoose' );
 const Student = require( '../models/Student' );
 const Course = require( '../models/Course' );
+const Round = require( '../models/Round' );
+
 
 //@desc Allocate Student to Course
 //@route POST /api/al/allocation
@@ -15,6 +17,15 @@ const allocate = asyncHandler( async ( req, res ) =>
 
     try
     {
+        const currentRound = await Round.findOne( { ongoing: true, endDate: { $exists: false } } );
+
+        if ( !currentRound )
+        {
+            session.abortTransaction();
+            session.endSession();
+            return res.status( 400 ).json( { message: 'No ongoing round for allocation.' } );
+        }
+
         // Check if the student and course exist
         const student = await Student.findById( studentId ).session( session );
         const course = await Course.findById( courseId ).session( session );
@@ -24,6 +35,32 @@ const allocate = asyncHandler( async ( req, res ) =>
             session.abortTransaction();
             session.endSession();
             return res.status( 404 ).json( { message: 'Student or Course not found' } );
+        }
+
+        // Check allocation limits based on the current round
+        const allocatedStudentsCount = course.taAllocated.length;
+
+        if ( currentRound.currentRound === 1 )
+        {
+            if ( course.totalStudents >= 100 && allocatedStudentsCount >= 2 )
+            {
+                session.abortTransaction();
+                session.endSession();
+                return res.status( 400 ).json( { message: 'Maximum allocation limit reached (2 students).' } );
+            } else if ( allocatedStudentsCount >= 1 )
+            {
+                session.abortTransaction();
+                session.endSession();
+                return res.status( 400 ).json( { message: 'Maximum allocation limit reached (1 student).' } );
+            }
+        } else if ( currentRound.currentRound > 1 )
+        {
+            if ( allocatedStudentsCount >= course.taRequired )
+            {
+                session.abortTransaction();
+                session.endSession();
+                return res.status( 400 ).json( { message: `Maximum allocation limit reached (${ course.taRequired } students).` } );
+            }
         }
 
         // Check if the student is available for allocation
