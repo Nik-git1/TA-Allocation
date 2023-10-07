@@ -1,17 +1,13 @@
 const asyncHandler = require( 'express-async-handler' );
 const Professor = require( "../models/Professor" );
+const Course = require( "../models/Course" );
+
 
 //@desc Get professor by ID
 //@route GET /api/professor/:id
 //@access public
 const getProfessor = asyncHandler( async ( req, res ) =>
 {
-    // If id is email or rollNo
-    // const professor = await Professor.findOne(
-    //         { emailId: req.params.id }
-    // );
-
-    // If id is the id created by mongodb
     const professor = await Professor.findById( req.params.id );
 
     if ( !professor || professor.length === 0 )
@@ -98,10 +94,6 @@ const addProfessor = asyncHandler( async ( req, res ) =>
 //@access public
 const updateProfessor = asyncHandler( async ( req, res ) =>
 {
-    // const professor = await Professor.findOne( 
-    //         { emailId: req.params.id }
-    // );
-
     const professor = await Professor.findById( req.params.id );
 
     if ( !professor || professor.length === 0 )
@@ -119,19 +111,28 @@ const updateProfessor = asyncHandler( async ( req, res ) =>
 //@access public
 const deleteProfessor = asyncHandler( async ( req, res ) =>
 {
-    // const professor = await Professor.findOne(
-    //         { emailId: req.params.id }
-    // );
+    const professorId = req.params.id;
 
-    const professor = await Professor.findById( req.params.id );
-
-    if ( !professor || professor.length === 0 )
+    try
     {
-        res.status( 404 );
-        throw new Error( "No Professor Found" );
+        // Check if the professor exists
+        const professor = await Professor.findById( professorId );
+        if ( !professor )
+        {
+            return res.status( 404 ).json( { message: 'Professor not found' } );
+        }
+
+        // Update related Courses by setting the "professor" field to null
+        await Course.updateMany( { professor: professorId }, { professor: null } );
+
+        // Delete the professor
+        await Professor.findByIdAndRemove( professorId );
+
+        return res.status( 200 ).json( { message: 'Professor deleted successfully' } );
+    } catch ( error )
+    {
+        return res.status( 500 ).json( { message: 'Internal server error', error: error.message } );
     }
-    await Professor.findByIdAndDelete( professor.id );
-    res.status( 200 ).json( { message: "Professor Data Deleted Successfully" } );
 } );
 
 module.exports = { getProfessor, addProfessor, updateProfessor, deleteProfessor, getProfessors };
