@@ -79,32 +79,6 @@ const verifyOtp = asyncHandler( async ( req, res ) =>
   res.status( 200 ).json( { success: true, message: 'OTP verified successfully' } );
 } );
 
-
-const createAdmin = asyncHandler( async ( req, res ) =>
-{
-  const { email_id, password } = req.body;
-  console.log( email_id )
-  console.log( password )
-  // Hash the password before saving it
-  const hash = await argon2.hash( password );
-
-  // Create a new admin user
-  newAdmin = await Admin.create( {
-    emailId: email_id,
-    password: hash,
-  } );
-  console.log( newAdmin.email_id )
-
-  try
-  {
-    await newAdmin.save();
-    res.status( 201 ).json( { success: true, message: 'Admin user created successfully' } );
-  } catch ( error )
-  {
-    res.status( 500 ).json( { success: false, error: 'Admin user creation failed' } );
-  }
-} );
-
 const adminLogin = asyncHandler( async ( req, res ) =>
 {
   const { email_id, password } = req.body;
@@ -189,5 +163,5 @@ const ProfessorLogin = asyncHandler( async ( req, res ) =>
 
 } );
 
-module.exports = { adminLogin, ProfessorLogin, JMLogin, createAdmin, sendOtp, verifyOtp };
+module.exports = { adminLogin, ProfessorLogin, JMLogin, sendOtp, verifyOtp };
 

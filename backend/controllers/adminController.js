@@ -36,7 +36,7 @@ const addAdmin = asyncHandler( async ( req, res ) =>
 {
     try
     {
-        const { emailId, password, jmAccess, professorAccess, studentFormAccess } = req.body;
+        const { emailId, password } = req.body;
 
         // Check if an admin already exists
         const existingAdmin = await Admin.findOne( {} );
@@ -56,10 +56,7 @@ const addAdmin = asyncHandler( async ( req, res ) =>
 
         const newAdmin = new Admin( {
             emailId,
-            password: hashedPassword,
-            jmAccess,
-            professorAccess,
-            studentFormAccess,
+            password: hashedPassword
         } );
 
         const savedAdmin = await newAdmin.save();
