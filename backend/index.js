@@ -11,6 +11,7 @@ connectDb();
 app.use( cors() )
 app.use( errorHandler );
 app.use( express.json() );
+app.use("/api/login" , require("./routes/authRoutes"))
 app.use( "/api/student", require( "./routes/studentRoutes" ) );
 app.use( "/api/course", require( "./routes/courseRoutes" ) );
 app.use( "/api/al", require( "./routes/allocationRoutes" ) );
