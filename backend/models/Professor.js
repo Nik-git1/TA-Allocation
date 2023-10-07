@@ -32,7 +32,7 @@ const professorSchema = new mongoose.Schema(
                 }, message: 'Email Already Taken'
             },
         },
-        hashedPassword: {
+        password: {
             type: String,
             required: true,
         },
@@ -54,13 +54,13 @@ const professorSchema = new mongoose.Schema(
 //     const user = this;
 
 //     // Check if the password has been modified
-//     if ( !user.isModified( 'hashedPassword' ) ) return next();
+//     if ( !user.isModified( 'password' ) ) return next();
 
 //     try
 //     {
 //         // Hash the password
-//         const hash = await argon2.hash( user.hashedPassword );
-//         user.hashedPassword = hash;
+//         const hash = await argon2.hash( user.password );
+//         user.password = hash;
 //         next();
 //     } catch ( err )
 //     {
