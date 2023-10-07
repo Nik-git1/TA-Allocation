@@ -31,15 +31,16 @@ const professorSchema = new mongoose.Schema(
                     } )
                 }, message: 'Email Already Taken'
             },
-            hashedPassword: {
-                type: String,
-                required: true,
-            },
-            name: {
-                type: String,
-                required: true,
-            }
         },
+        hashedPassword: {
+            type: String,
+            required: true,
+        },
+        name: {
+            type: String,
+            required: true,
+        }
+    },
     {
         timestamps: {
             createdAt: "created_at",

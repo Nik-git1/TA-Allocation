@@ -24,15 +24,21 @@ const getProfessor = asyncHandler( async ( req, res ) =>
 //@access public
 const getProfessors = asyncHandler( async ( req, res ) =>
 {
-    const { name, emailId, course } = req.query;
+    try
+    {
+        const { name, emailId } = req.query;
 
-    const filter = {};
-    if ( name ) filter.name = name;
-    if ( emailId ) filter.emailId = emailId;
-    if ( course ) filter.courses = { $in: [ mongoose.Types.ObjectId( course ) ] };
+        const filter = {};
+        if ( name ) filter.name = new RegExp( name, 'i' );
+        if ( emailId ) filter.emailId = new RegExp( emailId, 'i' );
 
-    const filteredProfessors = await Professor.find( filter );
-    res.status( 200 ).json( filteredProfessors );
+        const filteredProfessors = await Professor.find( filter );
+        res.status( 200 ).json( filteredProfessors );
+
+    } catch ( error )
+    {
+        res.status( 500 ).json( { message: 'Internal server error', error: error.message } );
+    }
 } );
 
 //@desc Add new professor
