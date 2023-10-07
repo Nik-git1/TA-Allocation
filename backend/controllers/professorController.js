@@ -19,7 +19,7 @@ const getProfessor = asyncHandler( async ( req, res ) =>
     res.status( 200 ).json( professor );
 } );
 
-//@desc Get filtered faculties
+//@desc Get filtered professors
 //@route GET /api/professor?filters
 //@access public
 const getProfessors = asyncHandler( async ( req, res ) =>
