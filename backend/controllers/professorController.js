@@ -1,6 +1,7 @@
 const asyncHandler = require( 'express-async-handler' );
 const Professor = require( "../models/Professor" );
 const Course = require( "../models/Course" );
+const argon2 = require( 'argon2' );
 
 
 //@desc Get professor by ID
@@ -94,16 +95,44 @@ const addProfessor = asyncHandler( async ( req, res ) =>
 //@access public
 const updateProfessor = asyncHandler( async ( req, res ) =>
 {
-    const professor = await Professor.findById( req.params.id );
+    const professorId = req.params.id;
+    const updates = req.body;
 
-    if ( !professor || professor.length === 0 )
+    try
     {
-        res.status( 404 );
-        throw new Error( "No Professor Found" );
-    }
+        // Step 1: Validate that the professor exists
+        const professor = await Professor.findById( professorId );
+        if ( !professor )
+        {
+            return res.status( 404 ).json( { message: 'Professor not found' } );
+        }
 
-    await Professor.findByIdAndUpdate( professor.id, req.body );
-    res.status( 200 ).json( { message: "Professor Data Updated Successfully" } );
+        // Step 2: Check if emailId is being updated and if it collides with an existing email
+        if ( 'emailId' in updates && updates.emailId !== professor.emailId )
+        {
+            const existingProfessor = await Professor.findOne( { emailId: updates.emailId } );
+            if ( existingProfessor )
+            {
+                return res.status( 400 ).json( { message: 'Email already taken' } );
+            }
+        }
+
+        // Step 3: Check if password is being updated and perform necessary security checks
+        if ( 'hashedPassword' in updates )
+        {
+            // Hash the new password
+            const hash = await argon2.hash( updates.hashedPassword );
+            updates.hashedPassword = hash;
+        }
+
+        // Step 4: Update the professor with the validated values
+        const updatedProfessor = await Professor.findByIdAndUpdate( professorId, updates, { new: true } );
+
+        return res.status( 200 ).json( { message: 'Professor updated successfully', professor: updatedProfessor } );
+    } catch ( error )
+    {
+        return res.status( 500 ).json( { message: 'Internal server error', error: error.message } );
+    }
 } );
 
 //@desc Delete professor by id
