@@ -2,6 +2,7 @@ const asyncHandler = require( 'express-async-handler' );
 const Course = require( "../models/Course" );
 const JM = require( "../models/JM" );
 const Professor = require( "../models/Professor" );
+const { getProfessors } = require('./professorController');
 
 
 //@desc Get course by ID
@@ -63,7 +64,8 @@ const getCourses = asyncHandler( async ( req, res ) =>
 //@access public
 const addCourse = asyncHandler( async ( req, res ) =>
 {
-    const newCourses = req.body;
+    let newCourses = req.body;
+    console.log(newCourses)
 
     if ( !Array.isArray( newCourses ) )
     {
@@ -125,6 +127,7 @@ const addCourse = asyncHandler( async ( req, res ) =>
                     // newCourse.professor = null; // Assign null if professor not found
                     continue; // Skip adding this course
                 }
+                console.log(professor)
             }
 
             // Check for collisions based on the index

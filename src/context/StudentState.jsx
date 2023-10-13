@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import * as XLSX from 'xlsx';
 import StudentContext from "./StudentContext";
-
+import axios from 'axios';
 const StudentState = (props) => {
   const initStudents = []; 
   const [students, setStudents] = useState(initStudents);
@@ -25,31 +25,74 @@ const StudentState = (props) => {
   };
 
   useEffect(() => {
-    console.log(log)
-  }, [log])
+    getStudentsFromBackend();
+  }, [])
   
 
-  
+  const getStudentsFromBackend = () => {
+    axios
+      .get('http://localhost:5001/api/student') // Replace with your actual API endpoint
+      .then((response) => {
+        let studentsFromBackend = response.data;
+        console.log(studentsFromBackend)
+        
+        setStudents(studentsFromBackend);
+      })
+      .catch((error) => {
+        console.error('Error fetching data from the backend:', error);
+      });
+  };
 
   const getStudentsFromFile = (event) => {
-    const file = event.target.files[0]; // Use event.target.files[0] to get the first selected file
+    const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
-
+  
       reader.onload = (e) => {
         const data = e.target.result;
         const workbook = XLSX.read(data, { type: 'binary' });
-        const firstSheet = workbook.Sheets[workbook.SheetNames[1]];
-        const sheetData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+        const sheetName = workbook.SheetNames[0]; // Assuming the data is in the first sheet.
+        const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+  
+        if (sheetData.length === 0) {
+          console.error('No data found in the XLSX file.');
+          return;
+        }
+  
+        // Extract the header row to dynamically map the fields.
+        const headerRow = Object.keys(sheetData[0]);
+  
+        // Create an array of students based on the dynamically mapped fields.
+        const students = sheetData.map((rowData) => {
+          // Map the fields dynamically based on the header row.
+          const student = {};
+  
+          headerRow.forEach((field) => {
+            student[field] = rowData[field];
+          });
+  
+          return student;
+        });
 
-        setStudents(sheetData);
+        console.log(students)
+
+        axios
+          .post('http://localhost:5001/api/student', { students })
+          .then((response) => {
+            console.log('Data sent to the backend:', response.data);
+            getStudentsFromBackend();
+          })
+          .catch((error) => {
+            console.error('Error sending data to the backend:', error);
+          });
       };
       reader.onerror = (error) => {
-        console.error("Error reading XLSX:", error);
+        console.error('Error reading XLSX:', error);
       };
       reader.readAsBinaryString(file);
     }
   };
+  
 
   const allocateStudent = (studentId, courseName) => {
     const updatedStudents = students.map((student) => {

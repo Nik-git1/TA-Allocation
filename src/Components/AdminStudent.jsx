@@ -16,8 +16,7 @@ const Tablestudents = () => {
   };
 
   const handleSave = (rowIndex) => {
-    // Implement your save logic here
-    // For demo purposes, we'll directly update the students data
+  
     const updatedStudent = [...students];
     updatedStudent[rowIndex] = { ...students[rowIndex] }; // Clone the original data
     setStudents(updatedStudent);
@@ -29,8 +28,6 @@ const Tablestudents = () => {
   };
 
   const handleDelete = (rowIndex) => {
-    // Implement your delete logic here
-    // For demo purposes, we'll directly update the students data
     const updatedStudent = [...students];
     updatedStudent.splice(rowIndex, 1);
     setStudents(updatedStudent);
