@@ -271,6 +271,9 @@ const updateStudent = asyncHandler(async (req, res) => {
   const studentId = req.params.id;
   const updates = req.body;
 
+  console.log(studentId)
+  console.log(updates)
+
   try {
     // Step 1: Validate that the student exists
     const student = await Student.findById(studentId);
