@@ -4,13 +4,17 @@ import '../App.css';
 import CourseContext from '../context/CourseContext';
 import DepartmentContext from '../context/DepartmentContext';
 import AllocateHeader from './AllocateHeader';
+import { useNavigate } from "react-router-dom"; 
 
 const Department = () => {
 
   const { departmentCourses } = useContext(DepartmentContext);
+  const {setSelectedCourse,selectedCourse} = useContext(CourseContext)
+  const navigate = useNavigate();
 
   const allocateCourse = (courseName) => {
-    // Implement your allocation logic here
+    setSelectedCourse(courseName);
+    navigate(`/admin/course/${courseName}`);
   };
 
   const renderHeaderRow = () => {
@@ -50,7 +54,7 @@ const Department = () => {
                 ))}
                 <td className="border p-2">
                   <button
-                    onClick={() => allocateCourse(row['courseName'])}
+                    onClick={() => allocateCourse(row['name'])}
                     className="bg-[#3dafaa] text-white px-4 py-2 rounded cursor-pointer font-bold"
                   >
                     Allocate

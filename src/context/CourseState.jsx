@@ -6,9 +6,11 @@ import axios from 'axios';
 const CourseState = (props) => {
   const initCourses = [];
   const [courses, setCourses] = useState(initCourses);
-  const [departmentCourses, setDepartmentCourses] = useState(initCourses)
+  const [ selectedCourse , setSelectedCourse] = useState();
+
   useEffect(() => {
     getCoursesFromBackend();
+    
   }, []);
 
   const filterCoursesByDepartment = async (department) => {
@@ -123,7 +125,9 @@ const CourseState = (props) => {
         updateCourse,
         deleteCourse,
         getCourseFromFile,
-        filterCoursesByDepartment
+        filterCoursesByDepartment,
+        setSelectedCourse,
+        selectedCourse
       }}
     >
       {props.children}
