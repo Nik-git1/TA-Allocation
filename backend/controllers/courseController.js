@@ -2,7 +2,7 @@ const asyncHandler = require( 'express-async-handler' );
 const Course = require( "../models/Course" );
 const JM = require( "../models/JM" );
 const Professor = require( "../models/Professor" );
-const { getProfessors } = require('./professorController');
+const { getProfessors } = require( './professorController' );
 
 
 //@desc Get course by ID
@@ -29,7 +29,7 @@ const getCourses = asyncHandler( async ( req, res ) =>
 
     console.log(department)
 
-    const filter = {};
+    var filter = {};
     if ( name ) filter.program = name;
     if ( code ) filter.code = code;
     if ( acronym ) filter.acronym = acronym;
@@ -67,7 +67,6 @@ const getCourses = asyncHandler( async ( req, res ) =>
 const addCourse = asyncHandler( async ( req, res ) =>
 {
     let newCourses = req.body;
-    console.log(newCourses)
 
     if ( !Array.isArray( newCourses ) )
     {
@@ -76,9 +75,9 @@ const addCourse = asyncHandler( async ( req, res ) =>
 
     try
     {
-        const collidingCourses = [];
-        const invalidDeptCourses = [];
-        const invalidProfCourses = [];
+        var collidingCourses = [];
+        var invalidDeptCourses = [];
+        var invalidProfCourses = [];
 
         for ( const newCourse of newCourses )
         {
@@ -105,7 +104,7 @@ const addCourse = asyncHandler( async ( req, res ) =>
             // Handle "department" reference
             if ( newCourse.department )
             {
-                const jmDepartment = await JM.findOne( { department: newCourse.department } );
+                var jmDepartment = await JM.findOne( { department: newCourse.department } );
                 if ( jmDepartment )
                 {
                     newCourse.department = jmDepartment._id;
@@ -119,7 +118,7 @@ const addCourse = asyncHandler( async ( req, res ) =>
             // Handle "professor" reference
             if ( newCourse.professor )
             {
-                const professor = await Professor.findOne( { name: newCourse.professor } );
+                var professor = await Professor.findOne( { name: newCourse.professor } );
                 if ( professor )
                 {
                     newCourse.professor = professor._id;
@@ -129,7 +128,7 @@ const addCourse = asyncHandler( async ( req, res ) =>
                     // newCourse.professor = null; // Assign null if professor not found
                     continue; // Skip adding this course
                 }
-                console.log(professor)
+                console.log( professor )
             }
 
             // Check for collisions based on the index
@@ -173,7 +172,7 @@ const updateCourse = asyncHandler( async ( req, res ) =>
 
     try
     {
-        const course = await Course.findById( courseId );
+        var course = await Course.findById( courseId );
         if ( !course )
         {
             return res.status( 404 ).json( { message: 'Course not found' } );
@@ -228,14 +227,14 @@ const deleteCourse = asyncHandler( async ( req, res ) =>
     try
     {
         // Step 1: Validate that the course exists
-        const course = await Course.findById( courseId );
+        var course = await Course.findById( courseId );
         if ( !course )
         {
             return res.status( 404 ).json( { message: 'Course not found' } );
         }
 
         // Step 2: Get the list of student IDs from the allocatedTA field
-        const studentIds = course.taAllocated;
+        var studentIds = course.taAllocated;
 
         // Step 3: Set taAllocated to null for students in the list
         await Student.updateMany(

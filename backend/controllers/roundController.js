@@ -39,7 +39,7 @@ const endRound = asyncHandler( async ( req, res ) =>
     try
     {
         // Find an ongoing round with no endDate
-        const ongoingRound = await Round.findOne( { ongoing: true, endDate: { $exists: false } } );
+        var ongoingRound = await Round.findOne( { ongoing: true, endDate: { $exists: false } } );
 
         if ( !ongoingRound )
         {
