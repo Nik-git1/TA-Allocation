@@ -28,7 +28,7 @@ const getProfessors = asyncHandler( async ( req, res ) =>
     {
         const { name, emailId } = req.query;
 
-        const filter = {};
+        var filter = {};
         if ( name ) filter.name = new RegExp( name, 'i' );
         if ( emailId ) filter.emailId = new RegExp( emailId, 'i' );
 
@@ -48,7 +48,7 @@ const addProfessor = asyncHandler( async ( req, res ) =>
 {
     try
     {
-        let professorsToAdd = req.body;
+        var professorsToAdd = req.body;
 
         // If a single professor object is provided, convert it to an array of one professor
         if ( !Array.isArray( professorsToAdd ) )
@@ -56,7 +56,7 @@ const addProfessor = asyncHandler( async ( req, res ) =>
             professorsToAdd = [ professorsToAdd ];
         }
 
-        const invalidProfessors = [];
+        var invalidProfessors = [];
 
         for ( const professor of professorsToAdd )
         {
@@ -122,12 +122,12 @@ const addProfessor = asyncHandler( async ( req, res ) =>
 const updateProfessor = asyncHandler( async ( req, res ) =>
 {
     const professorId = req.params.id;
-    const updates = req.body;
+    var updates = req.body;
 
     try
     {
         // Step 1: Validate that the professor exists
-        const professor = await Professor.findById( professorId );
+        var professor = await Professor.findById( professorId );
         if ( !professor )
         {
             return res.status( 404 ).json( { message: 'Professor not found' } );
