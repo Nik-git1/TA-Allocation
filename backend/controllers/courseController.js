@@ -63,7 +63,7 @@ const getCourses = asyncHandler( async ( req, res ) =>
 //@access public
 const addCourse = asyncHandler( async ( req, res ) =>
 {
-    const newCourses = req.body;
+    let newCourses = req.body;
 
     if ( !Array.isArray( newCourses ) )
     {
