@@ -8,6 +8,7 @@ const StudentState = (props) => {
   const [students, setStudents] = useState(initStudents);
 
   const updateStudent = async (studentId, updatedData) => {
+    console.log(updatedData)
     try {
       const response = await axios.put(`http://localhost:5001/api/student/${studentId}`, updatedData);
       if (response.status === 200) {

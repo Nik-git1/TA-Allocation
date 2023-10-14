@@ -11,15 +11,29 @@ const Tablestudents = () => {
     setEditedStudentData({ ...students[rowIndex] });
   };
 
+
   const handleSave = async (rowIndex) => {
     if (JSON.stringify(editedStudentData) === JSON.stringify(students[rowIndex])) {
       handleCancel();
       return;
     }
-
-    await updateStudent(students[rowIndex]._id, editedStudentData);
+    const originalStudentData = students[rowIndex]; 
+    const updatedData = {};
+  
+    for (const key in editedStudentData) {
+      if (editedStudentData[key] !== originalStudentData[key]) {
+        updatedData[key] = editedStudentData[key]; // Add changed field to updatedData
+      }
+    }
+    await updateStudent(students[rowIndex]._id, updatedData);
+  
+    // Reset the editing state
     handleCancel();
   };
+  
+
+
+  
 
   const handleCancel = () => {
     setEditingRow(-1);
@@ -48,7 +62,7 @@ const Tablestudents = () => {
             {isEditing ? (
               <input
                 type='text'
-                value={editedStudentData[key] || student[key]}
+                value={editedStudentData[key] ?? student[key]}
                 onChange={(e) => handleInputChange(e, key)}
               />
             ) : (

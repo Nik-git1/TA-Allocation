@@ -165,7 +165,7 @@ const addCourse = asyncHandler( async ( req, res ) =>
 //@route PUT /api/course/:id
 //@access public
 const updateCourse = asyncHandler( async ( req, res ) =>
-{
+{ //update tareq according to the changes
     const courseId = req.params.id;
     const updates = req.body;
 
