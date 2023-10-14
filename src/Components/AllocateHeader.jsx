@@ -8,12 +8,12 @@ import { Link, useNavigate } from "react-router-dom";
 const AllocateHeader = () => {
   const [filteredCourses, setfilteredCourses] = useState([]);
   const { course, updateSelectedCourse } = useContext(CourseContext);
-  const { selectedDepartment, updateSelectedDepartment } = useContext(
+  const { departments, selectedDepartment, setSelectedDepartment } = useContext(
     DepartmentContext
   );
 
   const handleDepartmentChange = (event) => {
-    updateSelectedDepartment(event.target.value);
+    setSelectedDepartment(event.target.value);
   };
 
   return (
@@ -28,9 +28,11 @@ const AllocateHeader = () => {
             value={selectedDepartment}
             onChange={handleDepartmentChange}
           >
-            <option value="CSE">CSE</option>
-            <option value="MATHS">MATHS</option>
-            <option value="HCD">HCD</option>
+            {departments.map((department) => (
+              <option key={department} value={department}>
+                {department}
+              </option>
+            ))}
           </select>
         </div>
       </div>
@@ -41,7 +43,7 @@ const AllocateHeader = () => {
             <input
               type="search"
               placeholder="Search Course.."
-              className="w-full p-4 rounded-full h-10 border border-[#3dafaa] outline-none focus:border-[#3dafaa]"
+              className="w-full p-4 rounded-full h-10 border border-[#3dafaa] outline-none focus.border-[#3dafaa]"
             />
             <button className="absolute right-0 top-1/2 -translate-y-1/2 p-3 bg-[#3dafaa] rounded-full search-button">
               <AiOutlineSearch />
