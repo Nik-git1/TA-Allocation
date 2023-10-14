@@ -27,8 +27,8 @@ const allocate = asyncHandler( async ( req, res ) =>
         }
 
         // Check if the student and course exist
-        const student = await Student.findById( studentId ).session( session );
-        const course = await Course.findById( courseId ).session( session );
+        var student = await Student.findById( studentId ).session( session );
+        var course = await Course.findById( courseId ).session( session );
 
         if ( !student || !course )
         {
@@ -105,7 +105,7 @@ const deallocate = asyncHandler( async ( req, res ) =>
     try
     {
         // Check if the student exists
-        const student = await Student.findById( studentId ).session( session );
+        var student = await Student.findById( studentId ).session( session );
 
         if ( !student )
         {
@@ -123,7 +123,7 @@ const deallocate = asyncHandler( async ( req, res ) =>
         }
 
         // Get the course that the student is allocated to
-        const course = await Course.findById( student.allocatedTA ).session( session );
+        var course = await Course.findById( student.allocatedTA ).session( session );
 
         if ( course )
         {
@@ -162,7 +162,7 @@ const freezeAllocation = asyncHandler( async ( req, res ) =>
     try
     {
         // Check if the student exists
-        const student = await Student.findById( studentId ).session( session );
+        var student = await Student.findById( studentId ).session( session );
 
         if ( !student )
         {

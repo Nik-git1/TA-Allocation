@@ -29,7 +29,7 @@ const getJMs = asyncHandler( async ( req, res ) =>
     {
         const { department, emailId } = req.query;
 
-        const filter = {};
+        var filter = {};
         if ( department ) filter.department = new RegExp( department, 'i' );
         if ( emailId ) filter.emailId = new RegExp( emailId, 'i' );
 
@@ -57,7 +57,7 @@ const addJM = asyncHandler( async ( req, res ) =>
             jmsToAdd = [ jmsToAdd ];
         }
 
-        const invalidJMs = [];
+        var invalidJMs = [];
 
         for ( const jm of jmsToAdd )
         {
@@ -123,12 +123,12 @@ const addJM = asyncHandler( async ( req, res ) =>
 const updateJM = asyncHandler( async ( req, res ) =>
 {
     const jmId = req.params.id;
-    const updates = req.body;
+    var updates = req.body;
 
     try
     {
         // Step 1: Validate that the jm exists
-        const jm = await JM.findById( jmId );
+        var jm = await JM.findById( jmId );
         if ( !jm )
         {
             return res.status( 404 ).json( { message: 'JM not found' } );

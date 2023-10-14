@@ -73,7 +73,7 @@ const addAdmin = asyncHandler( async ( req, res ) =>
 const updateAdmin = asyncHandler( async ( req, res ) =>
 {
     const adminId = req.params.id;
-    const updates = req.body;
+    let updates = req.body;
 
     try
     {
