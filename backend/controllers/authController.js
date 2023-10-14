@@ -5,9 +5,8 @@ const Professor = require( "../models/Professor" );
 const argon2 = require( 'argon2' );
 const jwt = require( "jsonwebtoken" );
 const nodemailer = require( 'nodemailer' );
-const JWT_SECRET = "shh";
 const otpGenerator = require( 'otp-generator' );
-
+const JWT_SECRET= "jwt"
 const otpStorage = new Map();
 
 // Function to generate and store OTP
@@ -79,8 +78,37 @@ const verifyOtp = asyncHandler( async ( req, res ) =>
   res.status( 200 ).json( { success: true, message: 'OTP verified successfully' } );
 } );
 
+const addAdmin = asyncHandler(async (req, res) => {
+  const { email_id, password } = req.body;
+
+  // Check if the admin with the same email already exists
+  const adminExists = await Admin.findOne({ emailId: email_id });
+  if (adminExists) {
+    return res.status(400).json({ error: "Admin with this email already exists" });
+  }
+
+  // Hash the password using Argon2
+  const hashedPassword = await argon2.hash(password);
+
+  // Create a new admin instance
+  const newAdmin = new Admin({
+    emailId: email_id,
+    password: hashedPassword,
+  });
+
+  // Save the admin to the database
+  try {
+    await newAdmin.save();
+    res.status(201).json({ success: true, message: "Admin added successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Server error: Failed to add admin" });
+  }
+});
+
+
 const adminLogin = asyncHandler( async ( req, res ) =>
 {
+
   const { email_id, password } = req.body;
   let user = await Admin.findOne( { emailId: email_id } );
 
@@ -163,5 +191,5 @@ const ProfessorLogin = asyncHandler( async ( req, res ) =>
 
 } );
 
-module.exports = { adminLogin, ProfessorLogin, JMLogin, sendOtp, verifyOtp };
+module.exports = { adminLogin, ProfessorLogin, JMLogin, sendOtp, verifyOtp, addAdmin };
 
