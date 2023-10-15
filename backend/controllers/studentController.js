@@ -1,4 +1,5 @@
 const asyncHandler = require( "express-async-handler" );
+const mongoose = require( "mongoose" );
 const Student = require( "../models/Student" );
 const Course = require( "../models/Course" );
 const JM = require( "../models/JM" );
@@ -175,7 +176,7 @@ async function getCourseIdByName ( courseName )
 //@access public
 const addStudent = asyncHandler( async ( req, res ) =>
 {
-  var newStudents = req.body.students;
+  var newStudents = req.body;
 
   // Check if the request body is an array
   if ( !Array.isArray( newStudents ) )
@@ -194,7 +195,6 @@ const addStudent = asyncHandler( async ( req, res ) =>
     for ( const newStudent of newStudents )
     {
       // Check if all required fields are present
-      console.log( newStudent )
       const requiredFields = [
         "name",
         "emailId",
