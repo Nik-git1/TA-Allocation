@@ -68,20 +68,20 @@ const studentSchema = new mongoose.Schema( {
                 },
                 message: 'Enter atmost 2 departmental course preferences',
             },
-            // {
-            //     validator: async function ( prefs )
-            //     {
-            //         // Validate that the department of the student matches the department of all courses
-            //         const student = this;
-            //         const departmentsMatch = await Promise.all( prefs.map( async ( pref ) =>
-            //         {
-            //             const course = await mongoose.model( 'Course' ).findById( pref.course );
-            //             return course && course.department.equals( student.department );
-            //         } ) );
-            //         return departmentsMatch.every( ( match ) => match === true );
-            //     },
-            //     message: 'Course department must match student department for all courses in department preferences',
-            // }, 
+            {
+                validator: async function ( prefs )
+                {
+                    // Validate that the department of the student matches the department of all courses
+                    const student = this;
+                    const departmentsMatch = await Promise.all( prefs.map( async ( pref ) =>
+                    {
+                        const course = await mongoose.model( 'Course' ).findById( pref.course );
+                        return course && course.department.equals( student.department );
+                    } ) );
+                    return departmentsMatch.every( ( match ) => match === true );
+                },
+                message: 'Course department must match student department for all courses in department preferences',
+            },
         ],
     },
     nonDepartmentPreferences: {

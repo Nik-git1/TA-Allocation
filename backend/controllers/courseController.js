@@ -10,14 +10,37 @@ const { getProfessors } = require( './professorController' );
 //@access public
 const getCourse = asyncHandler( async ( req, res ) =>
 {
-    const course = await Course.findById( req.params.id );
+    const course = await Course.findById( req.params.id )
+        .populate( {
+            path: 'department',
+            select: 'department -_id'
+        } )
+        .populate( {
+            path: 'professor',
+            select: 'name -_id'
+        } );
 
     if ( !course || course.length === 0 )
     {
         res.status( 404 );
         throw new Error( "No Course Found" );
     }
-    res.status( 200 ).json( course );
+
+    const flattenedCourse = {
+        _id: course._id,
+        name: course.name,
+        code: course.code,
+        acronym: course.acronym,
+        department: course.department ? course.department.department : null,
+        credits: course.credits,
+        professor: course.professor ? course.professor.name : null,
+        totalStudents: course.totalStudents,
+        taStudentRatio: course.taStudentRatio,
+        taRequired: course.taRequired,
+        taAllocated: course.taAllocated,
+    };
+
+    res.status( 200 ).json( flattenedCourse );
 } );
 
 //@desc Get filtered courses
@@ -26,8 +49,6 @@ const getCourse = asyncHandler( async ( req, res ) =>
 const getCourses = asyncHandler( async ( req, res ) =>
 {
     const { name, code, acronym, department, professor, credits } = req.query;
-
-    console.log(department)
 
     var filter = {};
     if ( name ) filter.program = name;
@@ -53,8 +74,31 @@ const getCourses = asyncHandler( async ( req, res ) =>
             }
         }
 
-        const filteredCourses = await Course.find( filter );
-        res.status( 200 ).json( filteredCourses );
+        const filteredCourses = await Course.find( filter )
+            .populate( {
+                path: 'department',
+                select: 'department -_id' // Replace with the actual attribute name in the 'JM' model
+            } )
+            .populate( {
+                path: 'professor',
+                select: 'name -_id' // Replace with the actual attribute name in the 'Professor' model
+            } );
+
+        const flattenedCourses = filteredCourses.map( course => ( {
+            _id: course._id,
+            name: course.name,
+            code: course.code,
+            acronym: course.acronym,
+            department: course.department ? course.department.department : null,
+            credits: course.credits,
+            professor: course.professor ? course.professor.name : null,
+            totalStudents: course.totalStudents,
+            taStudentRatio: course.taStudentRatio,
+            taRequired: course.taRequired,
+            // taAllocated: course.taAllocated,
+        } ) );
+
+        res.status( 200 ).json( flattenedCourses );
     } catch ( error )
     {
         res.status( 500 ).json( { error: 'Server error' } );
