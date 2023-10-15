@@ -18,7 +18,6 @@ const allocate = asyncHandler( async ( req, res ) =>
     try
     {
         var currentRound = await Round.findOne( { ongoing: true, endDate: { $exists: false } } );
-        console.log(currentRound)
 
         if ( !currentRound )
         {
@@ -26,14 +25,11 @@ const allocate = asyncHandler( async ( req, res ) =>
             session.endSession();
             return res.status( 400 ).json( { message: 'No ongoing round for allocation.' } );
         }
-      
+
 
         // Check if the student and course exist
         var student = await Student.findById( studentId ).session( session );
         var course = await Course.findById( courseId ).session( session );
-        console.log("okay")
-        console.log(student)
-        console.log(course)
 
         if ( !student || !course )
         {
@@ -77,7 +73,7 @@ const allocate = asyncHandler( async ( req, res ) =>
         }
 
         // Update student's allocatedTA and allocationStatus
-        student.allocatedTA = courseId;
+        student.allocatedTA = course.id;
         student.allocationStatus = 1;
         await student.save();
 
