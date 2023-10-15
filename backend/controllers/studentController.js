@@ -8,14 +8,56 @@ const JM = require( "../models/JM" );
 //@access public
 const getStudent = asyncHandler( async ( req, res ) =>
 {
-  const student = await Student.findById( req.params.id );
+  const student = await Student.findById( req.params.id ).populate( {
+    path: 'department',
+    select: 'department -_id'
+  } )
+    .populate( {
+      path: 'allocatedTA',
+      select: 'name -_id'
+    } )
+    .populate( {
+      path: 'departmentPreferences.course',
+      select: 'name -_id'
+    } )
+    .populate( {
+      path: 'nonDepartmentPreferences.course',
+      select: 'name -_id'
+    } )
+    .populate( {
+      path: 'nonPreferences',
+      select: 'name -_id'
+    } );
 
   if ( !student || student.length === 0 )
   {
     res.status( 404 );
     throw new Error( "No Student Found" );
   }
-  res.status( 200 ).json( student );
+
+  const flatStudent = {
+    _id: student._id,
+    name: student.name,
+    emailId: student.emailId,
+    rollNo: student.rollNo,
+    program: student.program,
+    department: student.department ? student.department.department : null,
+    taType: student.taType,
+    allocationStatus: student.allocationStatus,
+    allocatedTA: student.allocatedTA ? student.allocatedTA.name : null,
+    nonPreferences: student.nonPreferences.map( preference => preference ? preference.name : null ),
+    departmentPreferences: student.departmentPreferences.map( preference => ( {
+      course: preference.course ? preference.course.name : null,
+      grade: preference.grade
+    } ) ),
+    nonDepartmentPreferences: student.nonDepartmentPreferences.map( preference => ( {
+      course: preference.course ? preference.course.name : null,
+      grade: preference.grade
+    } ) ),
+    __v: student.__v
+  };
+
+  res.status( 200 ).json( flatStudent );
 } );
 
 //@desc Get filtered students
@@ -85,8 +127,35 @@ const getStudents = asyncHandler( async ( req, res ) =>
       filter[ "nonPreferences" ] = await getCourseIdByName( nonPreference );
     }
 
-    const filteredStudents = await Student.find( filter );
-    res.status( 200 ).json( filteredStudents );
+    const filteredStudents = await Student.find( filter )
+      .populate( 'department', 'department -_id' )
+      .populate( 'allocatedTA', 'name -_id' )
+      .populate( 'nonPreferences', 'name -_id' )
+      .populate( 'departmentPreferences.course', 'name -_id' )
+      .populate( 'nonDepartmentPreferences.course', 'name -_id' );
+    const flatStudents = filteredStudents.map( student => ( {
+      _id: student._id,
+      name: student.name,
+      emailId: student.emailId,
+      rollNo: student.rollNo,
+      program: student.program,
+      department: student.department ? student.department.department : null,
+      taType: student.taType,
+      allocationStatus: student.allocationStatus,
+      allocatedTA: student.allocatedTA ? student.allocatedTA.name : null,
+      nonPreferences: student.nonPreferences.map( preference => preference ? preference.name : null ),
+      departmentPreferences: student.departmentPreferences.map( preference => ( {
+        course: preference.course ? preference.course.name : null,
+        grade: preference.grade
+      } ) ),
+      nonDepartmentPreferences: student.nonDepartmentPreferences.map( preference => ( {
+        course: preference.course ? preference.course.name : null,
+        grade: preference.grade
+      } ) ),
+      __v: student.__v
+    } ) );
+
+    res.status( 200 ).json( flatStudents );
   } catch {
     return res
       .status( 500 )
