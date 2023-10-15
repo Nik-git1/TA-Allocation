@@ -205,7 +205,7 @@ const addStudent = asyncHandler( async ( req, res ) =>
           {
             delete newStudent.allocatedTA;
           }
-          if ( newStudent.allocationStatus )
+          if ( newStudent.allocationStatus !== null && newStudent.allocationStatus !== undefined )
           {
             delete newStudent.allocationStatus;
           }
@@ -301,9 +301,6 @@ const updateStudent = asyncHandler( async ( req, res ) =>
 {
   const studentId = req.params.id;
   var updates = req.body;
-
-  console.log( studentId )
-  console.log( updates )
 
   try
   {

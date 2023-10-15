@@ -96,8 +96,7 @@ const addCourse = asyncHandler( async ( req, res ) =>
             }
 
             // Calculate taRequired
-
-            newCourse.taRequired = Math.floor( newCourse.totalStudents / newCourse.taStudentRatio );
+            // newCourse.taRequired = Math.floor( newCourse.totalStudents / newCourse.taStudentRatio );
 
             // Handle "department" reference
             if ( newCourse.department )
@@ -196,9 +195,24 @@ const updateCourse = asyncHandler( async ( req, res ) =>
             updates.professor = professor._id;
         }
 
-        if ( parseInt( updates.taStudentRatio ) < 1 )
+        // Check if taStudentRatio or totalStudents is updated
+        if ( updates.taStudentRatio !== null || updates.taStudentRatio !== undefined || updates.totalStudents !== null || updates.taStudentRatio !== undefined )
         {
-            delete updates.taStudentRatio;
+            // If taStudentRatio is not > 1, delete it from updates
+            if ( ( updates.taStudentRatio !== null || updates.taStudentRatio !== undefined ) && updates.taStudentRatio < 1 )
+            {
+                delete updates.taStudentRatio;
+            }
+
+            // Check if taRequired is updated
+            if ( updates.taRequired )
+            {
+                // If taRequired is updated, do nothing, save the provided value
+            } else
+            {
+                // If taRequired is not updated, recalculate its value using the formula
+                updates.taRequired = Math.floor( ( updates.totalStudents || course.totalStudents ) / ( updates.taStudentRatio || course.taStudentRatio ) );
+            }
         }
 
         if ( updates.taAllocated )

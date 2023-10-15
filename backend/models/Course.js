@@ -37,7 +37,14 @@ const courseSchema = new mongoose.Schema( {
         required: true,
         min: 1
     },
-    taRequired: Number,
+    taRequired: {
+        type: Number,
+        default: function ()
+        {
+            // Calculate the default value
+            return Math.floor( this.totalStudents / this.taStudentRatio );
+        }
+    },
     taAllocated: [ {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Student',
