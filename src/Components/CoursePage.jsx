@@ -1,68 +1,101 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import CourseContext from "../context/CourseContext";
 import StudentContext from "../context/StudentContext";
-import DepartmentContext from "../context/DepartmentContext";
-import Swal from "sweetalert2";
+import axios from "axios";
 
 const CoursePage = () => {
-  const { selectedCourse, selectedCourseTA } = useContext(CourseContext);
+  const { selectedCourse } = useContext(CourseContext);
   const { students } = useContext(StudentContext);
-  const { selectedDepartment } = useContext(DepartmentContext);
-  const [clickedStudentName, setClickedStudentName] = useState(null);
-  const [allocatedStudents, setAllocatedStudents] = useState([]);
-  const [columnHeaders, setColumnHeaders] = useState([]);
+  const [button, setbutton] = useState(false);
 
-  useEffect(() => {
-    const updatedAllocatedStudents = students.filter(
-      (student) =>
-        student.department === selectedDepartment &&
-        student.allocated === "Yes" &&
-        student.course === selectedCourse
+  const [studentLists, setStudentLists] = useState({ allocatedToThisCourse: [], availableStudents: [] });
+
+  const calculateStudentLists = () => {
+    // Filter students based on their allocation status and the selected course
+    const allocatedToThisCourse = students.filter(
+      (student) => student.allocationStatus === 1 && student.allocatedTA === selectedCourse.name
     );
-    setAllocatedStudents(updatedAllocatedStudents);
-    // Extract column headers dynamically from the first student object (assuming it's present)
-    if (students.length > 0) {
-      const firstStudent = students[0];
-      const headers = Object.keys(firstStudent);
-      setColumnHeaders(headers);
-    }
-  }, [students, selectedDepartment, selectedCourse]);
 
-  const renderColumnHeaders = (headers) => (
-    <tr className="bg-[#3dafaa] text-white">
-      {headers.map((header) => (
-        <th className="border p-2 text-center" key={header}>
-          {header}
-        </th>
-      ))}
-      <th className="border p-2 text-center">Action</th>
-    </tr>
-  );
+    const availableStudents = students.filter(
+      (student) => student.allocationStatus !== 1 || student.allocatedTA !== selectedCourse.name
+    );
+
+    setStudentLists({ allocatedToThisCourse, availableStudents });
+  };
+  useEffect(() => {
+    calculateStudentLists();
+    // No need to console.log(studentLists) here
+}, [button]);
+
+// Use another useEffect to monitor the studentLists state
+useEffect(() => {
+    console.log(studentLists); // Check if the state has been updated
+}, [studentLists]);
+
+// Rest of your component remains the same
+
+
+  const handleAllocate = (studentId) => {
+    // Make a POST request to allocate the student
+    axios
+      .post("http://localhost:5001/api/al/allocation", {
+        studentId,
+        courseId: selectedCourse._id,
+      })
+      .then((response) => {
+        // Allocation was successful
+        console.log("Student allocated successfully");
+        // Toggle the button state to trigger recalculation
+         setbutton((prevState) => !prevState);
+      })
+      .catch((error) => {
+        // Handle any errors, e.g., display an error message
+        console.error("Error allocating student:", error);
+      });
+  };
+
+  const handleDeallocate = (studentId) => {
+    // Make a POST request to deallocate the student
+    axios
+      .post("http://localhost:5001/api/al/deallocation", {
+        studentId,
+      })
+      .then((response) => {
+        // Allocation was successful
+        console.log("Student deallocated successfully");
+        // Toggle the button state to trigger recalculation
+        setbutton((prevState) => !prevState);
+      })
+      
+      .catch((error) => {
+        // Handle any errors, e.g., display an error message
+        console.error("Error deallocating student:", error);
+      });
+  };
 
   return (
-    <div style={{ maxHeight: "900px", overflow: "auto" }}>
-      <h1 className="text-[#3dafaa] text-3xl font-bold m-5">
-        {selectedCourse}
-      </h1>
+    <div>
+      <h1 className="text-3xl font-bold m-5">{selectedCourse.name}</h1>
 
       <div className="m-5">
-        <h2 className="text-[#3dafaa] text-2xl font-bold mb-2">
-          Allocated Students
-        </h2>
+        <h2 className="text-2xl font-bold mb-2">Allocated Students to This Course</h2>
         <table className="w-full border-collapse border">
-          <thead>{renderColumnHeaders(columnHeaders)}</thead>
+          <thead>
+            <tr className="bg-gray-200 text-gray-700">
+              <th className="border p-2">Name</th>
+              <th className="border p-2">Email</th>
+              <th className="border p-2">Action</th>
+            </tr>
+          </thead>
           <tbody>
-            {allocatedStudents.map((student, index) => (
-              <tr className="text-center" key={index}>
-                {columnHeaders.map((header) => (
-                  <td className="border p-2" key={header}>
-                    {student[header]}
-                  </td>
-                ))}
+            {studentLists.allocatedToThisCourse.map((student) => (
+              <tr key={student._id} className="text-center">
+                <td className="border p-2">{student.name}</td>
+                <td className="border p-2">{student.emailId}</td>
                 <td className="border p-2">
                   <button
-                    onClick={() => DeAllocate(student.id, student.name)}
-                    className={`bg-[#ff0909] text-white px-4 py-2 rounded cursor-pointer font-bold`}
+                    className="bg-red-500 text-white px-4 py-2 rounded cursor-pointer font-bold"
+                    onClick={() => handleDeallocate(student._id)}
                   >
                     Deallocate
                   </button>
@@ -74,27 +107,32 @@ const CoursePage = () => {
       </div>
 
       <div className="m-5">
-        <h2 className="text-[#3dafaa] text-2xl font-bold mb-2">
-          Available Students
-        </h2>
+        <h2 className="text-2xl font-bold mb-2">Available Students</h2>
         <table className="w-full border-collapse border">
-          <thead>{renderColumnHeaders(columnHeaders)}</thead>
+          <thead>
+            <tr className="bg-gray-200 text-gray-700">
+              <th className="border p-2">Name</th>
+              <th className="border p-2">Email</th>
+              <th className="border p-2">Action</th>
+            </tr>
+          </thead>
           <tbody>
-            {students.map((student, index) => (
-              <tr className="text-center" key={index}>
-                {columnHeaders.map((header) => (
-                  <td className="border p-2" key={header}>
-                    {student[header]}
-                  </td>
-                ))}
+            {studentLists.availableStudents.map((student) => (
+              <tr key={student._id} className="text-center">
+                <td className="border p-2">{student.name}</td>
+                <td className="border p-2">{student.emailId}</td>
                 <td className="border p-2">
                   <button
-                    onClick={() => Allocate(student.id, student.name)}
-                    className={`bg-[#3dafaa] text-white px-4 py-2 rounded cursor-pointer font-bold`}
-                    disabled={student.allocated === "Yes"}
+                    className={`${
+                      student.allocationStatus === 1 && student.allocatedTA !== selectedCourse.name
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-[#3dafaa] cursor-pointer"
+                    } text-white px-4 py-2 rounded font-bold`}
+                    onClick={() => handleAllocate(student._id)}
+                    disabled={student.allocationStatus === 1 && student.allocatedTA !== selectedCourse.name}
                   >
-                    {student.allocated === "Yes"
-                      ? `Allocated to ${student.allocatedTo}`
+                    {student.allocationStatus === 1 && student.allocatedTA !== selectedCourse.name
+                      ? "Allocated"
                       : "Allocate"}
                   </button>
                 </td>

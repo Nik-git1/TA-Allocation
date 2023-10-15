@@ -12,8 +12,9 @@ const Department = () => {
   const {setSelectedCourse,selectedCourse} = useContext(CourseContext)
   const navigate = useNavigate();
 
-  const allocateCourse = (courseName) => {
-    setSelectedCourse(courseName);
+  const allocateCourse = (course) => {
+    var courseName = course.name
+    setSelectedCourse(course);
     navigate(`/admin/course/${courseName}`);
   };
 
@@ -54,7 +55,7 @@ const Department = () => {
                 ))}
                 <td className="border p-2">
                   <button
-                    onClick={() => allocateCourse(row['name'])}
+                    onClick={() => allocateCourse(row)}
                     className="bg-[#3dafaa] text-white px-4 py-2 rounded cursor-pointer font-bold"
                   >
                     Allocate

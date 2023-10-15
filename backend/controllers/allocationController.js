@@ -11,7 +11,8 @@ const Round = require( '../models/Round' );
 const allocate = asyncHandler( async ( req, res ) =>
 {
     const { studentId, courseId } = req.body;
-
+    console.log(studentId)
+    console.log(courseId)
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -50,13 +51,15 @@ const allocate = asyncHandler( async ( req, res ) =>
                 return res.status( 400 ).json( { message: 'Maximum allocation limit reached (2 students).' } );
             } else if ( course.totalStudents < 100 && allocatedStudentsCount >= 1 )
             {
+
                 session.abortTransaction();
                 session.endSession();
                 return res.status( 400 ).json( { message: 'Maximum allocation limit reached (1 student).' } );
             }
+
         } else if ( currentRound.currentRound > 1 )
         {
-            if ( allocatedStudentsCount >= course.taRequired )
+            if ( allocatedStudentsCount >= course.taRequired ) // testing pending
             {
                 session.abortTransaction();
                 session.endSession();
@@ -77,12 +80,12 @@ const allocate = asyncHandler( async ( req, res ) =>
             allocationStatus: 1
         }, { session } ).exec();
 
+
         const courseUpdatePromise = Course.findByIdAndUpdate( courseId, {
             $push: { taAllocated: studentId }
         }, { session } ).exec();
 
         await Promise.all( [ studentUpdatePromise, courseUpdatePromise ] );
-
 
         // // Update student's allocatedTA and allocationStatus
         // student.allocatedTA = course.id;
