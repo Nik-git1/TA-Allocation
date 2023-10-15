@@ -72,14 +72,26 @@ const allocate = asyncHandler( async ( req, res ) =>
             return res.status( 400 ).json( { message: 'Student is not available for allocation' } );
         }
 
-        // Update student's allocatedTA and allocationStatus
-        student.allocatedTA = course.id;
-        student.allocationStatus = 1;
-        await student.save();
+        const studentUpdatePromise = Student.findByIdAndUpdate( studentId, {
+            allocatedTA: course.id,
+            allocationStatus: 1
+        }, { session } ).exec();
 
-        // Update course's taAllocated
-        course.taAllocated.push( studentId );
-        await course.save();
+        const courseUpdatePromise = Course.findByIdAndUpdate( courseId, {
+            $push: { taAllocated: studentId }
+        }, { session } ).exec();
+
+        await Promise.all( [ studentUpdatePromise, courseUpdatePromise ] );
+
+
+        // // Update student's allocatedTA and allocationStatus
+        // student.allocatedTA = course.id;
+        // student.allocationStatus = 1;
+        // await student.save();
+
+        // // Update course's taAllocated
+        // course.taAllocated.push( studentId );
+        // await course.save();
 
         await session.commitTransaction();
         session.endSession();
