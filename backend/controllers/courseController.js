@@ -27,6 +27,8 @@ const getCourses = asyncHandler( async ( req, res ) =>
 {
     const { name, code, acronym, department, professor, credits } = req.query;
 
+    console.log(department)
+
     var filter = {};
     if ( name ) filter.program = name;
     if ( code ) filter.code = code;

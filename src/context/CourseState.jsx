@@ -6,10 +6,28 @@ import axios from 'axios';
 const CourseState = (props) => {
   const initCourses = [];
   const [courses, setCourses] = useState(initCourses);
+  const [ selectedCourse , setSelectedCourse] = useState();
 
   useEffect(() => {
     getCoursesFromBackend();
+    
   }, []);
+
+  const filterCoursesByDepartment = async (department) => {
+    try {
+      const response = await axios.get(`http://localhost:5001/api/course?department=${department}`);
+      if (response.status === 200) {
+        const filteredCourses = response.data;
+        // Update the local state with the filtered courses
+        setDepartmentCourses(filteredCourses);
+      } else {
+        console.error('Failed to fetch filtered courses from the backend');
+      }
+    } catch (error) {
+      console.error('Error fetching filtered courses:', error);
+    }
+  };
+  
 
   const getCoursesFromBackend = () => {
     axios
@@ -96,8 +114,6 @@ const CourseState = (props) => {
     }
   };
 
- 
-
   useEffect(() => {
     getCoursesFromBackend();
   }, []);
@@ -108,7 +124,10 @@ const CourseState = (props) => {
         courses,
         updateCourse,
         deleteCourse,
-        getCourseFromFile
+        getCourseFromFile,
+        filterCoursesByDepartment,
+        setSelectedCourse,
+        selectedCourse
       }}
     >
       {props.children}
