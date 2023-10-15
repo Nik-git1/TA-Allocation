@@ -48,7 +48,7 @@ const allocate = asyncHandler( async ( req, res ) =>
                 session.abortTransaction();
                 session.endSession();
                 return res.status( 400 ).json( { message: 'Maximum allocation limit reached (2 students).' } );
-            } else if ( allocatedStudentsCount >= 1 )
+            } else if ( course.totalStudents < 100 && allocatedStudentsCount >= 1 )
             {
                 session.abortTransaction();
                 session.endSession();
