@@ -6,7 +6,7 @@ import AdminStudent from '../Components/AdminStudent';
 import AdminCourse from '../Components/AdminCourse';
 import Department from '../Components/AdminAllocate';
 import CoursePage from '../Components/CoursePage';
-import DashboardCardList from '../Components/DashboardCardList';
+import AdminDashboard from '../Components/AdminDashboard';
 import AdminLog from '../Components/AdminLog';
 
 const AdminPage = () => {
@@ -22,7 +22,7 @@ const AdminPage = () => {
             <Route element={<AdminStudent />} path="/" />
             <Route element={<AdminCourse />} path="/course" />
             <Route element={<Department />} path="/allocate" />
-            <Route element={<DashboardCardList />} path="/dashboard" />
+            <Route element={<AdminDashboard />} path="/dashboard" />
             <Route element={<CoursePage />} path="/course/:courseName" />
             <Route element={<AdminLog />} path="/log" />
           </Routes>
