@@ -5,6 +5,8 @@ const Course = require( '../models/Course' );
 const Round = require( '../models/Round' );
 
 
+
+
 //@desc Allocate Student to Course
 //@route POST /api/al/allocation
 //@access public
@@ -95,7 +97,6 @@ const allocate = asyncHandler( async ( req, res ) =>
         // // Update course's taAllocated
         // course.taAllocated.push( studentId );
         // await course.save();
-
         await session.commitTransaction();
         session.endSession();
 
