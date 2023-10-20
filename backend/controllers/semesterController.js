@@ -28,13 +28,13 @@ const newSemester = asyncHandler( async ( req, res ) =>
         }, { new: true } ).session( session );
 
         await session.commitTransaction();
-        session.endSession();
+        // session.endSession();
 
         return res.status( 200 ).json( { message: 'Database cleared for a new semester' } );
     } catch ( error )
     {
         await session.abortTransaction();
-        session.endSession();
+        // session.endSession();
         return res.status( 500 ).json( { message: 'Internal server error', error: error.message } );
     }
 } );
