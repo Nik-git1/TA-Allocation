@@ -27,6 +27,7 @@ const StudentForm = () => {
   const [courses, setCourses] = useState([]);
   const [selectedCourses, setSelectedCourses] = useState([]);
 
+
   useEffect(() => {
     // Fetch course data from the backend API
     axios
@@ -50,14 +51,15 @@ const StudentForm = () => {
       section === "nonDepartmentPreferences"
     ) {
       updatedFormData[section][index][name] = value;
-      setSelectedCourses([...selectedCourses, value]);
+      if(name==="course"){
+      setSelectedCourses([...selectedCourses, value]);}
     } else {
       updatedFormData[name] = value;
       console.log(updatedFormData);
     }
+    
 
-    console.log(selectedCourses);
-
+    console.log(selectedCourses)
     setFormData(updatedFormData);
     console.log(formData);
   };
@@ -198,7 +200,6 @@ const StudentForm = () => {
               <label htmlFor="course" className="block text-gray-700 font-bold">
                 Course {index + 1}:
               </label>
-              {/* Inside the mapping function for "Department Preferences" */}
               <select
                 id={`deptCourse-${index}`}
                 name="course"
@@ -208,16 +209,16 @@ const StudentForm = () => {
                 }
                 className="w-full p-2 border rounded"
               >
-                <option value="">Select Department Course</option>
-                {courses
-                  .filter((course) => !selectedCourses.includes(course._id))
-                  .map((course) => (
-                    <option key={course._id} value={course._id}>
-                      {course.name}
-                    </option>
-                  ))}
-              </select>
+                <option key="default" value="">
+                  Select Department Course
+                </option>
+                {courses.map((course) => (
+  <option key={course._id} value={course.name} disabled={selectedCourses.includes(course.name)}>
+    {course.name}
+  </option>
+))}
 
+              </select>
               <label
                 htmlFor={`deptGrade-${index}`}
                 className="block text-gray-700 font-bold mt-2"
@@ -255,23 +256,21 @@ const StudentForm = () => {
               </label>
               <select
                 id={`nonDeptCourse-${index}`}
-                name="course"
                 value={pref.course}
+                name="course"
                 onChange={(e) =>
                   handleChange(e, index, "nonDepartmentPreferences")
                 }
                 className="w-full p-2 border rounded"
               >
                 <option value="">Select Non-Department Course</option>
-                {courses
-                  .filter((course) => !selectedCourses.includes(course._id))
-                  .map((course) => (
-                    <option key={course._id} value={course._id}>
-                      {course.name}
-                    </option>
-                  ))}
-              </select>
+                {courses.map((course) => (
+  <option key={course._id} value={course.name} disabled={selectedCourses.includes(course.name)}>
+    {course.name}
+  </option>
+))}
 
+              </select>
               <label
                 htmlFor={`nonDeptGrade-${index}`}
                 className="block text-gray-700 font-bold mt-2"
@@ -312,13 +311,11 @@ const StudentForm = () => {
                 className="p-2 border rounded-md"
               >
                 <option value="">Select Non-Preference Course</option>
-                {courses
-                  .filter((course) => !selectedCourses.includes(course._id))
-                  .map((course) => (
-                    <option key={course._id} value={course._id}>
-                      {course.name}
-                    </option>
-                  ))}
+                {courses.map((course) => (
+                  <option key={course._id} value={course.name}>
+                    {course.name}
+                  </option>
+                ))}
               </select>
             </div>
           ))}
