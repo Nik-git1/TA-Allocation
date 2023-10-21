@@ -27,7 +27,6 @@ const StudentForm = () => {
   const [courses, setCourses] = useState([]);
   const [selectedCourses, setSelectedCourses] = useState([]);
 
-
   useEffect(() => {
     // Fetch course data from the backend API
     axios
@@ -51,23 +50,73 @@ const StudentForm = () => {
       section === "nonDepartmentPreferences"
     ) {
       updatedFormData[section][index][name] = value;
-      if(name==="course"){
-      setSelectedCourses([...selectedCourses, value]);}
+      if (name === "course") {
+        setSelectedCourses([...selectedCourses, value]);
+      }
     } else {
       updatedFormData[name] = value;
       console.log(updatedFormData);
     }
-    
 
-    console.log(selectedCourses)
+    console.log(selectedCourses);
     setFormData(updatedFormData);
     console.log(formData);
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    // Add code to submit the form data to your backend here
+
+    // Create a JSON object from your form data
+    const studentData = {
+      name: formData.name,
+      emailId: formData.emailId,
+      rollNo: formData.rollNo,
+      program: formData.program,
+      department: formData.department,
+      taType: formData.taType,
+      cgpa: formData.cgpa,
+      departmentPreferences: formData.departmentPreferences,
+      nonDepartmentPreferences: formData.nonDepartmentPreferences,
+      nonPreferences: formData.nonPreferences,
+    };
+
+    // Send a POST request to the API endpoint
+    axios
+      .post("http://localhost:5001/api/student", studentData)
+      .then((response) => {
+        // Handle success, e.g., display a success message
+        console.log("Student data submitted successfully:", response.data);
+
+        // You might also want to reset the form after a successful submission
+        // setFormData({  // Reset the form fields to their initial state
+        //   name: "",
+        //   emailId: "",
+        //   rollNo: "",
+        //   program: "",
+        //   department: "",
+        //   taType: "",
+        //   cgpa: "",
+        //   departmentPreferences: [
+        //     { course: "", grade: "" },
+        //     { course: "", grade: "" },
+        //   ],
+        //   nonDepartmentPreferences: [
+        //     { course: "", grade: "" },
+        //     { course: "", grade: "" },
+        //     { course: "", grade: "" },
+        //     { course: "", grade: "" },
+        //     { course: "", grade: "" },
+        //   ],
+        //   nonPreferences: ["", "", ""],
+        // });
+      })
+      .catch((error) => {
+        // Handle any errors that occur during the POST request
+        console.error("Error submitting student data:", error);
+      });
   };
+
+  // ...
 
   return (
     <div className="w-1/2 mx-auto">
@@ -213,11 +262,14 @@ const StudentForm = () => {
                   Select Department Course
                 </option>
                 {courses.map((course) => (
-  <option key={course._id} value={course.name} disabled={selectedCourses.includes(course.name)}>
-    {course.name}
-  </option>
-))}
-
+                  <option
+                    key={course._id}
+                    value={course._id}
+                    disabled={selectedCourses.includes(course._id)}
+                  >
+                    {course.name}
+                  </option>
+                ))}
               </select>
               <label
                 htmlFor={`deptGrade-${index}`}
@@ -249,7 +301,7 @@ const StudentForm = () => {
           {formData.nonDepartmentPreferences.map((pref, index) => (
             <div key={index} className="mb-4">
               <label
-                htmlFor="ccourse"
+                htmlFor="course"
                 className="block text-gray-700 font-bold"
               >
                 Course {index + 1}:
@@ -265,11 +317,14 @@ const StudentForm = () => {
               >
                 <option value="">Select Non-Department Course</option>
                 {courses.map((course) => (
-  <option key={course._id} value={course.name} disabled={selectedCourses.includes(course.name)}>
-    {course.name}
-  </option>
-))}
-
+                  <option
+                    key={course._id}
+                    value={course._id}
+                    disabled={selectedCourses.includes(course._id)}
+                  >
+                    {course.name}
+                  </option>
+                ))}
               </select>
               <label
                 htmlFor={`nonDeptGrade-${index}`}
@@ -312,7 +367,11 @@ const StudentForm = () => {
               >
                 <option value="">Select Non-Preference Course</option>
                 {courses.map((course) => (
-                  <option key={course._id} value={course.name}>
+                  <option
+                    key={course._id}
+                    value={course._id}
+                    disabled={selectedCourses.includes(course._id)}
+                  >
                     {course.name}
                   </option>
                 ))}
