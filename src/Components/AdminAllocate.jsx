@@ -15,6 +15,7 @@ const Department = () => {
   const allocateCourse = (course) => {
     var courseName = course.name
     setSelectedCourse(course);
+    console.log(selectedCourse)
     navigate(`/admin/course/${courseName}`);
   };
 
