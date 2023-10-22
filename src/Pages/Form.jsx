@@ -1,470 +1,390 @@
-import React, { useState,useContext,useEffect } from "react";
-import CourseContext from '../context/CourseContext';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
-const Form = () => {
-  const [program, setProgram] = useState({
-    btech_3rd: null,
-    btech_4th: null,
+const StudentForm = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    emailId: "",
+    rollNo: "",
+    program: "",
+    department: "",
+    taType: "",
+    cgpa: "",
+    departmentPreferences: [
+      { course: "", grade: "" },
+      { course: "", grade: "" },
+    ],
+    nonDepartmentPreferences: [
+      { course: "", grade: "" },
+      { course: "", grade: "" },
+      { course: "", grade: "" },
+      { course: "", grade: "" },
+      { course: "", grade: "" },
+    ],
+    nonPreferences: ["", "", ""],
   });
-  const { course, setCourse } = useContext(CourseContext);
-  console.log(course);
-  const handleProgramChange = (e) => {
-    const { name, checked } = e.target;
 
-    // If one checkbox is checked, uncheck the other one
-    if (name === "btech_3rd" && checked) {
-      setProgram({
-       btech_3rd: true,
-       btech_4th: false,
+  const [courses, setCourses] = useState([]);
+  const [selectedCourses, setSelectedCourses] = useState([]);
+
+  useEffect(() => {
+    // Fetch course data from the backend API
+    axios
+      .get("http://localhost:5001/api/course")
+      .then((response) => {
+        setCourses(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching courses:", error);
       });
-    } else if (name === "btech_4th" && checked) {
-      setProgram({
-       btech_3rd: false,
-       btech_4th: true,
-      });
+  }, []);
+
+  const handleChange = (event, index, section) => {
+    const { name, value } = event.target;
+    console.log(name);
+    console.log(value);
+    console.log(event);
+    const updatedFormData = { ...formData };
+    if (
+      section === "departmentPreferences" ||
+      section === "nonDepartmentPreferences"
+    ) {
+      updatedFormData[section][index][name] = value;
+      if (name === "course") {
+        setSelectedCourses([...selectedCourses, value]);
+      }
     } else {
-      setProgram({
-        ...program,
-        [name]: checked,
+      updatedFormData[name] = value;
+      console.log(updatedFormData);
+    }
+
+    console.log(selectedCourses);
+    setFormData(updatedFormData);
+    console.log(formData);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    // Create a JSON object from your form data
+    const studentData = {
+      name: formData.name,
+      emailId: formData.emailId,
+      rollNo: formData.rollNo,
+      program: formData.program,
+      department: formData.department,
+      taType: formData.taType,
+      cgpa: formData.cgpa,
+      departmentPreferences: formData.departmentPreferences,
+      nonDepartmentPreferences: formData.nonDepartmentPreferences,
+      nonPreferences: formData.nonPreferences,
+    };
+
+    // Send a POST request to the API endpoint
+    axios
+      .post("http://localhost:5001/api/student", studentData)
+      .then((response) => {
+        // Handle success, e.g., display a success message
+        console.log("Student data submitted successfully:", response.data);
+
+        // You might also want to reset the form after a successful submission
+        // setFormData({  // Reset the form fields to their initial state
+        //   name: "",
+        //   emailId: "",
+        //   rollNo: "",
+        //   program: "",
+        //   department: "",
+        //   taType: "",
+        //   cgpa: "",
+        //   departmentPreferences: [
+        //     { course: "", grade: "" },
+        //     { course: "", grade: "" },
+        //   ],
+        //   nonDepartmentPreferences: [
+        //     { course: "", grade: "" },
+        //     { course: "", grade: "" },
+        //     { course: "", grade: "" },
+        //     { course: "", grade: "" },
+        //     { course: "", grade: "" },
+        //   ],
+        //   nonPreferences: ["", "", ""],
+        // });
+      })
+      .catch((error) => {
+        // Handle any errors that occur during the POST request
+        console.error("Error submitting student data:", error);
       });
-    }
-  };
-  const isNoneChecked = program.btech_3rd === null && program.btech_4th === null;
-  const [emailId, setEmailId] = useState(null);
-  const [name, setName] = useState(null);
-  const [rollNo, setRollNo] = useState(null);
-  const [department, setDepartment] = useState("Select Your Dept.");
-  const [cgpa, setCGPA] = useState(null);
-  const [taType, setTaType] = useState("Select Your Ta Type");
-
-  const courseList = [
-    "IP","MATHS1","IHCI","COMM","DC","AP","DBMS","ADA","ML","FCS"
-  ]
-
-  const [SelectedCourses, setSelectedCourses] = useState({
-    course1: "",
-    course2: "",
-    course3: "",
-    course4: "",
-    course5: "",
-    course6: "",
-    course7: "",
-    course8: "",
-    course9: "",
-    course10: "",
-  });
-
-  const handleSelect = (e, courseNumber) => {
-    const value = e.target.value;
-    setSelectedCourses((prev) => ({ ...prev, [courseNumber]: value }));
   };
 
-  const filteredCourseList1 = courseList.filter(course => 
-    course !== SelectedCourses.course2 && course !== SelectedCourses.course3 && course !== SelectedCourses.course4
-    && course !== SelectedCourses.course5 && course !== SelectedCourses.course6 && course !== SelectedCourses.course7
-    && course !== SelectedCourses.course8 && course !== SelectedCourses.course9 && course !== SelectedCourses.course10
-  );
+  // ...
 
-  const filteredCourseList2 = courseList.filter(course => 
-    course !== SelectedCourses.course1 && course !== SelectedCourses.course3 && course !== SelectedCourses.course4
-    && course !== SelectedCourses.course5 && course !== SelectedCourses.course6 && course !== SelectedCourses.course7
-    && course !== SelectedCourses.course8 && course !== SelectedCourses.course9 && course !== SelectedCourses.course10
-  );
-
-  const filteredCourseList3 = courseList.filter(course => 
-    course !== SelectedCourses.course1 && course !== SelectedCourses.course2 && course !== SelectedCourses.course4
-    && course !== SelectedCourses.course5 && course !== SelectedCourses.course6 && course !== SelectedCourses.course7
-    && course !== SelectedCourses.course8 && course !== SelectedCourses.course9 && course !== SelectedCourses.course10
-  );
-
-  const filteredCourseList4 = courseList.filter(course => 
-    course !== SelectedCourses.course1 && course !== SelectedCourses.course2 && course !== SelectedCourses.course3
-    && course !== SelectedCourses.course5 && course !== SelectedCourses.course6 && course !== SelectedCourses.course7
-    && course !== SelectedCourses.course8 && course !== SelectedCourses.course9 && course !== SelectedCourses.course10
-  );
-
-  const filteredCourseList5 = courseList.filter(course => 
-    course !== SelectedCourses.course1 && course !== SelectedCourses.course2 && course !== SelectedCourses.course3
-    && course !== SelectedCourses.course4 && course !== SelectedCourses.course6 && course !== SelectedCourses.course7
-    && course !== SelectedCourses.course8 && course !== SelectedCourses.course9 && course !== SelectedCourses.course10
-  );
-
-  const filteredCourseList6 = courseList.filter(course => 
-    course !== SelectedCourses.course1 && course !== SelectedCourses.course2 && course !== SelectedCourses.course3
-    && course !== SelectedCourses.course4 && course !== SelectedCourses.course5 && course !== SelectedCourses.course7
-    && course !== SelectedCourses.course8 && course !== SelectedCourses.course9 && course !== SelectedCourses.course10
-  );
-
-  const filteredCourseList7 = courseList.filter(course => 
-    course !== SelectedCourses.course1 && course !== SelectedCourses.course2 && course !== SelectedCourses.course3
-    && course !== SelectedCourses.course4 && course !== SelectedCourses.course5 && course !== SelectedCourses.course6
-    && course !== SelectedCourses.course8 && course !== SelectedCourses.course9 && course !== SelectedCourses.course10
-  );
-
-  const filteredCourseList8 = courseList.filter(course => 
-    course !== SelectedCourses.course1 && course !== SelectedCourses.course2 && course !== SelectedCourses.course3
-    && course !== SelectedCourses.course4 && course !== SelectedCourses.course5 && course !== SelectedCourses.course6
-    && course !== SelectedCourses.course7 && course !== SelectedCourses.course9 && course !== SelectedCourses.course10
-  );
-
-  const filteredCourseList9 = courseList.filter(course => 
-    course !== SelectedCourses.course1 && course !== SelectedCourses.course2 && course !== SelectedCourses.course3
-    && course !== SelectedCourses.course4 && course !== SelectedCourses.course5 && course !== SelectedCourses.course6
-    && course !== SelectedCourses.course7 && course !== SelectedCourses.course8 && course !== SelectedCourses.course10
-  );
-
-  const filteredCourseList10 = courseList.filter(course => 
-    course !== SelectedCourses.course1 && course !== SelectedCourses.course2 && course !== SelectedCourses.course3
-    && course !== SelectedCourses.course4 && course !== SelectedCourses.course5 && course !== SelectedCourses.course6
-    && course !== SelectedCourses.course7 && course !== SelectedCourses.course8 && course !== SelectedCourses.course9
-  );
-
-  const [formContent, setFormContent] = useState(true);
-
-  const handleBackClick = () => {
-    setFormContent(true)
-  }
-
-  const handleNextClick = () => {
-    if (emailId !== null && name !== null && rollNo !== null && department !== "Select Your dept." && taType !== "Select Your Ta Type" && cgpa !== null &&isNoneChecked !== true) {
-        console.log("hello")
-        // console.log(department)
-        setFormContent(false)   
-    }
-    else{
-
-      alert("Please fill all the fields")
-    }
-  }
   return (
-    <div className="h-screen flex flex-col items-center overflow-auto">
-      {/* <img
-        src="./images/iiitdrndblock2.jpeg"
-        className="h-full w-auto object-contain filter blur-sm absolute inset-0"
-        alt="Sample image"
-      /> */}
-      <style>
-        {`
-          body {
-            background-image: url(${"./images/iiitdrndblock2.jpeg"});
-            background-size: cover;
-            background-position: center;
-            background-repeat:no-repeat;
-            background-attachment: fixed;
-            backdrop-filter: blur(4px);
-          }
-        `}
-      </style>
-      <div className="bg-white rounded mt-6 flex flex-col items-center z-10 overflow-auto max-h-screen">
-        <h2 className="font-bold text-[#3dafaa] text-xl mx-6 mt-4 sticky top-0">TA Preference Form</h2>
-        {formContent ?(
-          <form className="mb-2 mx-2 w-[300px] overflow-auto max-h-screen">
-            <div className="flex flex-col text-black py-1">
-              <label className="font-bold">Email Id</label>
-              <input
-                className="text-black rounded-lg bg-white mt-2 p-1 border-2 border-gray-500 focus:bg-gray-200 focus:outline-none"
-                type="email"
-                onChange={(e) => setEmailId(e.target.value)}
-                defaultValue = {emailId}
-              />
-            </div>
-            <div className="flex flex-col text-black py-1">
-              <label className="font-bold">Name</label>
-              <input
-                className="text-black rounded-lg bg-white mt-2 p-1 border-2 border-gray-500 focus:bg-gray-200 focus:outline-none"
-                type="text"
-                onChange={(e) => setName(e.target.value)}
-                defaultValue = {name}
-              />
-            </div>
-            <div className="flex flex-col text-black py-1">
-              <label className="font-bold">Roll no.</label>
-              <input
-                className="text-black rounded-lg bg-white mt-2 p-1 border-2 border-gray-500 focus:bg-gray-200 focus:outline-none"
-                type="number"
-                onChange={(e) => setRollNo(e.target.value)}
-                defaultValue = {rollNo}
-              />
-            </div>
-            <div className="flex flex-col text-black py-1">
-              <label className="font-bold">Department</label>
-              <select
-                className="text-black rounded-lg bg-white mt-2 p-1 border-2 border-gray-500 focus:bg-gray-200 focus:outline-none"
-                onChange={(e) => setDepartment(e.target.value)}
-                value={department}
-              >
-                <option value="">Select Your Dept.</option>
-                <option value="Math">Math</option>
-                <option value="CSE">CSE</option>
-                <option value="ECE">ECE</option>
-                <option value="HCD">HCD</option>
-                <option value="CB">CB</option>
-                <option value="SSH">SSH</option>
-              </select>
-            </div>
-            <div className="flex flex-col text-black py-1">
-              <label className="font-bold">Current CGPA</label>
-              <input
-                className="text-black rounded-lg bg-white mt-2 p-1 border-2 border-gray-500 focus:bg-gray-200 focus:outline-none"
-                type="number"
-                onChange={(e) => setCGPA(e.target.value)}
-                defaultValue = {cgpa}
-              />
-            </div>
-            <div className="flex flex-col text-black py-1">
-              <label className="font-bold">Program</label>
-            </div>
-            <div className="mt-1">
-              <label className="">
-                <input
-                  type="checkbox"
-                  name="btech_3rd"
-                  checked={program.btech_3rd === true}
-                  onChange={handleProgramChange}
-                />
-                B.Tech. 3rd Year
-              </label>
-            </div>
-            <div>
-              <label>
-                <input
-                  type="checkbox"
-                  name="btech_4th"
-                  checked={program.btech_4th === true}
-                  onChange={handleProgramChange}
-                />
-                B.Tech. 4th Year
-              </label>
-            </div>
-            <div className="flex flex-col text-black py-2">
-              <label className="font-bold">TA Type</label>
-              <select
-                className="text-black rounded-lg bg-white mt-2 p-1 border-2 border-gray-500 focus:bg-gray-200 focus:outline-none"
-                onChange={(e) => setTaType(e.target.value)}
-                value={taType}
-              >
-                <option value="">Select Your Ta Type</option>
-                <option value="Math">Credit Basis</option>
-                <option value="CSE">Paid Basis</option>
-                <option value="ECE">Voluntary</option>
-              </select>
-            </div>
-            
-          </form>
-        ):
-        <form className="mb-2 mx-2 w-[300px] overflow-auto max-h-screen">
-          <p className="font-bold mt-2">3 Courses where you don't wish to be a TA:</p>
-          <div className="flex flex-col  py-1">
-            <label className="text-gray-500">Course 1</label>
-            <select
-              className="text-black rounded-lg bg-white mt-2 p-1 border-2 border-gray-500 focus:bg-gray-200 focus:outline-none max-h-[50px] overflow-auto"
-              value={SelectedCourses.course1}
-              onChange={(e) => handleSelect(e, "course1")}
-            >
-              <option disabled hidden value="">
-                Choose a course
-              </option>
-              <optgroup label="Courses">
-
-                {filteredCourseList1.map((course, index) => (
-                  <option key={index} value={course}>
-                    {course}
-                  </option>
-                ))}
-              </optgroup>
-            </select>
-          </div>
-          <div className="flex flex-col  py-1">
-            <label className="text-gray-500">Course 2</label>
-            <select
-              className="text-black rounded-lg bg-white mt-2 p-1 border-2 border-gray-500 focus:bg-gray-200 focus:outline-none"
-              value={SelectedCourses.course2}
-              onChange={(e) => handleSelect(e, "course2")}
-            >
-              <option disabled hidden value="">
-                Choose a course
-              </option>
-              <optgroup label="Courses">
-                {filteredCourseList2.map((course, index) => (
-                  <option key={index} value={course}>
-                    {course}
-                  </option>
-                ))}
-              </optgroup>
-            </select>
-          </div>
-          <div className="flex flex-col  py-1">
-            <label className="text-gray-500">Course 3</label>
-            <select
-              className="text-black rounded-lg bg-white mt-2 p-1 border-2 border-gray-500 focus:bg-gray-200 focus:outline-none"
-              value={SelectedCourses.course3}
-              onChange={(e) => handleSelect(e, "course3")}
-            >
-              <option disabled hidden value="">
-                Choose a course
-              </option>
-              <optgroup label="Courses">
-                {filteredCourseList3.map((course, index) => (
-                  <option key={index} value={course}>
-                    {course}
-                  </option>
-                ))}
-              </optgroup>
-            </select>
-          </div>
-          <p className="font-bold mt-2">Prefered Courses</p>
-          <div className="flex flex-col  py-1">
-            <label className="text-gray-500">Course 1 (Department Only)</label>
-            <select
-              className="text-black rounded-lg bg-white mt-2 p-1 border-2 border-gray-500 focus:bg-gray-200 focus:outline-none"
-              value={SelectedCourses.course4}
-              onChange={(e) => handleSelect(e, "course4")}
-            >
-              <option disabled hidden value="">
-                Choose a course
-              </option>
-              <optgroup label="Courses">
-                {filteredCourseList4.map((course, index) => (
-                  <option key={index} value={course}>
-                    {course}
-                  </option>
-                ))}
-              </optgroup>
-            </select>
-          </div>
-          <div className="flex flex-col  py-1">
-            <label className="text-gray-500">Course 2 (Department Only)</label>
-            <select
-              className="text-black rounded-lg bg-white mt-2 p-1 border-2 border-gray-500 focus:bg-gray-200 focus:outline-none"
-              value={SelectedCourses.course5}
-              onChange={(e) => handleSelect(e, "course5")}
-            >
-              <option disabled hidden value="">
-                Choose a course
-              </option>
-              <optgroup label="Courses">
-                {filteredCourseList5.map((course, index) => (
-                  <option key={index} value={course}>
-                    {course}
-                  </option>
-                ))}
-              </optgroup>
-            </select>
-          </div>
-          <div className="flex flex-col  py-1">
-            <label className="text-gray-500">Course 3</label>
-            <select
-              className="text-black rounded-lg bg-white mt-2 p-1 border-2 border-gray-500 focus:bg-gray-200 focus:outline-none"
-              value={SelectedCourses.course6}
-              onChange={(e) => handleSelect(e, "course6")}
-            >
-              <option disabled hidden value="">
-                Choose a course
-              </option>
-              <optgroup label="Courses">
-                {filteredCourseList6.map((course, index) => (
-                  <option key={index} value={course}>
-                    {course}
-                  </option>
-                ))}
-              </optgroup>
-            </select>
-          </div>
-          <div className="flex flex-col  py-1">
-            <label className="text-gray-500">Course 4</label>
-            <select
-              className="text-black rounded-lg bg-white mt-2 p-1 border-2 border-gray-500 focus:bg-gray-200 focus:outline-none"
-              value={SelectedCourses.course7}
-              onChange={(e) => handleSelect(e, "course7")}
-            >
-              <option disabled hidden value="">
-                Choose a course
-              </option>
-              <optgroup label="Courses">
-                {filteredCourseList7.map((course, index) => (
-                  <option key={index} value={course}>
-                    {course}
-                  </option>
-                ))}
-              </optgroup>
-            </select>
-          </div>
-          <div className="flex flex-col  py-1">
-            <label className="text-gray-500">Course 5</label>
-            <select
-              className="text-black rounded-lg bg-white mt-2 p-1 border-2 border-gray-500 focus:bg-gray-200 focus:outline-none"
-              value={SelectedCourses.course8}
-              onChange={(e) => handleSelect(e, "course8")}
-            >
-              <option disabled hidden value="">
-                Choose a course
-              </option>
-              <optgroup label="Courses">
-                {filteredCourseList8.map((course, index) => (
-                  <option key={index} value={course}>
-                    {course}
-                  </option>
-                ))}
-              </optgroup>
-            </select>
-          </div>
-          <div className="flex flex-col  py-1">
-            <label className="text-gray-500">Course 6</label>
-            <select
-              className="text-black rounded-lg bg-white mt-2 p-1 border-2 border-gray-500 focus:bg-gray-200 focus:outline-none"
-              value={SelectedCourses.course9}
-              onChange={(e) => handleSelect(e, "course9")}
-            >
-              <option disabled hidden value="">
-                Choose a course
-              </option>
-              <optgroup label="Courses">
-                {filteredCourseList9.map((course, index) => (
-                  <option key={index} value={course}>
-                    {course}
-                  </option>
-                ))}
-              </optgroup>
-            </select>
-          </div>
-          <div className="flex flex-col  py-1">
-            <label className="text-gray-500">Course 7</label>
-            <select
-              className="text-black rounded-lg bg-white mt-2 p-1 border-2 border-gray-500 focus:bg-gray-200 focus:outline-none"
-              value={SelectedCourses.course10}
-              onChange={(e) => handleSelect(e, "course10")}
-            >
-              <option disabled hidden value="">
-                Choose a course
-              </option>
-              <optgroup label="Courses">
-                {filteredCourseList10.map((course, index) => (
-                  <option key={index} value={course}>
-                    {course}
-                  </option>
-                ))}
-              </optgroup>
-            </select>
-          </div>
-        </form>
-        }
-      </div>
-      {!formContent ?(
-        <div className="flex justify-center space-x-4">
-          <button className="bg-[#3dafaa] text-white py-1 px-3 mt-2 rounded-lg" onClick={handleBackClick}>
-            Back
-          </button>
-          <button className="bg-[#3dafaa] text-white py-1 px-3 mt-2 rounded-lg">
-            Submit
-          </button>
+    <div className="w-1/2 mx-auto">
+      <h2 className="text-2xl font-bold mb-4">Student Information</h2>
+      <form onSubmit={handleSubmit}>
+        {/* Name */}
+        <div className="mb-4">
+          <label htmlFor="name" className="block text-gray-700 font-bold">
+            Name:
+          </label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+          />
         </div>
-        ):
-        <button className="bg-[#3dafaa] text-white py-1 px-3 mt-2 rounded-lg" onClick={handleNextClick}>
-          Next
+
+        {/* Email Id */}
+        <div className="mb-4">
+          <label htmlFor="emailId" className="block text-gray-700 font-bold">
+            Email Id:
+          </label>
+          <input
+            type="email"
+            id="emailId"
+            name="emailId"
+            value={formData.emailId}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+          />
+        </div>
+
+        {/* Roll No */}
+        <div className="mb-4">
+          <label htmlFor="rollNo" className="block text-gray-700 font-bold">
+            Roll No:
+          </label>
+          <input
+            type="text"
+            id="rollNo"
+            name="rollNo"
+            value={formData.rollNo}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+          />
+        </div>
+
+        {/* Program */}
+        <div className="mb-4">
+          <label htmlFor="program" className="block text-gray-700 font-bold">
+            Program:
+          </label>
+          <select
+            id="program"
+            name="program"
+            value={formData.program}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+          >
+            <option value="">Select Program</option>
+            <option value="B.Tech 3rd Year">B.Tech 3rd Year</option>
+            <option value="B.Tech 4th Year">B.Tech 4th Year</option>
+            <option value="M.Tech">M.Tech</option>
+            <option value="PhD">PhD</option>
+          </select>
+        </div>
+
+        {/* Department */}
+        <div className="mb-4">
+          <label htmlFor="department" className="block text-gray-700 font-bold">
+            Department:
+          </label>
+          <select
+            id="department"
+            name="department"
+            value={formData.department}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+          >
+            <option value="">Select Department</option>
+            <option value="Math">Math</option>
+            <option value="CSE">CSE</option>
+            <option value="ECE">ECE</option>
+            {/* Add more department options here */}
+          </select>
+        </div>
+
+        {/* TA Type */}
+        <div className="mb-4">
+          <label htmlFor="taType" className="block text-gray-700 font-bold">
+            TA Type:
+          </label>
+          <select
+            id="taType"
+            name="taType"
+            value={formData.taType}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+          >
+            <option value="">Select TA Type</option>
+            <option value="Credit">Credit</option>
+            <option value="Paid">Paid</option>
+            <option value="Voluntary">Voluntary</option>
+          </select>
+        </div>
+
+        {/* CGPA */}
+        <div className="mb-4">
+          <label htmlFor="cgpa" className="block text-gray-700 font-bold">
+            CGPA:
+          </label>
+          <input
+            type="number"
+            id="cgpa"
+            name="cgpa"
+            value={formData.cgpa}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+          />
+        </div>
+
+        {/* Department Preferences */}
+        <div className="mb-4">
+          <h3 className="text-xl font-bold mb-2">Department Preferences</h3>
+          {formData.departmentPreferences.map((pref, index) => (
+            <div key={index} className="mb-4">
+              <label htmlFor="course" className="block text-gray-700 font-bold">
+                Course {index + 1}:
+              </label>
+              <select
+                id={`deptCourse-${index}`}
+                name="course"
+                value={pref.course}
+                onChange={(e) =>
+                  handleChange(e, index, "departmentPreferences")
+                }
+                className="w-full p-2 border rounded"
+              >
+                <option key="default" value="">
+                  Select Department Course
+                </option>
+                {courses.map((course) => (
+                  <option
+                    key={course._id}
+                    value={course._id}
+                    disabled={selectedCourses.includes(course._id)}
+                  >
+                    {course.name}
+                  </option>
+                ))}
+              </select>
+              <label
+                htmlFor={`deptGrade-${index}`}
+                className="block text-gray-700 font-bold mt-2"
+              >
+                Grade:
+              </label>
+              <select
+                id={`deptGrade-${index}`}
+                value={pref.grade}
+                name="grade"
+                onChange={(e) =>
+                  handleChange(e, index, "departmentPreferences")
+                }
+                className="w-full p-2 border rounded"
+              >
+                <option value="">Select Grade</option>
+                <option value="A+(10)">A+(10)</option>
+                <option value="A(10)">A(10)</option>
+                {/* Add more grade options here */}
+              </select>
+            </div>
+          ))}
+        </div>
+
+        {/* Non-Department Preferences */}
+        <div className="mb-4">
+          <h3 className="text-xl font-bold mb-2">Non-Department Preferences</h3>
+          {formData.nonDepartmentPreferences.map((pref, index) => (
+            <div key={index} className="mb-4">
+              <label
+                htmlFor="course"
+                className="block text-gray-700 font-bold"
+              >
+                Course {index + 1}:
+              </label>
+              <select
+                id={`nonDeptCourse-${index}`}
+                value={pref.course}
+                name="course"
+                onChange={(e) =>
+                  handleChange(e, index, "nonDepartmentPreferences")
+                }
+                className="w-full p-2 border rounded"
+              >
+                <option value="">Select Non-Department Course</option>
+                {courses.map((course) => (
+                  <option
+                    key={course._id}
+                    value={course._id}
+                    disabled={selectedCourses.includes(course._id)}
+                  >
+                    {course.name}
+                  </option>
+                ))}
+              </select>
+              <label
+                htmlFor={`nonDeptGrade-${index}`}
+                className="block text-gray-700 font-bold mt-2"
+              >
+                Grade:
+              </label>
+              <select
+                id={`nonDeptGrade-${index}`}
+                value={pref.grade}
+                name="grade"
+                onChange={(e) =>
+                  handleChange(e, index, "nonDepartmentPreferences")
+                }
+                className="w-full p-2 border rounded"
+              >
+                <option value="">Select Grade</option>
+                <option value="A+(10)">A+(10)</option>
+                <option value="A(10)">A(10)</option>
+                {/* Add more grade options here */}
+              </select>
+            </div>
+          ))}
+        </div>
+
+        {/* Non-Preferences */}
+        <div>
+          <h3>Non-Preferences</h3>
+          {formData.nonPreferences.map((course, index) => (
+            <div key={index}>
+              <select
+                value={course}
+                onChange={(e) => {
+                  const nonPrefs = [...formData.nonPreferences];
+                  nonPrefs[index] = e.target.value;
+                  setSelectedCourses([...selectedCourses, e.target.value]);
+                  setFormData({ ...formData, nonPreferences: nonPrefs });
+                }}
+                className="p-2 border rounded-md"
+              >
+                <option value="">Select Non-Preference Course</option>
+                {courses.map((course) => (
+                  <option
+                    key={course._id}
+                    value={course._id}
+                    disabled={selectedCourses.includes(course._id)}
+                  >
+                    {course.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ))}
+        </div>
+        <button type="submit" className="bg-blue-500 text-white p-2 rounded">
+          Submit
         </button>
-        }
+      </form>
     </div>
   );
 };
 
-export default Form;
+export default StudentForm;
