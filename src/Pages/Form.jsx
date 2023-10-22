@@ -119,8 +119,17 @@ const StudentForm = () => {
   // ...
 
   return (
-    <div className="w-1/2 mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Student Information</h2>
+    <div className="flex justify-center items-center relative">
+      <img
+        src="./images/iiitdrndblock2.jpeg"
+        className="h-full w-auto object-contain filter blur-sm absolute inset-0"
+        alt="Sample image"
+      />
+    <div className=" mx-auto z-10 bg-white px-4 pb-4 border-4 mt-4 border-[#3dafaa] shadow-xl max-h-[97vh] overflow-auto">
+      <div className="flex justify-center sticky top-0 bg-white">
+        <h2 className="text-3xl font-bold mb-2  text-[#3dafaa]">TA Form</h2>
+      </div>
+      <h2 className="text-2xl font-bold mb-2 mt-4">Student Information</h2>
       <form onSubmit={handleSubmit}>
         {/* Name */}
         <div className="mb-4">
@@ -380,10 +389,13 @@ const StudentForm = () => {
             </div>
           ))}
         </div>
-        <button type="submit" className="bg-[#3dafaa] text-white p-2 rounded">
-          Submit
-        </button>
+        <div className="flex justify-end">
+          <button type="submit" className="bg-[#3dafaa] text-white p-2 rounded">
+            Submit
+          </button>
+        </div>
       </form>
+    </div>
     </div>
   );
 };
