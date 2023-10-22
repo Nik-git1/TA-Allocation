@@ -1,0 +1,51 @@
+[{
+    "_id": "6532b9bc09e49d22b7759ea5",
+    "name": "Nikhil Kumar Gupta",
+    "emailId": "nikhil20530@iiitd.ac.in",
+    "rollNo": "2020530",
+    "program": "B.Tech 3rd Year",
+    "department": "CSE",
+    "taType": "Credit",
+    "allocationStatus": 0,
+    "allocatedTA": null,
+    "nonPreferences": [
+      "New Non-Preference Course 1",
+      "New Non-Preference Course 2",
+      "New Non-Preference Course 3"
+    ],
+    "departmentPreferences": [
+
+      {
+        "course": "New Department Course 1",
+        "grade": "A+(10)"
+      },
+      {
+        "course": "New Department Course 2",
+        "grade": "A+(10)"
+      }
+    ],
+    "nonDepartmentPreferences": [
+      {
+        "course": "New Non-Dept Course 1",
+        "grade": "A+(10)"
+      },
+      {
+        "course": "New Non-Dept Course 2",
+        "grade": "A+(10)"
+      },
+      {
+        "course": "New Non-Dept Course 3",
+        "grade": "A+(10)"
+      },
+      {
+        "course": "New Non-Dept Course 4",
+        "grade": "A+(10)"
+      },
+      {
+        "course": "New Non-Dept Course 5",
+        "grade": "A+(10)"
+      }
+    ],
+    "__v": 0
+  }
+]

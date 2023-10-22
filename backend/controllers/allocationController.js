@@ -5,14 +5,16 @@ const Course = require( '../models/Course' );
 const Round = require( '../models/Round' );
 
 
+
+
 //@desc Allocate Student to Course
 //@route POST /api/al/allocation
 //@access public
 const allocate = asyncHandler( async ( req, res ) =>
 {
     const { studentId, courseId } = req.body;
-    console.log(studentId)
-    console.log(courseId)
+    console.log( studentId )
+    console.log( courseId )
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -23,7 +25,7 @@ const allocate = asyncHandler( async ( req, res ) =>
         if ( !currentRound )
         {
             session.abortTransaction();
-            session.endSession();
+            // session.endSession();
             return res.status( 400 ).json( { message: 'No ongoing round for allocation.' } );
         }
 
@@ -35,7 +37,7 @@ const allocate = asyncHandler( async ( req, res ) =>
         if ( !student || !course )
         {
             session.abortTransaction();
-            session.endSession();
+            // session.endSession();
             return res.status( 404 ).json( { message: 'Student or Course not found' } );
         }
 
@@ -47,13 +49,13 @@ const allocate = asyncHandler( async ( req, res ) =>
             if ( course.totalStudents >= 100 && allocatedStudentsCount >= 2 )
             {
                 session.abortTransaction();
-                session.endSession();
+                // session.endSession();
                 return res.status( 400 ).json( { message: 'Maximum allocation limit reached (2 students).' } );
             } else if ( course.totalStudents < 100 && allocatedStudentsCount >= 1 )
             {
 
                 session.abortTransaction();
-                session.endSession();
+                // session.endSession();
                 return res.status( 400 ).json( { message: 'Maximum allocation limit reached (1 student).' } );
             }
 
@@ -62,7 +64,7 @@ const allocate = asyncHandler( async ( req, res ) =>
             if ( allocatedStudentsCount >= course.taRequired ) // testing pending
             {
                 session.abortTransaction();
-                session.endSession();
+                // session.endSession();
                 return res.status( 400 ).json( { message: `Maximum allocation limit reached (${ course.taRequired } students).` } );
             }
         }
@@ -71,7 +73,7 @@ const allocate = asyncHandler( async ( req, res ) =>
         if ( student.allocationStatus !== 0 || student.allocatedTA )
         {
             session.abortTransaction();
-            session.endSession();
+            // session.endSession();
             return res.status( 400 ).json( { message: 'Student is not available for allocation' } );
         }
 
@@ -95,15 +97,14 @@ const allocate = asyncHandler( async ( req, res ) =>
         // // Update course's taAllocated
         // course.taAllocated.push( studentId );
         // await course.save();
-
         await session.commitTransaction();
-        session.endSession();
+        // session.endSession();
 
         return res.status( 200 ).json( { message: 'Student allocated successfully' } );
     } catch ( error )
     {
         await session.abortTransaction();
-        session.endSession();
+        // session.endSession();
         return res.status( 500 ).json( { message: 'Internal server error', error: error.message } );
     }
 } );
@@ -126,7 +127,7 @@ const deallocate = asyncHandler( async ( req, res ) =>
         if ( !student )
         {
             session.abortTransaction();
-            session.endSession();
+            // session.endSession();
             return res.status( 404 ).json( { message: 'Student not found' } );
         }
 
@@ -134,7 +135,7 @@ const deallocate = asyncHandler( async ( req, res ) =>
         if ( student.allocationStatus === 0 )
         {
             session.abortTransaction();
-            session.endSession();
+            // session.endSession();
             return res.status( 400 ).json( { message: 'Student is not allocated' } );
         }
 
@@ -154,13 +155,13 @@ const deallocate = asyncHandler( async ( req, res ) =>
         await student.save();
 
         await session.commitTransaction();
-        session.endSession();
+        // session.endSession();
 
         return res.status( 200 ).json( { message: 'Student deallocated successfully' } );
     } catch ( error )
     {
         await session.abortTransaction();
-        session.endSession();
+        // session.endSession();
         return res.status( 500 ).json( { message: 'Internal server error', error: error.message } );
     }
 } );
@@ -183,7 +184,7 @@ const freezeAllocation = asyncHandler( async ( req, res ) =>
         if ( !student )
         {
             session.abortTransaction();
-            session.endSession();
+            // session.endSession();
             return res.status( 404 ).json( { message: 'Student not found' } );
         }
 
@@ -191,7 +192,7 @@ const freezeAllocation = asyncHandler( async ( req, res ) =>
         if ( student.allocationStatus !== 1 || !student.allocatedTA )
         {
             session.abortTransaction();
-            session.endSession();
+            // session.endSession();
             return res.status( 400 ).json( { message: 'Cannot freeze allocation' } );
         }
 
@@ -200,13 +201,13 @@ const freezeAllocation = asyncHandler( async ( req, res ) =>
         await student.save();
 
         await session.commitTransaction();
-        session.endSession();
+        // session.endSession();
 
         return res.status( 200 ).json( { message: 'Student allocation freezed successfully' } );
     } catch ( error )
     {
         await session.abortTransaction();
-        session.endSession();
+        // session.endSession();
         return res.status( 500 ).json( { message: 'Internal server error', error: error.message } );
     }
 } );

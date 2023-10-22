@@ -1,39 +1,63 @@
 import React, { useContext, useState } from 'react';
 import StudentContext from '../context/StudentContext';
+import test from "./test.json"
 
 const Tablestudents = () => {
   const { students, updateStudent, deleteStudent } = useContext(StudentContext);
   const [editingRow, setEditingRow] = useState(-1);
   const [editedStudentData, setEditedStudentData] = useState({});
 
+  const customLabels = [
+    'Name',
+    'Email Id',
+    'Roll No',
+    'Program',
+    'Department',
+    'TA Type',
+    'TA Status',
+    'TA Allotted',
+    'Dept Pref 1',
+    'Grade Dept Pref 1',
+    'Dept Pref 2',
+    'Grade Dept Pref 2',
+    'Non-Dept Pref 1',
+    'Grade Non-Dept Pref 1',
+    'Non-Dept Pref 2',
+    'Grade Non-Dept Pref 2',
+    'Non-Dept Pref 3',
+    'Grade Non-Dept Pref 3',
+    'Non-Dept Pref 4',
+    'Grade Non-Dept Pref 4',
+    'Non-Dept Pref 5',
+    'Grade Non-Dept Pref 5',
+    'Non-Prefs 1',
+    'Non-Prefs 2',
+    'Non-Prefs 3',
+  ];
+
   const handleEdit = (rowIndex) => {
     setEditingRow(rowIndex);
     setEditedStudentData({ ...students[rowIndex] });
   };
-
 
   const handleSave = async (rowIndex) => {
     if (JSON.stringify(editedStudentData) === JSON.stringify(students[rowIndex])) {
       handleCancel();
       return;
     }
-    const originalStudentData = students[rowIndex]; 
+    const originalStudentData = students[rowIndex];
     const updatedData = {};
-  
+
     for (const key in editedStudentData) {
       if (editedStudentData[key] !== originalStudentData[key]) {
-        updatedData[key] = editedStudentData[key]; // Add changed field to updatedData
+        updatedData[key] = editedStudentData[key];
       }
     }
+
     await updateStudent(students[rowIndex]._id, updatedData);
-  
-    // Reset the editing state
+
     handleCancel();
   };
-  
-
-
-  
 
   const handleCancel = () => {
     setEditingRow(-1);
@@ -51,23 +75,82 @@ const Tablestudents = () => {
     setEditedStudentData(updatedData);
   };
 
-  const renderRow = (student, index) => {
+  const extractedData = students.map((student) => {
+    const formattedData = customLabels.map((label) => {
+      if (label === 'Name') {
+        return student.name;
+      } else if (label === 'Email Id') {
+        return student.emailId;
+      } else if (label === 'Roll No') {
+        return student.rollNo;
+      } else if (label === 'Program') {
+        return student.program;
+      } else if (label === 'Department') {
+        return student.department;
+      } else if (label === 'TA Type') {
+        return student.taType;
+      } else if (label === 'TA Status') {
+        return student.allocationStatus;
+      } else if (label === 'TA Allotted') {
+        return student.allocatedTA;
+      } else if (label.startsWith('Dept Pref ')) {
+        const index = parseInt(label.replace('Dept Pref ', ''), 10) - 1;
+        return index < student.departmentPreferences.length
+          ? student.departmentPreferences[index].course
+          : '';
+      } else if (label.startsWith('Grade Dept Pref')) {
+        const index = parseInt(label.replace('Grade Dept Pref ', ''), 10) - 1;
+        return index < student.departmentPreferences.length
+          ? student.departmentPreferences[index].grade
+          : '';
+      } else if (label.startsWith('Non-Dept Pref ')) {
+        const index = parseInt(label.replace('Non-Dept Pref ', ''), 10) - 1;
+        return index < student.nonDepartmentPreferences.length
+          ? student.nonDepartmentPreferences[index].course
+          : '';
+      } else if (label.startsWith('Grade Non-Dept Pref')) {
+        const index = parseInt(label.replace('Grade Non-Dept Pref ', ''), 10) - 1;
+        return index < student.nonDepartmentPreferences.length
+          ? student.nonDepartmentPreferences[index].grade
+          : '';
+      } else if (label.startsWith('Non-Prefs ')) {
+        const index = parseInt(label.replace('Non-Prefs ', ''), 10) - 1;
+        return index < student.nonPreferences.length ? student.nonPreferences[index] : '';
+      }
+      return '';
+    });
+
+    return formattedData;
+  });
+
+  const renderHeaderRow = () => {
+    return (
+      <tr className="bg-[#3dafaa] text-white">
+        {customLabels.map((label, index) => (
+          <th className='border p-2 text-center' key={index}>
+            {label}
+          </th>
+        ))}
+        <th className='border p-2 text-center'>Actions</th>
+      </tr>
+    );
+  };
+
+  const renderRow = (data, index) => {
     const isEditing = index === editingRow;
     const editingRowClass = 'bg-gray-300';
 
     return (
       <tr className={`text-center ${isEditing ? editingRowClass : ''}`} key={index}>
-        {Object.keys(student).map((key, ind) => (
-          <td className='border p-2' key={ind}>
+        {data.map((item, itemIndex) => (
+          <td className='border p-2' key={itemIndex}>
             {isEditing ? (
               <input
                 type='text'
-                value={editedStudentData[key] ?? student[key]}
-                onChange={(e) => handleInputChange(e, key)}
+                value={editedStudentData[customLabels[itemIndex]] || ''}
+                onChange={(e) => handleInputChange(e, customLabels[itemIndex])}
               />
-            ) : (
-              student[key]
-            )}
+            ) : item}
           </td>
         ))}
         <td className='border p-2'>
@@ -96,7 +179,7 @@ const Tablestudents = () => {
               </button>
               <button
                 className='bg-red-500 text-white px-2 py-1 rounded-md flex items-center'
-                onClick={() => handleDelete(student._id)}
+                onClick={() => handleDelete(students[index]._id)}
               >
                 Delete
               </button>
@@ -107,26 +190,6 @@ const Tablestudents = () => {
     );
   };
 
-  const renderHeaderRow = () => {
-    if (students.length === 0) {
-      return (
-        <tr>
-          <th className="bg-[#3dafaa] text-center font-bold p-2 text-white">
-           No students 
-          </th>
-        </tr>
-      );
-    } else {
-      return (
-        <tr className="bg-[#3dafaa] text-white">
-          {Object.keys(students[0]).map((key, index) => (
-            <th className='border p-2 text-center' key={index}>{key}</th>
-          ))}
-        </tr>
-      );
-    }
-  };
-
   return (
     <div className='overflow-auto max-w-[83vw] max-h-[1000px] mt-4'>
       <table className="w-full border-collapse border">
@@ -134,8 +197,8 @@ const Tablestudents = () => {
           {renderHeaderRow()}
         </thead>
         <tbody>
-          {students.slice(0).map((student, index) => (
-            renderRow(student, index)
+          {extractedData.map((data, index) => (
+            renderRow(data, index)
           ))}
         </tbody>
       </table>
