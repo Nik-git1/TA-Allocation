@@ -11,15 +11,12 @@ const AdminNav = () => {
   let {getCourse} = useContext(CourseContext)
   const handleFileChange = (event) => {
     if(isCourseRoute){
-      console.log("for course")
       getCourse(event)
     }else{
-      console.log("for students")
       getStudentsFromFile(event);
     }
   };
   const location = useLocation();
-  console.log(location.pathname)
   const isCourseRoute = location.pathname === '/admin/course';
   const placeholderText = location.pathname === '/admin/course' ? 'Search Course...':'Search Student..';
   const isAllocate = location.pathname === '/admin/allocate';

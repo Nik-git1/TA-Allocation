@@ -96,7 +96,7 @@ const StudentState = (props) => {
 
   return (
     <StudentContext.Provider
-      value={{ students, getStudentsFromFile, updateStudent,deleteStudent  }}
+      value={{ students, getStudentsFromFile, updateStudent,deleteStudent,getStudentsFromBackend  }}
     >
       {props.children}
     </StudentContext.Provider>

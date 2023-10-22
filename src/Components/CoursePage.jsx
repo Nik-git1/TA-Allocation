@@ -8,32 +8,22 @@ const CoursePage = () => {
   const { students } = useContext(StudentContext);
   const [button, setbutton] = useState(false);
 
-  const [studentLists, setStudentLists] = useState({ allocatedToThisCourse: [], availableStudents: [] });
+  const [allocatedToThisCourse, setAllocatedToThisCourse] = useState([]);
+  const [availableStudents, setAvailableStudents] = useState([]);
 
-  const calculateStudentLists = () => {
-    // Filter students based on their allocation status and the selected course
-    const allocatedToThisCourse = students.filter(
+  useEffect(() => {
+    // When the component mounts, sort students into allocated and available lists
+    const studentsAllocatedToCourse = students.filter(
       (student) => student.allocationStatus === 1 && student.allocatedTA === selectedCourse.name
     );
 
-    const availableStudents = students.filter(
+    const studentsAvailableForAllocation = students.filter(
       (student) => student.allocationStatus !== 1 || student.allocatedTA !== selectedCourse.name
     );
 
-    setStudentLists({ allocatedToThisCourse, availableStudents });
-  };
-  useEffect(() => {
-    calculateStudentLists();
-    // No need to console.log(studentLists) here
-}, [button]);
-
-// Use another useEffect to monitor the studentLists state
-useEffect(() => {
-    console.log(studentLists); // Check if the state has been updated
-}, [studentLists]);
-
-// Rest of your component remains the same
-
+    setAllocatedToThisCourse(studentsAllocatedToCourse);
+    setAvailableStudents(studentsAvailableForAllocation);
+  }, [selectedCourse, students]);
 
   const handleAllocate = (studentId) => {
     // Make a POST request to allocate the student
@@ -45,8 +35,15 @@ useEffect(() => {
       .then((response) => {
         // Allocation was successful
         console.log("Student allocated successfully");
+
+        // Move the student from available to allocated
+        const studentToAllocate = availableStudents.find((student) => student._id === studentId);
+
+        setAllocatedToThisCourse((prevAllocated) => [...prevAllocated, studentToAllocate]);
+        setAvailableStudents((prevAvailable) => prevAvailable.filter((student) => student._id !== studentId));
+
         // Toggle the button state to trigger recalculation
-         setbutton((prevState) => !prevState);
+        setbutton((prevState) => !prevState);
       })
       .catch((error) => {
         // Handle any errors, e.g., display an error message
@@ -61,12 +58,18 @@ useEffect(() => {
         studentId,
       })
       .then((response) => {
-        // Allocation was successful
+        // Deallocation was successful
         console.log("Student deallocated successfully");
+
+        // Move the student from allocated to available
+        const studentToDeallocate = allocatedToThisCourse.find((student) => student._id === studentId);
+
+        setAvailableStudents((prevAvailable) => [...prevAvailable, studentToDeallocate]);
+        setAllocatedToThisCourse((prevAllocated) => prevAllocated.filter((student) => student._id !== studentId));
+
         // Toggle the button state to trigger recalculation
         setbutton((prevState) => !prevState);
       })
-      
       .catch((error) => {
         // Handle any errors, e.g., display an error message
         console.error("Error deallocating student:", error);
@@ -88,7 +91,7 @@ useEffect(() => {
             </tr>
           </thead>
           <tbody>
-            {studentLists.allocatedToThisCourse.map((student) => (
+            {allocatedToThisCourse.map((student) => (
               <tr key={student._id} className="text-center">
                 <td className="border p-2">{student.name}</td>
                 <td className="border p-2">{student.emailId}</td>
@@ -117,7 +120,7 @@ useEffect(() => {
             </tr>
           </thead>
           <tbody>
-            {studentLists.availableStudents.map((student) => (
+            {availableStudents.map((student) => (
               <tr key={student._id} className="text-center">
                 <td className="border p-2">{student.name}</td>
                 <td className="border p-2">{student.emailId}</td>
