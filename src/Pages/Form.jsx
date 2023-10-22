@@ -203,6 +203,7 @@ const StudentForm = () => {
             <option value="Math">Math</option>
             <option value="CSE">CSE</option>
             <option value="ECE">ECE</option>
+            <option value="ECE">HCD</option>
             {/* Add more department options here */}
           </select>
         </div>
@@ -363,7 +364,7 @@ const StudentForm = () => {
                   setSelectedCourses([...selectedCourses, e.target.value]);
                   setFormData({ ...formData, nonPreferences: nonPrefs });
                 }}
-                className="p-2 border rounded-md"
+                className="p-2 border rounded-md mb-2"
               >
                 <option value="">Select Non-Preference Course</option>
                 {courses.map((course) => (
@@ -379,7 +380,7 @@ const StudentForm = () => {
             </div>
           ))}
         </div>
-        <button type="submit" className="bg-blue-500 text-white p-2 rounded">
+        <button type="submit" className="bg-[#3dafaa] text-white p-2 rounded">
           Submit
         </button>
       </form>
