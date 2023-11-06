@@ -191,7 +191,7 @@ const Tablestudents = () => {
   };
 
   return (
-    <div className='overflow-auto max-w-[83vw] max-h-[1000px] mt-4'>
+    <div className='overflow-auto max-w-[80vw] max-h-[80vh] mt-4'>
       <table className="w-full border-collapse border">
         <thead className='sticky top-0'>
           {renderHeaderRow()}
