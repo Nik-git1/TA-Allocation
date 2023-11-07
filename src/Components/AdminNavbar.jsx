@@ -92,7 +92,7 @@ const AdminNav = () => {
     <div className="bg-white">
       <div className="flex items-center">
         {/* Image */}
-        <img className="h-16 relative pt-5" src="./images/iiitd_img.png" alt="not available" />
+        <img className="h-16 relative pt-5" src="/images/iiitd_img.png" alt="not available" />
 
         {/* Text beside the image */}
         <div className="ml-2 flex items-center">

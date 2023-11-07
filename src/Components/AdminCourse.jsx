@@ -119,13 +119,14 @@ const CourseTable = () => {
           {Object.keys(courses[0]).map((key, index) => (
             <th className='border p-2 text-center' key={index}>{key}</th>
           ))}
+          <th className='border p-2 text-center'>Action</th>
         </tr>
       );
     }
   };
 
   return (
-    <div className='overflow-auto max-w-[83vw] max-h-[1000px] mt-4'>
+    <div className='overflow-auto max-w-[95%] max-h-[25%] mt-4'>
       <table className="w-full border-collapse border">
         <thead className='sticky top-0'>
           {renderHeaderRow()}
