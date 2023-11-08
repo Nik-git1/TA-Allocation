@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Swal from 'sweetalert2';
 
 const StudentForm = () => {
   const [formData, setFormData] = useState({
@@ -109,6 +110,7 @@ const StudentForm = () => {
         //   ],
         //   nonPreferences: ["", "", ""],
         // });
+        Swal.fire('Submitted!', "Form Submitted Successfully", 'success');
       })
       .catch((error) => {
         // Handle any errors that occur during the POST request
