@@ -1,36 +1,57 @@
-import React from "react";
-import {
-  useLocation,
-  BrowserRouter as Router,
-  Routes,
-  Route,
-} from "react-router-dom";
-import LoginPage from "./Pages/LoginPage";
-import AdminPage from "./Pages/AdminPage";
-import Department from "./Pages/DepartmentPage";
-import Student from "./Pages/Student";
-import Professor from "./Pages/ProfessorPage";
-import Form from "./Pages/Form"
-import StudentState from "./context/StudentState";
-import CourseState from "./context/CourseState";
-import DepartmentState from "./context/DepartmentState";
+import React from 'react';
+import { useLocation, Routes, Route } from 'react-router-dom';
+import LoginPage from './Pages/LoginPage';
+import AdminPage from './Pages/AdminPage';
+import Department from './Pages/DepartmentPage';
+import Professor from './Pages/ProfessorPage';
+import Form from './Pages/Form';
+import StudentState from './context/StudentState';
+import CourseState from './context/CourseState';
+import DepartmentState from './context/DepartmentState';
+import AuthState from './context/AuthState';
+import ProtectedRoute from './ProtectedRoutes';
 
 const App = () => {
   return (
-    <StudentState>
-      <CourseState>
-        <DepartmentState>
-          <Routes>
-            <Route element={<AdminPage />} path="/admin/*"></Route>
-            <Route element={<Department />} path="/department/*"></Route>
-            <Route element={<Student />} path="/student/*"></Route>
-            <Route element={<Professor />} path="/professor/*"></Route>
-            <Route element={<LoginPage />} path="/"></Route>
-            <Route element={<Form />} path="/TaForm"></Route>
-          </Routes>
-        </DepartmentState>
-      </CourseState>
-    </StudentState>
+    <AuthState>
+      <StudentState>
+        <CourseState>
+          <DepartmentState>
+            <Routes>
+              <Route element={<LoginPage />} path="/" />
+              <Route element={<Form />} path="/TaForm" />
+              <Route
+                element={
+                  <ProtectedRoute
+                    element={<AdminPage />}
+                    allowedRoles={['admin']}
+                  />
+                }
+                path="/admin/*"
+              />
+              <Route
+                element={
+                  <ProtectedRoute
+                    element={<Department />}
+                    allowedRoles={['JM','admin']}
+                  />
+                }
+                path="/department/*"
+              />
+              <Route
+                element={
+                  <ProtectedRoute
+                    element={<Professor />}
+                    allowedRoles={['professor','JM','admin']}
+                  />
+                }
+                path="/professor/*"
+              />
+            </Routes>
+          </DepartmentState>
+        </CourseState>
+      </StudentState>
+    </AuthState>
   );
 };
 

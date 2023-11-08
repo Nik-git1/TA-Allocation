@@ -5,8 +5,8 @@ const { adminLogin, JMLogin, ProfessorLogin, sendOtp, verifyOtp, addAdmin } = re
 // Login routes
 router.route('/create').post(addAdmin)
 router.route( '/admin' ).post( adminLogin );
-router.route( '/login/JM' ).post( JMLogin );
-router.route( '/login/Professor' ).post( ProfessorLogin );
+router.route( '/JM' ).post( JMLogin );
+router.route( '/Professor' ).post( ProfessorLogin );
 router.route( '/sendotp' ).post( sendOtp )
 router.route( '/verifyotp' ).post( verifyOtp )
 

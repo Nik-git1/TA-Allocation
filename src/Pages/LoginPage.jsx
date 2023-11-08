@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useState ,useContext} from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
-
+import {jwtDecode }from 'jwt-decode'; 
+import AuthContext from '../context/AuthContext';
+import DepartmentContext from "../context/DepartmentContext";
+import CourseContext from "../context/CourseContext";
 const LoginPage = () => {
   const [selectedOption, setSelectedOption] = useState("");
   const [email, setEmail] = useState("");
@@ -11,9 +14,11 @@ const LoginPage = () => {
   const [Otp ,setOtp] =useState("");
   const navigate = useNavigate();
   const host = "http://localhost:5001";
+  const {login} = useContext(AuthContext);
+  const {setSelectedDepartment} = useContext(DepartmentContext);
+  const {setSelectedCourse} =useContext(CourseContext)
 
   const handleLoginOptionClick = (option) => {
-    console.log(TaOptionSelected);
     if (option === "TA") {
       setTaOptionSelected(true);
     } else {
@@ -44,36 +49,90 @@ const LoginPage = () => {
       const json = await response.json();
       console.log(json);
       if (json.success) {
-        console.log(json.authtoken);
-        localStorage.setItem("token", json.authtoken);
-        navigate("/admin");
+        const decodedToken = jwtDecode(json.authtoken); // Decode the JWT token
+        const userData = {
+          role:  decodedToken.user['role'],
+          id: decodedToken.user['id'],
+          // department:decodedToken.user['department'],
+        };
+        login(userData);
+        navigate('/admin');
       } else {
-        alert("Login Error");
+        alert('Login Error');
       }
     } else {
       alert("Please fill in both email and password fields.");
     }
   };
 
-  const handleDepartmentLogin = () => {
-    // Handle department login logic here
+  const handleDepartmentLogin = async () => {
+    console.log("Department (JM) tried");
+    // Handle Department (JM) login logic here
     if (email && password) {
-      // Navigate to department dashboard or perform the desired action
-      navigate("/department");
+      const response = await fetch(`${host}/api/login/JM`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email_id: email, password: password }),
+      });
+  
+      const json = await response.json();
+      console.log(json);
+      if (json.success) {
+        const decodedToken = jwtDecode(json.authtoken); // Decode the JWT token
+        console.log(decodedToken)
+        const userData = {
+          role:  decodedToken.user['role'],
+          id: decodedToken.user['id'],
+          department:decodedToken.user['department'],
+        };
+        login(userData);
+        setSelectedDepartment(userData.department)
+        navigate('/department');
+      } else {
+        alert('Login Error');
+      }
     } else {
       alert("Please fill in both email and password fields.");
     }
   };
+  
 
-  const handleProfessorLogin = () => {
-    // Handle professor login logic here
+  const handleProfessorLogin = async () => {
+    console.log("Professor tried");
+    // Handle Professor login logic here
     if (email && password) {
-      // Navigate to professor dashboard or perform the desired action
-      navigate("/professor");
+      const response = await fetch(`${host}/api/login/Professor`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email_id: email, password: password }),
+      });
+  
+      const json = await response.json();
+      console.log(json);
+      if (json.success) {
+        const decodedToken = jwtDecode(json.authtoken); // Decode the JWT token
+        const userData = {
+          role:  decodedToken.user['role'],
+          id: decodedToken.user['id'],
+          department:decodedToken.user['department'],
+          courses: decodedToken.user['courses'],
+        };
+        login(userData);
+        setSelectedDepartment(userData.department)
+        setSelectedCourse(userData.courses)
+        navigate('/professor');
+      } else {
+        alert('Login Error');
+      }
     } else {
       alert("Please fill in both email and password fields.");
     }
   };
+  
 
   const handleTAForm = () => {
     if (email) {

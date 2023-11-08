@@ -178,7 +178,6 @@ const addStudent = asyncHandler( async ( req, res ) =>
 {
   console.log("req")
   var newStudents = req.body;
-  console.log(newStudents)
 
   // Check if the request body is an array
   if ( !Array.isArray( newStudents ) )
@@ -348,6 +347,7 @@ const addStudent = asyncHandler( async ( req, res ) =>
         }
       }
     }
+    console.log("here")
 
     // Insert valid students into the database
     await Student.insertMany( validStudents );
