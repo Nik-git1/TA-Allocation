@@ -316,14 +316,16 @@ const StudentForm = () => {
                 className="w-full p-2 border rounded"
               >
                 <option value="">Select Non-Department Course</option>
-                {courses.map((course) => (
-                  <option
-                    key={course._id}
-                    value={course._id}
-                    disabled={selectedCourses.includes(course._id)}
-                  >
-                    {course.name}
-                  </option>
+                {courses
+                  .filter((course) => course.department !== selectedDepartment)
+                  .map((filteredCourse) => (
+                    <option
+                      key={filteredCourse._id}
+                      value={filteredCourse._id}
+                      disabled={selectedCourses.includes(filteredCourse._id)}
+                    >
+                      {filteredCourse.name}
+                    </option>
                 ))}
               </select>
               <label
@@ -366,14 +368,16 @@ const StudentForm = () => {
                 className="p-2 border rounded-md mb-2"
               >
                 <option value="">Select Non-Preference Course</option>
-                {courses.map((course) => (
-                  <option
-                    key={course._id}
-                    value={course._id}
-                    disabled={selectedCourses.includes(course._id)}
-                  >
-                    {course.name}
-                  </option>
+                {courses
+                  .filter((course) => course.department !== selectedDepartment)
+                  .map((filteredCourse) => (
+                    <option
+                      key={filteredCourse._id}
+                      value={filteredCourse._id}
+                      disabled={selectedCourses.includes(filteredCourse._id)}
+                    >
+                      {filteredCourse.name}
+                    </option>
                 ))}
               </select>
             </div>
