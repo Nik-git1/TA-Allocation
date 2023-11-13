@@ -27,6 +27,7 @@ const StudentForm = () => {
 
   const [courses, setCourses] = useState([]);
   const [selectedCourses, setSelectedCourses] = useState([]);
+  const [selectedDepartment, setSelectedDepartment] = useState("");
 
   useEffect(() => {
     // Fetch course data from the backend API
@@ -42,9 +43,9 @@ const StudentForm = () => {
 
   const handleChange = (event, index, section) => {
     const { name, value } = event.target;
-    console.log(name);
-    console.log(value);
-    console.log(event);
+    // console.log(name);
+    // console.log(value);
+    // console.log(event);
     const updatedFormData = { ...formData };
     if (
       section === "departmentPreferences" ||
@@ -56,12 +57,12 @@ const StudentForm = () => {
       }
     } else {
       updatedFormData[name] = value;
-      console.log(updatedFormData);
+      // console.log(updatedFormData);
     }
 
-    console.log(selectedCourses);
+    // console.log(selectedCourses);
     setFormData(updatedFormData);
-    console.log(formData);
+    // console.log(formData);
   };
 
   const handleSubmit = (event) => {
@@ -88,28 +89,6 @@ const StudentForm = () => {
         // Handle success, e.g., display a success message
         console.log("Student data submitted successfully:", response.data);
 
-        // You might also want to reset the form after a successful submission
-        // setFormData({  // Reset the form fields to their initial state
-        //   name: "",
-        //   emailId: "",
-        //   rollNo: "",
-        //   program: "",
-        //   department: "",
-        //   taType: "",
-        //   cgpa: "",
-        //   departmentPreferences: [
-        //     { course: "", grade: "" },
-        //     { course: "", grade: "" },
-        //   ],
-        //   nonDepartmentPreferences: [
-        //     { course: "", grade: "" },
-        //     { course: "", grade: "" },
-        //     { course: "", grade: "" },
-        //     { course: "", grade: "" },
-        //     { course: "", grade: "" },
-        //   ],
-        //   nonPreferences: ["", "", ""],
-        // });
         Swal.fire('Submitted!', "Form Submitted Successfully", 'success');
       })
       .catch((error) => {
@@ -118,7 +97,10 @@ const StudentForm = () => {
       });
   };
 
-  // ...
+  const handleDepartmentChange = (event) => {
+    const { value } = event.target;
+    setSelectedDepartment(value);
+  };
 
   return (
     <div className="flex justify-center items-center relative">
@@ -207,14 +189,17 @@ const StudentForm = () => {
             id="department"
             name="department"
             value={formData.department}
-            onChange={handleChange}
+            onChange={(e) => {
+              handleChange(e); // Call the general handleChange function
+              handleDepartmentChange(e); // Call the specific handleDepartmentChange function
+            }}
             className="w-full p-2 border rounded"
           >
             <option value="">Select Department</option>
             <option value="Math">Math</option>
             <option value="CSE">CSE</option>
             <option value="ECE">ECE</option>
-            <option value="ECE">HCD</option>
+            <option value="HCD">HCD</option>
             {/* Add more department options here */}
           </select>
         </div>
@@ -273,14 +258,17 @@ const StudentForm = () => {
                 <option key="default" value="">
                   Select Department Course
                 </option>
-                {courses.map((course) => (
-                  <option
-                    key={course._id}
-                    value={course._id}
-                    disabled={selectedCourses.includes(course._id)}
-                  >
-                    {course.name}
-                  </option>
+                {/* Filter courses based on the selected department */}
+                {courses
+                  .filter((course) => course.department === selectedDepartment)
+                  .map((filteredCourse) => (
+                    <option
+                      key={filteredCourse._id}
+                      value={filteredCourse._id}
+                      disabled={selectedCourses.includes(filteredCourse._id)}
+                    >
+                      {filteredCourse.name}
+                    </option>
                 ))}
               </select>
               <label
