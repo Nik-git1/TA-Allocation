@@ -27,6 +27,7 @@ const StudentForm = () => {
 
   const [courses, setCourses] = useState([]);
   const [selectedCourses, setSelectedCourses] = useState([]);
+  const [selectedDepartment, setSelectedDepartment] = useState("");
 
   useEffect(() => {
     // Fetch course data from the backend API
@@ -42,9 +43,9 @@ const StudentForm = () => {
 
   const handleChange = (event, index, section) => {
     const { name, value } = event.target;
-    console.log(name);
-    console.log(value);
-    console.log(event);
+    // console.log(name);
+    // console.log(value);
+    // console.log(event);
     const updatedFormData = { ...formData };
     if (
       section === "departmentPreferences" ||
@@ -56,16 +57,25 @@ const StudentForm = () => {
       }
     } else {
       updatedFormData[name] = value;
-      console.log(updatedFormData);
+      // console.log(updatedFormData);
     }
 
-    console.log(selectedCourses);
+    // console.log(selectedCourses);
     setFormData(updatedFormData);
-    console.log(formData);
+    // console.log(formData);
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
+
+    // Additional validation for Roll No length and pattern
+    if (
+      (formData.rollNo.length !== 7 && formData.rollNo.length !== 8) || // Check length
+      !/^(PhD|MT\d|\d{3})/.test(formData.rollNo) // Check pattern
+    ) {
+      alert("Invalid roll number");
+      return;
+    }
 
     // Create a JSON object from your form data
     const studentData = {
@@ -81,44 +91,44 @@ const StudentForm = () => {
       nonPreferences: formData.nonPreferences,
     };
 
-    // Send a POST request to the API endpoint
-    axios
-      .post("http://localhost:5001/api/student", studentData)
-      .then((response) => {
-        // Handle success, e.g., display a success message
-        console.log("Student data submitted successfully:", response.data);
-
-        // You might also want to reset the form after a successful submission
-        // setFormData({  // Reset the form fields to their initial state
-        //   name: "",
-        //   emailId: "",
-        //   rollNo: "",
-        //   program: "",
-        //   department: "",
-        //   taType: "",
-        //   cgpa: "",
-        //   departmentPreferences: [
-        //     { course: "", grade: "" },
-        //     { course: "", grade: "" },
-        //   ],
-        //   nonDepartmentPreferences: [
-        //     { course: "", grade: "" },
-        //     { course: "", grade: "" },
-        //     { course: "", grade: "" },
-        //     { course: "", grade: "" },
-        //     { course: "", grade: "" },
-        //   ],
-        //   nonPreferences: ["", "", ""],
-        // });
-        Swal.fire('Submitted!', "Form Submitted Successfully", 'success');
-      })
-      .catch((error) => {
-        // Handle any errors that occur during the POST request
-        console.error("Error submitting student data:", error);
-      });
+    const allValuesNotEmpty = Object.values(studentData).every(value => {
+      if (Array.isArray(value)) {
+        // If the property is an array, check each element in the array
+        return value.every(pref => pref.course !== "" && pref.grade !== "");
+      } else if (typeof value === "object" && value !== null) {
+        // If the property is an object (nested object), recursively check its values
+        return Object.values(value).every(v => v !== "" && (Array.isArray(v) ? v.every(pref => pref.course !== "" && pref.grade !== "") : true));
+      } else {
+        // For other properties, just check if the value is not an empty string
+        return value !== "";
+      }
+    });
+    
+    if (allValuesNotEmpty) {
+      // Send a POST request to the API endpoint
+      axios
+        .post("http://localhost:5001/api/student", studentData)
+        .then((response) => {
+          // Handle success, e.g., display a success message
+          console.log("Student data submitted successfully:", response.data);
+  
+          Swal.fire('Submitted!', "Form Submitted Successfully", 'success');
+        })
+        .catch((error) => {
+          // Handle any errors that occur during the POST request
+          console.error("Error submitting student data:", error);
+        });
+    }
+    else{
+      alert("Please fill in all the fields :)")
+    }
+    
   };
 
-  // ...
+  const handleDepartmentChange = (event) => {
+    const { value } = event.target;
+    setSelectedDepartment(value);
+  };
 
   return (
     <div className="flex justify-center items-center relative">
@@ -207,14 +217,19 @@ const StudentForm = () => {
             id="department"
             name="department"
             value={formData.department}
-            onChange={handleChange}
+            onChange={(e) => {
+              handleChange(e); // Call the general handleChange function
+              handleDepartmentChange(e); // Call the specific handleDepartmentChange function
+            }}
             className="w-full p-2 border rounded"
           >
             <option value="">Select Department</option>
-            <option value="Math">Math</option>
+            <option value="MATHS">Maths</option>
             <option value="CSE">CSE</option>
             <option value="ECE">ECE</option>
             <option value="ECE">HCD</option>
+            <option value="CB">CB</option>
+            <option value="SSH">SSH</option>
             {/* Add more department options here */}
           </select>
         </div>
@@ -249,6 +264,20 @@ const StudentForm = () => {
             name="cgpa"
             value={formData.cgpa}
             onChange={handleChange}
+            onKeyPress={(e) => {
+              // Allow only non-negative numbers
+              if (e.key === '-' || e.key === 'e' || e.key === 'E') {
+                e.preventDefault();
+              }
+            }}
+            onInput={(e) => {
+              // Prevent negative values when using increment/decrement buttons
+              const value = e.target.value;
+              if (parseFloat(value) < 0) {
+                e.target.value = "0";
+                setFormData((prevFormData) => ({ ...prevFormData, cgpa: "0" }));
+              }
+            }}
             className="w-full p-2 border rounded"
           />
         </div>
@@ -273,14 +302,17 @@ const StudentForm = () => {
                 <option key="default" value="">
                   Select Department Course
                 </option>
-                {courses.map((course) => (
-                  <option
-                    key={course._id}
-                    value={course._id}
-                    disabled={selectedCourses.includes(course._id)}
-                  >
-                    {course.name}
-                  </option>
+                {/* Filter courses based on the selected department */}
+                {courses
+                  .filter((course) => course.department === selectedDepartment)
+                  .map((filteredCourse) => (
+                    <option
+                      key={filteredCourse._id}
+                      value={filteredCourse._id}
+                      disabled={selectedCourses.includes(filteredCourse._id)}
+                    >
+                      {filteredCourse.name}
+                    </option>
                 ))}
               </select>
               <label
@@ -301,6 +333,8 @@ const StudentForm = () => {
                 <option value="">Select Grade</option>
                 <option value="A+(10)">A+(10)</option>
                 <option value="A(10)">A(10)</option>
+                <option value="A-(9)">A-(9)</option>
+                <option value="B(8)">B(8)</option>
                 {/* Add more grade options here */}
               </select>
             </div>
@@ -356,6 +390,8 @@ const StudentForm = () => {
                 <option value="">Select Grade</option>
                 <option value="A+(10)">A+(10)</option>
                 <option value="A(10)">A(10)</option>
+                <option value="A-(9)">A-(9)</option>
+                <option value="B(8)">B(8)</option>
                 {/* Add more grade options here */}
               </select>
             </div>
