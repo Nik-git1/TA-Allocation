@@ -1,15 +1,15 @@
-import React from 'react';
-import { useLocation, Routes, Route } from 'react-router-dom';
-import LoginPage from './Pages/LoginPage';
-import AdminPage from './Pages/AdminPage';
-import Department from './Pages/DepartmentPage';
-import Professor from './Pages/ProfessorPage';
-import Form from './Pages/Form';
-import StudentState from './context/StudentState';
-import CourseState from './context/CourseState';
-import DepartmentState from './context/DepartmentState';
-import AuthState from './context/AuthState';
-import ProtectedRoute from './ProtectedRoutes';
+import React from "react";
+import { useLocation, Routes, Route } from "react-router-dom";
+import LoginPage from "./Pages/LoginPage";
+import AdminPage from "./Pages/AdminPage";
+import Department from "./Pages/DepartmentPage";
+import Professor from "./Pages/ProfessorPage";
+import Form from "./Pages/Form";
+import StudentState from "./context/StudentState";
+import CourseState from "./context/CourseState";
+import DepartmentState from "./context/DepartmentState";
+import AuthState from "./context/AuthState";
+import ProtectedRoute from "./ProtectedRoutes";
 
 const App = () => {
   return (
@@ -24,7 +24,7 @@ const App = () => {
                 element={
                   <ProtectedRoute
                     element={<AdminPage />}
-                    allowedRoles={['admin']}
+                    allowedRoles={["Admin"]}
                   />
                 }
                 path="/admin/*"
@@ -33,7 +33,7 @@ const App = () => {
                 element={
                   <ProtectedRoute
                     element={<Department />}
-                    allowedRoles={['JM','admin']}
+                    allowedRoles={["JM", "Admin"]}
                   />
                 }
                 path="/department/*"
@@ -42,7 +42,7 @@ const App = () => {
                 element={
                   <ProtectedRoute
                     element={<Professor />}
-                    allowedRoles={['professor','JM','admin']}
+                    allowedRoles={["Professor", "JM", "Admin"]}
                   />
                 }
                 path="/professor/*"

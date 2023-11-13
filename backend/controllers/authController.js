@@ -2,11 +2,12 @@ const asyncHandler = require( 'express-async-handler' );
 const Admin = require( "../models/Admin" );
 const JM = require( "../models/JM" );
 const Professor = require( "../models/Professor" );
+const Course = require( "../models/Course" )
 const argon2 = require( 'argon2' );
 const jwt = require( "jsonwebtoken" );
 const nodemailer = require( 'nodemailer' );
 const otpGenerator = require( 'otp-generator' );
-const JWT_SECRET= "jwt"
+const JWT_SECRET = "jwt"
 const otpStorage = new Map();
 
 // Function to generate and store OTP
@@ -78,32 +79,36 @@ const verifyOtp = asyncHandler( async ( req, res ) =>
   res.status( 200 ).json( { success: true, message: 'OTP verified successfully' } );
 } );
 
-const addAdmin = asyncHandler(async (req, res) => {
+const addAdmin = asyncHandler( async ( req, res ) =>
+{
   const { email_id, password } = req.body;
 
   // Check if the admin with the same email already exists
-  const adminExists = await Admin.findOne({ emailId: email_id });
-  if (adminExists) {
-    return res.status(400).json({ error: "Admin with this email already exists" });
+  const adminExists = await Admin.findOne( { emailId: email_id } );
+  if ( adminExists )
+  {
+    return res.status( 400 ).json( { error: "Admin with this email already exists" } );
   }
 
   // Hash the password using Argon2
-  const hashedPassword = await argon2.hash(password);
+  const hashedPassword = await argon2.hash( password );
 
   // Create a new admin instance
-  const newAdmin = new Admin({
+  const newAdmin = new Admin( {
     emailId: email_id,
     password: hashedPassword,
-  });
+  } );
 
   // Save the admin to the database
-  try {
+  try
+  {
     await newAdmin.save();
-    res.status(201).json({ success: true, message: "Admin added successfully" });
-  } catch (error) {
-    res.status(500).json({ error: "Server error: Failed to add admin" });
+    res.status( 201 ).json( { success: true, message: "Admin added successfully" } );
+  } catch ( error )
+  {
+    res.status( 500 ).json( { error: "Server error: Failed to add admin" } );
   }
-});
+} );
 
 
 const adminLogin = asyncHandler( async ( req, res ) =>
@@ -127,7 +132,7 @@ const adminLogin = asyncHandler( async ( req, res ) =>
   const data = {
     user: {
       id: user.id,
-      role:"Admin",
+      role: "Admin",
     },
   };
 
@@ -137,52 +142,58 @@ const adminLogin = asyncHandler( async ( req, res ) =>
   res.json( { success, authtoken } );
 } );
 
-const JMLogin = asyncHandler(async (req, res) => {
+const JMLogin = asyncHandler( async ( req, res ) =>
+{
   const { email_id, password } = req.body;
-  let user = await JM.findOne({ emailId: email_id });
-  if (!user) {
-    return res.status(400).json({ error: "Please enter valid credentials" });
+  let user = await JM.findOne( { emailId: email_id } );
+  if ( !user )
+  {
+    return res.status( 400 ).json( { error: "Please enter valid credentials" } );
   }
 
-  const passwordMatch = await argon2.verify(user.password, password);
+  const passwordMatch = await argon2.verify( user.password, password );
 
-  if (!passwordMatch) {
-    return res.status(400).json({ success: false, error: "Please enter valid credentials" });
+  if ( !passwordMatch )
+  {
+    return res.status( 400 ).json( { success: false, error: "Please enter valid credentials" } );
   }
 
-  console.log(user.department)
+  console.log( user.department )
 
   const data = {
     user: {
       id: user.id,
       department: user.department,
-      role:"JM" // Include the department in the token
+      role: "JM" // Include the department in the token
     },
   };
 
-  const authtoken = jwt.sign(data, JWT_SECRET);
+  const authtoken = jwt.sign( data, JWT_SECRET );
   const success = true;
 
-  res.json({ success, authtoken });
-});
+  res.json( { success, authtoken } );
+} );
 
 
-const ProfessorLogin = asyncHandler(async (req, res) => {
+const ProfessorLogin = asyncHandler( async ( req, res ) =>
+{
   const { email_id, password } = req.body;
-  let user = await Professor.findOne({ emailId: email_id });
-  if (!user) {
-    return res.status(400).json({ error: "Please enter valid credentials" });
+  let user = await Professor.findOne( { emailId: email_id } );
+  if ( !user )
+  {
+    return res.status( 400 ).json( { error: "Please enter valid credentials" } );
   }
 
-  const passwordMatch = await argon2.verify(user.password, password);
+  const passwordMatch = await argon2.verify( user.password, password );
 
-  if (!passwordMatch) {
-    return res.status(400).json({ success: false, error: "Please enter valid credentials" });
+  if ( !passwordMatch )
+  {
+    return res.status( 400 ).json( { success: false, error: "Please enter valid credentials" } );
   }
 
   // Find if the professor teaches any courses
   const professorId = user._id; // Get the professor's ID
-  const coursesTaught = await Course.find({ professor: professorId });
+  const coursesTaught = await Course.find( { professor: professorId } );
 
   const data = {
     user: {
@@ -192,11 +203,11 @@ const ProfessorLogin = asyncHandler(async (req, res) => {
       courses: coursesTaught, // Include the courses taught by the professor in the token
     },
   };
-  const authtoken = jwt.sign(data, JWT_SECRET);
+  const authtoken = jwt.sign( data, JWT_SECRET );
   const success = true;
 
-  res.json({ success, authtoken });
-});
+  res.json( { success, authtoken } );
+} );
 
 
 module.exports = { adminLogin, ProfessorLogin, JMLogin, sendOtp, verifyOtp, addAdmin };

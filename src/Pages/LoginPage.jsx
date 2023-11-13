@@ -1,7 +1,7 @@
-import React, { useState ,useContext} from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
-import {jwtDecode }from 'jwt-decode'; 
-import AuthContext from '../context/AuthContext';
+import { jwtDecode } from "jwt-decode";
+import AuthContext from "../context/AuthContext";
 import DepartmentContext from "../context/DepartmentContext";
 import CourseContext from "../context/CourseContext";
 const LoginPage = () => {
@@ -11,23 +11,22 @@ const LoginPage = () => {
   const [signInButton, setSignInButton] = useState(false);
   const [TaOptionSelected, setTaOptionSelected] = useState(false);
   const [OtpSent, setOtpSent] = useState(false);
-  const [Otp ,setOtp] =useState("");
+  const [Otp, setOtp] = useState("");
   const navigate = useNavigate();
   const host = "http://localhost:5001";
-  const {login} = useContext(AuthContext);
-  const {setSelectedDepartment} = useContext(DepartmentContext);
-  const {setSelectedCourse} =useContext(CourseContext)
+  const { login } = useContext(AuthContext);
+  const { setSelectedDepartment } = useContext(DepartmentContext);
+  const { setSelectedCourse } = useContext(CourseContext);
 
   const handleLoginOptionClick = (option) => {
     if (option === "TA") {
       setTaOptionSelected(true);
     } else {
       setTaOptionSelected(false);
-      setOtpSent(false)
+      setOtpSent(false);
     }
     setSelectedOption(option);
   };
-
 
   const handleSignIn = () => {
     setSignInButton(true);
@@ -51,14 +50,14 @@ const LoginPage = () => {
       if (json.success) {
         const decodedToken = jwtDecode(json.authtoken); // Decode the JWT token
         const userData = {
-          role:  decodedToken.user['role'],
-          id: decodedToken.user['id'],
+          role: decodedToken.user["role"],
+          id: decodedToken.user["id"],
           // department:decodedToken.user['department'],
         };
         login(userData);
-        navigate('/admin');
+        navigate("/admin");
       } else {
-        alert('Login Error');
+        alert("Login Error");
       }
     } else {
       alert("Please fill in both email and password fields.");
@@ -76,28 +75,27 @@ const LoginPage = () => {
         },
         body: JSON.stringify({ email_id: email, password: password }),
       });
-  
+
       const json = await response.json();
       console.log(json);
       if (json.success) {
         const decodedToken = jwtDecode(json.authtoken); // Decode the JWT token
-        console.log(decodedToken)
+        console.log(decodedToken);
         const userData = {
-          role:  decodedToken.user['role'],
-          id: decodedToken.user['id'],
-          department:decodedToken.user['department'],
+          role: decodedToken.user["role"],
+          id: decodedToken.user["id"],
+          department: decodedToken.user["department"],
         };
         login(userData);
-        setSelectedDepartment(userData.department)
-        navigate('/department');
+        setSelectedDepartment(userData.department);
+        navigate("/department");
       } else {
-        alert('Login Error');
+        alert("Login Error");
       }
     } else {
       alert("Please fill in both email and password fields.");
     }
   };
-  
 
   const handleProfessorLogin = async () => {
     console.log("Professor tried");
@@ -110,29 +108,28 @@ const LoginPage = () => {
         },
         body: JSON.stringify({ email_id: email, password: password }),
       });
-  
+
       const json = await response.json();
       console.log(json);
       if (json.success) {
         const decodedToken = jwtDecode(json.authtoken); // Decode the JWT token
         const userData = {
-          role:  decodedToken.user['role'],
-          id: decodedToken.user['id'],
-          department:decodedToken.user['department'],
-          courses: decodedToken.user['courses'],
+          role: decodedToken.user["role"],
+          id: decodedToken.user["id"],
+          department: decodedToken.user["department"],
+          courses: decodedToken.user["courses"],
         };
         login(userData);
-        setSelectedDepartment(userData.department)
-        setSelectedCourse(userData.courses)
-        navigate('/professor');
+        setSelectedDepartment(userData.department);
+        setSelectedCourse(userData.courses);
+        navigate("/professor");
       } else {
-        alert('Login Error');
+        alert("Login Error");
       }
     } else {
       alert("Please fill in both email and password fields.");
     }
   };
-  
 
   const handleTAForm = () => {
     if (email) {
@@ -140,14 +137,14 @@ const LoginPage = () => {
     }
   };
   const handleSendOTP = async () => {
-    console.log(email)
+    console.log(email);
     if (email) {
       const response = await fetch(`${host}/api/login/sendotp`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email_id: email  }),
+        body: JSON.stringify({ email_id: email }),
       });
 
       const json = await response.json();
@@ -159,10 +156,9 @@ const LoginPage = () => {
     } else {
       alert("Please enter an email address.");
     }
-    
   };
   const handleVerifyOTP = async () => {
-    console.log(Otp)
+    console.log(Otp);
     if (email && Otp) {
       const response = await fetch(`${host}/api/login/verifyOTP`, {
         method: "POST",
@@ -175,7 +171,7 @@ const LoginPage = () => {
       const json = await response.json();
       if (json.success) {
         alert("OTP verified successfully.");
-        navigate("/TAform") // spell check please
+        navigate("/TAform"); // spell check please
         // Redirect to the appropriate page after OTP verification
       } else {
         alert("Invalid OTP.");
@@ -184,9 +180,6 @@ const LoginPage = () => {
       alert("Please enter an email and OTP.");
     }
   };
-  
-
-  
 
   const handleSubmit = (e) => {
     e.preventDefault();
