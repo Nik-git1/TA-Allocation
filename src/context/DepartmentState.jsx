@@ -25,6 +25,7 @@ const DepartmentState = (props) => {
       const response = await axios.get(`http://localhost:5001/api/department`);
 
       const departmentList = response.data.map((item) => item.department);
+      console.log(departmentList)
 
       setDepartments(departmentList);
     } catch (error) {

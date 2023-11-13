@@ -4,13 +4,14 @@ import DepartmentContext from "../context/DepartmentContext";
 import { AiOutlineSearch } from "react-icons/ai";
 import "../App.css";
 import { Link, useNavigate } from "react-router-dom";
+import AuthContext from "../context/AuthContext";
 
 const AllocateHeader = () => {
   const [filteredCourses, setfilteredCourses] = useState([]);
   const { course, updateSelectedCourse } = useContext(CourseContext);
-  const { departments, selectedDepartment, setSelectedDepartment } = useContext(
-    DepartmentContext
-  );
+  const { user } = useContext(AuthContext);
+  const { departments, selectedDepartment, setSelectedDepartment } =
+    useContext(DepartmentContext);
 
   const handleDepartmentChange = (event) => {
     setSelectedDepartment(event.target.value);
@@ -25,8 +26,9 @@ const AllocateHeader = () => {
         <div className="mt-2">
           <select
             className="px-4 py-2 border border-[#3dafaa] rounded"
-            value={selectedDepartment}
+            value={user.role === "admin" ? selectedDepartment : user.department}
             onChange={handleDepartmentChange}
+            disabled={user.role !== "admin"}
           >
             {departments.map((department) => (
               <option key={department} value={department}>
@@ -51,26 +53,18 @@ const AllocateHeader = () => {
           </div>
         </form>
         <div className="flex ml-4">
-          <h2 className="text-[#3dafaa] font-bold mr-1">
-            Total Courses:
-          </h2>
+          <h2 className="text-[#3dafaa] font-bold mr-1">Total Courses:</h2>
           <h2>{filteredCourses.length}</h2>
         </div>
         <div className="flex ml-4">
           <h2 className="text-[#3dafaa] font-bold mr-1">
             Non-allocated Courses:
           </h2>
-          <h2>
-            {/* Add logic to count courses with incomplete allocation */}
-          </h2>
+          <h2>{/* Add logic to count courses with incomplete allocation */}</h2>
         </div>
         <div className="flex ml-4">
-          <h2 className="text-[#3dafaa] font-bold mr-1">
-            Allocated Courses:
-          </h2>
-          <h2>
-            {/* Add logic to count courses with complete allocation */}
-          </h2>
+          <h2 className="text-[#3dafaa] font-bold mr-1">Allocated Courses:</h2>
+          <h2>{/* Add logic to count courses with complete allocation */}</h2>
         </div>
       </div>
     </div>
