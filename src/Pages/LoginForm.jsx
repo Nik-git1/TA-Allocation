@@ -12,7 +12,7 @@ const LoginForm = ({ loginOption }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Assuming you have routes like /admin, /department, /professor, and /student
+    
     navigateTo(`/${loginOption}`);
   };
 

@@ -11,7 +11,7 @@ const LoginPage = () => {
   const [signInButton, setSignInButton] = useState(false);
   const [TaOptionSelected, setTaOptionSelected] = useState(false);
   const [OtpSent, setOtpSent] = useState(false);
-  const [Otp ,setOtp] =useState("");
+  const [Otp, setOtp] = useState("");
   const navigate = useNavigate();
   const host = "http://localhost:5001";
   const {login} = useContext(AuthContext);
@@ -23,11 +23,10 @@ const LoginPage = () => {
       setTaOptionSelected(true);
     } else {
       setTaOptionSelected(false);
-      setOtpSent(false)
+      setOtpSent(false);
     }
     setSelectedOption(option);
   };
-
 
   const handleSignIn = () => {
     setSignInButton(true);
@@ -138,14 +137,14 @@ const LoginPage = () => {
     }
   };
   const handleSendOTP = async () => {
-    console.log(email)
+    console.log(email);
     if (email) {
       const response = await fetch(`${host}/api/login/sendotp`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email_id: email  }),
+        body: JSON.stringify({ email_id: email }),
       });
 
       const json = await response.json();
@@ -157,10 +156,9 @@ const LoginPage = () => {
     } else {
       alert("Please enter an email address.");
     }
-    
   };
   const handleVerifyOTP = async () => {
-    console.log(Otp)
+    console.log(Otp);
     if (email && Otp) {
       const response = await fetch(`${host}/api/login/verifyOTP`, {
         method: "POST",
@@ -173,7 +171,7 @@ const LoginPage = () => {
       const json = await response.json();
       if (json.success) {
         alert("OTP verified successfully.");
-        navigate("/TAform") // spell check please
+        navigate("/TAform"); // spell check please
         // Redirect to the appropriate page after OTP verification
       } else {
         alert("Invalid OTP.");
@@ -182,9 +180,6 @@ const LoginPage = () => {
       alert("Please enter an email and OTP.");
     }
   };
-  
-
-  
 
   const handleSubmit = (e) => {
     e.preventDefault();

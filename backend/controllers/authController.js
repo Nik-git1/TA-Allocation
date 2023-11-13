@@ -2,11 +2,12 @@ const asyncHandler = require( 'express-async-handler' );
 const Admin = require( "../models/Admin" );
 const JM = require( "../models/JM" );
 const Professor = require( "../models/Professor" );
+const Course = require( "../models/Course" )
 const argon2 = require( 'argon2' );
 const jwt = require( "jsonwebtoken" );
 const nodemailer = require( 'nodemailer' );
 const otpGenerator = require( 'otp-generator' );
-const JWT_SECRET= "jwt"
+const JWT_SECRET = "jwt"
 const otpStorage = new Map();
 
 // Function to generate and store OTP
@@ -78,32 +79,36 @@ const verifyOtp = asyncHandler( async ( req, res ) =>
   res.status( 200 ).json( { success: true, message: 'OTP verified successfully' } );
 } );
 
-const addAdmin = asyncHandler(async (req, res) => {
+const addAdmin = asyncHandler( async ( req, res ) =>
+{
   const { email_id, password } = req.body;
 
   // Check if the admin with the same email already exists
-  const adminExists = await Admin.findOne({ emailId: email_id });
-  if (adminExists) {
-    return res.status(400).json({ error: "Admin with this email already exists" });
+  const adminExists = await Admin.findOne( { emailId: email_id } );
+  if ( adminExists )
+  {
+    return res.status( 400 ).json( { error: "Admin with this email already exists" } );
   }
 
   // Hash the password using Argon2
-  const hashedPassword = await argon2.hash(password);
+  const hashedPassword = await argon2.hash( password );
 
   // Create a new admin instance
-  const newAdmin = new Admin({
+  const newAdmin = new Admin( {
     emailId: email_id,
     password: hashedPassword,
-  });
+  } );
 
   // Save the admin to the database
-  try {
+  try
+  {
     await newAdmin.save();
-    res.status(201).json({ success: true, message: "Admin added successfully" });
-  } catch (error) {
-    res.status(500).json({ error: "Server error: Failed to add admin" });
+    res.status( 201 ).json( { success: true, message: "Admin added successfully" } );
+  } catch ( error )
+  {
+    res.status( 500 ).json( { error: "Server error: Failed to add admin" } );
   }
-});
+} );
 
 
 const adminLogin = asyncHandler( async ( req, res ) =>
@@ -151,6 +156,10 @@ const JMLogin = asyncHandler(async (req, res) => {
   }
 
   console.log(user.department)
+
+  // Find if the professor teaches any courses
+  const professorId = user._id; // Get the professor's ID
+  const coursesTaught = await Course.find( { professor: professorId } );
 
   const data = {
     user: {
