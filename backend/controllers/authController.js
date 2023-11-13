@@ -127,6 +127,7 @@ const adminLogin = asyncHandler( async ( req, res ) =>
   const data = {
     user: {
       id: user.id,
+      role:"admin",
     },
   };
 
@@ -136,60 +137,63 @@ const adminLogin = asyncHandler( async ( req, res ) =>
   res.json( { success, authtoken } );
 } );
 
-
-const JMLogin = asyncHandler( async ( req, res ) =>
-{
+const JMLogin = asyncHandler(async (req, res) => {
   const { email_id, password } = req.body;
-  let user = await JM.findOne( { email_id } );
-  if ( !user )
-  {
-    return res.status( 400 ).json( { error: "Please enter valid credentials" } );
+  let user = await JM.findOne({ emailId: email_id });
+  if (!user) {
+    return res.status(400).json({ error: "Please enter valid credentials" });
   }
 
-  const passwordMatch = await argon2.verify( user.password, password );
+  const passwordMatch = await argon2.verify(user.password, password);
 
-  if ( !passwordMatch )
-  {
-    return res.status( 400 ).json( { success: false, error: "Please enter valid credentials" } );
+  if (!passwordMatch) {
+    return res.status(400).json({ success: false, error: "Please enter valid credentials" });
   }
-  const data = {
-    user: {
-      id: user.id,
-    },
-  };
-  const authtoken = jwt.sign( data, JWT_SECRET );
-  const success = true;
 
-  res.json( { success, authtoken } );
-
-} );
-
-const ProfessorLogin = asyncHandler( async ( req, res ) =>
-{
-  const { email_id, password } = req.body;
-  let user = await Professor.findOne( { email_id } );
-  if ( !user )
-  {
-    return res.status( 400 ).json( { error: "Please enter valid credentials" } );
-  }
-  const passwordMatch = await argon2.verify( user.password, password );
-
-  if ( !passwordMatch )
-  {
-    return res.status( 400 ).json( { success: false, error: "Please enter valid credentials" } );
-  }
+  console.log(user.department)
 
   const data = {
     user: {
       id: user.id,
+      department: user.department,
+      role:"jm" // Include the department in the token
     },
   };
-  const authtoken = jwt.sign( data, JWT_SECRET );
+
+  const authtoken = jwt.sign(data, JWT_SECRET);
   const success = true;
 
-  res.json( { success, authtoken } );
+  res.json({ success, authtoken });
+});
 
-} );
+
+const ProfessorLogin = asyncHandler(async (req, res) => {
+  const { email_id, password } = req.body;
+  let user = await Professor.findOne({ emailId: email_id });
+  if (!user) {
+    return res.status(400).json({ error: "Please enter valid credentials" });
+  }
+
+  const passwordMatch = await argon2.verify(user.password, password);
+
+  if (!passwordMatch) {
+    return res.status(400).json({ success: false, error: "Please enter valid credentials" });
+  }
+
+  // Find if the professor teaches any courses
+  const professorId = user._id; // Get the professor's ID
+  const data = {
+    user: {
+      id: user.id,
+      department: user.department,
+      role: 'professor' 
+    },
+  };
+  const authtoken = jwt.sign(data, JWT_SECRET);
+  const success = true;
+
+  res.json({ success, authtoken });
+});
+
 
 module.exports = { adminLogin, ProfessorLogin, JMLogin, sendOtp, verifyOtp, addAdmin };
-

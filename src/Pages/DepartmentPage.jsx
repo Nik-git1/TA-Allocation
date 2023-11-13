@@ -6,14 +6,13 @@ import {
   Routes,
   Route,
 } from "react-router-dom";
-import CoursePage from '../Components/CoursePage';
+import CoursePage from "../Components/CoursePage";
 const Department = () => {
   return (
     <>
-      <Allocate />
       <Routes>
-      <Route element={<CoursePage />} path="/department/course/:courseName" />
-
+        <Route element={<Allocate />} path="/"></Route>
+        <Route element={<CoursePage />} path="/:courseName" />
       </Routes>
     </>
   );

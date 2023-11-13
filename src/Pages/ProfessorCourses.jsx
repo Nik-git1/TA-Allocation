@@ -1,25 +1,47 @@
-import React, { useContext, useState } from 'react';
-import { AiOutlineSearch } from 'react-icons/ai';
-import '../App.css';
+import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import AuthContext from '../context/AuthContext';
+
 import CourseContext from '../context/CourseContext';
-import DepartmentContext from '../context/DepartmentContext';
-import AllocateHeader from './AllocateHeader';
-import { useNavigate } from "react-router-dom"; 
-
-const Department = () => {
-
-  const { departmentCourses } = useContext(DepartmentContext);
-  const {setSelectedCourse,selectedCourse} = useContext(CourseContext)
+const ProfessorCourses = () => {
+  const [departmentCourses, setDepartmentCourses] = useState([]);
   const navigate = useNavigate();
-
-  const allocateCourse = (course) => {
-    console.log(departmentCourses)
   
-    var courseName = course.name
-    console.log(courseName)
-     setSelectedCourse(course); //dont delete
-    // console.log(selectedCourse)
-    navigate(`/department/${courseName}`);
+  const {setSelectedCourse,selectedCourse} = useContext(CourseContext)
+  const { user } = useContext(AuthContext);
+
+  // Fetch courses from the backend
+  useEffect(() => {
+    console.log(user);
+  
+    // Fetch courses from the backend
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch('http://localhost:5001/api/course/professor', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ professor: user.id }),
+        });
+  
+        const data = await response.json();
+        console.log(data.courses);
+        setDepartmentCourses(data.courses); // Assuming data is an array of courses
+      } catch (error) {
+        console.error('Error fetching courses:', error);
+      }
+    };
+  
+    fetchCourses();
+  }, [user]); // Include user in the dependency array to avoid missing dependency warning
+  
+      
+  const allocateCourse = (course) => {
+    var courseName = course.name;
+    setSelectedCourse(course)
+    console.log('Allocate course:', courseName);
+    navigate(`${courseName}`);
   };
 
   const renderHeaderRow = () => {
@@ -45,7 +67,7 @@ const Department = () => {
 
   return (
     <div>
-      <AllocateHeader />
+
       <div className="max-w-[80vw] max-h-[78vh] overflow-auto mt-4">
         <table className="border-collapse border">
           <thead className="sticky top-0">{renderHeaderRow()}</thead>
@@ -74,4 +96,4 @@ const Department = () => {
   );
 };
 
-export default Department;
+export default ProfessorCourses;

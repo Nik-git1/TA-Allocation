@@ -12,6 +12,7 @@ const CoursePage = () => {
   const [availableStudents, setAvailableStudents] = useState([]);
 
   useEffect(() => {
+    console.log("entered")
     // When the component mounts, sort students into allocated and available lists
     const studentsAllocatedToCourse = students.filter(
       (student) => student.allocationStatus === 1 && student.allocatedTA === selectedCourse.name

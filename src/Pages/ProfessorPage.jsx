@@ -1,10 +1,19 @@
-import React from 'react'
-import CoursePage from '../Components/CoursePage';
+import React from "react";
+import CoursePage from "../Components/CoursePage";
+import {
+  useLocation,
+  BrowserRouter as Router,
+  Routes,
+  Route,
+} from "react-router-dom";
+import ProfessorCourses from "./ProfessorCourses";
 const ProfessorPage = () => {
-  
   return (
-    <CoursePage/>
-  )
-}
+    <Routes>
+      <Route element={<ProfessorCourses />} path="/"></Route>
+      <Route element={<CoursePage />} path="/:courseName" />
+    </Routes>
+  );
+};
 
-export default ProfessorPage
+export default ProfessorPage;

@@ -312,5 +312,20 @@ const deleteCourse = asyncHandler( async ( req, res ) =>
     }
 } );
 
+const ProfessorCourses = asyncHandler(async (req, res) => {
+    try {
+      // Assuming you're sending the professor's ID in the request body
+      const professorId = req.body.professor;
+      // Find courses taught by the professor
+      const coursesTaught = await Course.find({ professor: professorId });
+  
+      res.json({ success: true, courses: coursesTaught });
+    } catch (error) {
+      console.error('Error fetching professor courses:', error);
+      res.status(500).json({ success: false, error: 'Internal Server Error' });
+    }
+  });
+  
 
-module.exports = { getCourse, addCourse, updateCourse, deleteCourse, getCourses };
+
+module.exports = { getCourse, addCourse, updateCourse, deleteCourse, getCourses,ProfessorCourses };
