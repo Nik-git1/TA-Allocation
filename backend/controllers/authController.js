@@ -29,8 +29,8 @@ const generateAndStoreOTP = ( email, otp ) =>
 const transporter = nodemailer.createTransport( {
   service: 'Gmail',
   auth: {
-    user: 'nikhil20530@iiitd.ac.in',
-    pass: '', // use env file for this data , also kuch settings account ki change krni padti vo krliyo
+    user: 'btp3517@gmail.com',
+    pass: 'atarmoni@123', // use env file for this data , also kuch settings account ki change krni padti vo krliyo
   },
 } );
 
@@ -47,7 +47,7 @@ const sendOtp = asyncHandler( async ( req, res ) =>
 
   // Send OTP via email
   const mailOptions = {
-    user: 'nikhil20530@iiitd.ac.in',
+    user: 'btp3517@gmail.com',
     to: email_id,
     subject: 'OTP Verification',
     text: `Your OTP for verification is: ${ otp }`,

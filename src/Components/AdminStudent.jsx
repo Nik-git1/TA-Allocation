@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import StudentContext from '../context/StudentContext';
 import test from "./test.json"
+import Swal from 'sweetalert2';
 
 const Tablestudents = () => {
   const { students, updateStudent, deleteStudent } = useContext(StudentContext);
@@ -65,9 +66,24 @@ const Tablestudents = () => {
   };
 
   const handleDelete = async (studentId) => {
-    if (window.confirm('Are you sure you want to delete this student?')) {
-      await deleteStudent(studentId);
-    }
+
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteStudent(studentId);
+        Swal.fire('Deleted!', 'Your data has been deleted.', 'success');
+      }
+    });
+    // if (window.confirm('Are you sure you want to delete this student?')) {
+    //   await deleteStudent(studentId);
+    // }
   };
 
   const handleInputChange = (e, key) => {

@@ -234,6 +234,8 @@ const LoginPage = () => {
               TA Form
             </button>
           </div>
+          {!TaOptionSelected ? (
+          <>
           <hr className="border-2 border-[#7d7f7f]" />
           <p className="text-gray-600 text-xs mt-2">Log in as:</p>
           <div className="flex-auto mt-1">
@@ -268,7 +270,7 @@ const LoginPage = () => {
               Professor
             </button>
           </div>
-
+          </>):(null)}
           <div className="justify-center items-center"></div>
 
           {!OtpSent ? (
