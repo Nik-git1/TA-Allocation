@@ -1,6 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
 import CourseContext from '../context/CourseContext';
 import Swal from 'sweetalert2';
+import { AiOutlineSearch } from 'react-icons/ai';
+import * as XLSX from 'xlsx';
 
 const CourseTable = () => {
   const { courses, updateCourse, deleteCourse } = useContext(CourseContext);
@@ -139,18 +141,46 @@ const CourseTable = () => {
     }
   };
 
+  const handleDownload = () => {
+    const ws = XLSX.utils.json_to_sheet(courses);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Courses');
+    XLSX.writeFile(wb, 'Courses_Downloaded.xlsx');
+  };
+
   return (
-    <div className='overflow-auto max-w-[80vw] max-h-[80vh] mt-4'>
-      <table className="w-full border-collapse border">
-        <thead className='sticky top-0'>
-          {renderHeaderRow()}
-        </thead>
-        <tbody>
-          {courses.slice(0).map((course, index) => (
-            renderRow(course, index)
-          ))}
-        </tbody>
-      </table>
+    <div>
+      <div className='flex mt-4 justify-between'>
+        <form className="w-[350px]">
+          <div className="relative">
+            <input
+              type="search"
+              placeholder='Search Course...'
+              className="w-full p-4 rounded-full h-10 border border-[#3dafaa] outline-none focus:border-[#3dafaa]"
+            />
+            <button className="absolute right-0 top-1/2 -translate-y-1/2 p-3 bg-[#3dafaa] rounded-full search-button">
+              <AiOutlineSearch />
+            </button>
+          </div>
+        </form>
+        <button className="bg-[#3dafaa] text-white px-4 py-2 rounded cursor-pointer font-bold mr-6"
+        onClick={handleDownload}
+        >
+          Download
+        </button>
+      </div>
+      <div className='overflow-auto max-w-[80vw] max-h-[82vh] mt-2'>
+        <table className="w-full border-collapse border">
+          <thead className='sticky top-0'>
+            {renderHeaderRow()}
+          </thead>
+          <tbody>
+            {courses.slice(0).map((course, index) => (
+              renderRow(course, index)
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

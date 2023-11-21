@@ -18,7 +18,6 @@ const AdminNav = () => {
   };
   const location = useLocation();
   const isCourseRoute = location.pathname === '/admin/course';
-  const placeholderText = location.pathname === '/admin/course' ? 'Search Course...':'Search Student..';
   const isAllocate = location.pathname === '/admin/allocate';
   const isDashboard = location.pathname === '/admin/dashboard';
   const isLogs = location.pathname === '/admin/log';
@@ -54,25 +53,12 @@ const AdminNav = () => {
       return null;
     } else {
       return (
-        <div className="flex items-center justify-between mt-4">
+        <div className="flex items-center justify-end mt-4">
           {/* CSE Department */}
           
-          {/* Search bar */}
-          <form className="w-[500px] ml-3">
-            <div className="relative">
-              <input
-                type="search"
-                placeholder={placeholderText}
-                className="w-full p-4 rounded-full h-10 border border-[#3dafaa] outline-none focus:border-[#3dafaa]"
-              />
-              <button className="absolute right-0 top-1/2 -translate-y-1/2 p-3 bg-[#3dafaa] rounded-full search-button">
-                <AiOutlineSearch />
-              </button>
-            </div>
-          </form>
           <div className='justify-between flex'>
             {/* Upload XLSX button */}
-            <label className="bg-[#3dafaa] text-white px-4 py-2 rounded cursor-pointer font-bold mx-1">
+            <label className="bg-[#3dafaa] text-white px-4 py-2 rounded cursor-pointer font-bold">
               Upload {buttontext} XLSX
               <input
                 type="file"
@@ -89,7 +75,7 @@ const AdminNav = () => {
   
 
   return (
-    <div className="bg-white">
+    <div className="bg-white flex justify-between">
       <div className="flex items-center">
         {/* Image */}
         <img className="h-16 relative pt-5" src="/images/iiitd_img.png" alt="not available" />
@@ -101,7 +87,7 @@ const AdminNav = () => {
       </div>
 
       {/* Second row */}
-      <div>
+      <div className='mr-6'>
         {renderSearchBarAndUploadButton()}
       </div>
     </div>

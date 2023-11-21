@@ -5,7 +5,7 @@ import { useLocation } from "react-router-dom";
 
 const StudentForm = () => {
   const location = useLocation();
-  const email = location.state.email;
+  const email = location.state?.email || 'your email id';
   const [formData, setFormData] = useState({
     name: "",
     emailId: email,
@@ -77,6 +77,11 @@ const StudentForm = () => {
       !/^(PhD|MT\d|\d{3})/.test(formData.rollNo) // Check pattern
     ) {
       alert("Invalid roll number");
+      return;
+    }
+
+    if(email === 'your email id'){
+      alert("please visite login page and generate valid otp for your email Id");
       return;
     }
 

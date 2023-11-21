@@ -38,7 +38,6 @@ const Department = () => {
             </th>
           ))}
           <th className="border p-2 text-center">Actions</th>
-          <th className="border p-2 text-center">Allocated To</th>
         </tr>
       );
     }
