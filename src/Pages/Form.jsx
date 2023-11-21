@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from 'sweetalert2';
+import { useLocation } from "react-router-dom";
 
 const StudentForm = () => {
+  const location = useLocation();
+  const email = location.state.email;
   const [formData, setFormData] = useState({
     name: "",
-    emailId: "",
+    emailId: email,
     rollNo: "",
     program: "",
     department: "",
@@ -143,20 +146,6 @@ const StudentForm = () => {
       </div>
       <h2 className="text-2xl font-bold mb-2 mt-4">Student Information</h2>
       <form onSubmit={handleSubmit}>
-        {/* Name */}
-        <div className="mb-4">
-          <label htmlFor="name" className="block text-gray-700 font-bold">
-            Name:
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          />
-        </div>
 
         {/* Email Id */}
         <div className="mb-4">
@@ -167,7 +156,23 @@ const StudentForm = () => {
             type="email"
             id="emailId"
             name="emailId"
-            value={formData.emailId}
+            value={email}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+            disabled // Make the input disabled
+          />
+        </div>
+
+        {/* Name */}
+        <div className="mb-4">
+          <label htmlFor="name" className="block text-gray-700 font-bold">
+            Name:
+          </label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={formData.name}
             onChange={handleChange}
             className="w-full p-2 border rounded"
           />
