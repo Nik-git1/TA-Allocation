@@ -3,6 +3,78 @@ const mongoose = require( "mongoose" );
 const Student = require( "../models/Student" );
 const Course = require( "../models/Course" );
 const JM = require( "../models/JM" );
+const nodemailer = require( 'nodemailer' );
+
+const transporter = nodemailer.createTransport( {
+  service: 'Gmail',
+  auth: {
+    user: 'arnav20363@iiitd.ac.in',
+    pass: 'meatiiitdelhi@123', // use env file for this data , also kuch settings account ki change krni padti vo krliyo
+  },
+} );
+
+const sendForm = asyncHandler(async (email,studentData) => {
+  console.log(studentData)
+
+  // Create an HTML file with the student data
+  //Issues : we have to send department and courses name instead of their IDs
+  const htmlContent = `
+    <html>
+      <head>
+        <style>
+          /* Add your styles here */
+        </style>
+      </head>
+      <body>
+        <h1>Student Form Data</h1>
+        <p>Name: <strong>${studentData.name}</strong></p>
+        <p>Email: <strong>${studentData.emailId}</strong></p>
+        <p>Roll No: <strong>${studentData.rollNo}</strong></p>
+        <p>Program: <strong>${studentData.program}</strong></p>
+        <p>Department: <strong>${studentData.department}</strong></p>
+        <p>TA Type: <strong>${studentData.taType}</strong></p>
+        <p>CGPA: <strong>${studentData.cgpa}</strong></p>
+        <h2>Department Preferences</h2>
+        <ul>
+          ${studentData.departmentPreferences.map((pref, index) => `
+            <li>
+              Course ${index + 1}: ${pref.course}, Grade: ${pref.grade}
+            </li>
+          `).join('')}
+        </ul>
+        <h2>Non-Department Preferences</h2>
+        <ul>
+          ${studentData.nonDepartmentPreferences.map((pref, index) => `
+            <li>
+              Course ${index + 1}: ${pref.course}, Grade: ${pref.grade}
+            </li>
+          `).join('')}
+        </ul>
+        <h2>Non-Preferences</h2>
+        <ul>
+          ${studentData.nonPreferences.map((course, index) => `
+            <li>
+              Non-Preference Course ${index + 1}: ${course}
+            </li>
+          `).join('')}
+        </ul>
+        <!-- Add more data as needed -->
+      </body>
+    </html>
+  `;
+
+  // Send student data via email with the HTML content
+  const mailOptions = {
+    from: 'btp3517@gmail.com',
+    to: email,
+    subject: 'Student Form Data',
+    html: htmlContent,
+  };
+
+  await transporter.sendMail(mailOptions);
+});
+
+
 
 //@desc Get student by ID
 //@route GET /api/student/:id
@@ -338,9 +410,6 @@ const addStudent = asyncHandler( async ( req, res ) =>
               continue; // Skip this student and move to the next one
             }
           }
-
-
-
           // Add the validated student to the validStudents list
           newStudent.department = jmDepartment._id;
           validStudents.push( newStudent );
@@ -351,6 +420,14 @@ const addStudent = asyncHandler( async ( req, res ) =>
 
     // Insert valid students into the database
     await Student.insertMany( validStudents );
+    for (const student of validStudents) {
+      try {
+        await sendForm(student.emailId, student); // Call the sendForm function for each student
+      } catch (error) {
+        console.error('Error sending student data via email:', error);
+        // Handle the error as needed
+      }
+    }
 
     // Return a response with colliding and invalid students
     return res.status( 201 ).json( {

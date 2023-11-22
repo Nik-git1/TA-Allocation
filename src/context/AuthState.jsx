@@ -8,25 +8,6 @@ const AuthState = (props) => {
     console.log(userData)
   };
 
-  // useEffect(() => {
-  //   // You can add authentication logic here, e.g., checking for an existing token in local storage
-  //   // Example:
-  //   const token = localStorage.getItem("token");
-  //   if (token) {
-  //     // Fetch user data using the token and update the user state
-  //     // You can use Axios or fetch for making an API request to verify the token and get user data
-  //     // Example:
-  //     // axios.get("/api/user", { headers: { Authorization: `Bearer ${token}` } })
-  //     //   .then((response) => {
-  //     //     const userData = response.data;
-  //     //     loginUser(userData);
-  //     //   })
-  //     //   .catch((error) => {
-  //     //     console.error("Error fetching user data:", error);
-  //     //   });
-  //   }
-  // }, []);
-
   return (
     <AuthContext.Provider
       value={{

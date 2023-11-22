@@ -13,9 +13,7 @@ const otpStorage = new Map();
 // Function to generate and store OTP
 const generateAndStoreOTP = ( email, otp ) =>
 {
-
-  const expirationTime = Date.now() + 3 * 60 * 1000; // OTP valid for 5 minutes
-
+  const expirationTime =  3 * 60 * 1000; // OTP valid for 5 minutes
   // Store the OTP along with its expiration time
   otpStorage.set( email, otp );
   console.log( otpStorage )
@@ -23,46 +21,59 @@ const generateAndStoreOTP = ( email, otp ) =>
   setTimeout( () =>
   {
     otpStorage.delete( email );
-  }, 3 * 60 * 1000 ); // Remove OTP after 5 minutes
+  }, expirationTime ); // Remove OTP after 5 minutes
 };
 
 const transporter = nodemailer.createTransport( {
   service: 'Gmail',
   auth: {
-    user: 'btp3517@gmail.com',
-    pass: 'atarmoni@123', // use env file for this data , also kuch settings account ki change krni padti vo krliyo
+    user: 'arnav20363@iiitd.ac.in',
+    pass: 'meatiiitdelhi@123', // use env file for this data , also kuch settings account ki change krni padti vo krliyo
   },
 } );
 
-const sendOtp = asyncHandler( async ( req, res ) =>
-{
-  const { email_id } = req.body
-  let otp = otpGenerator.generate( 6, {
+const sendOtp= asyncHandler(async (req, res) => {
+  const { email_id } = req.body;
+  let otp = otpGenerator.generate(6, {
     upperCaseAlphabets: false,
     lowerCaseAlphabets: false,
     specialChars: false,
-  } );
-  console.log( otp )
-  generateAndStoreOTP( email_id, otp )
+  });
+  console.log(otp);
+  generateAndStoreOTP(email_id, otp);
 
-  // Send OTP via email
+  // Create an HTML file with the OTP and other data
+  const htmlContent = `
+    <html>
+      <head>
+        <style>
+          /* Add your styles here */
+        </style>
+      </head>
+      <body>
+        <h1>OTP Verification</h1>
+        <p>Your OTP for verification is: <strong>${otp}</strong></p>
+      </body>
+    </html>
+  `;
+
+  // Send OTP via email with the HTML content
   const mailOptions = {
-    user: 'btp3517@gmail.com',
+    from: 'btp3517@gmail.com',
     to: email_id,
     subject: 'OTP Verification',
-    text: `Your OTP for verification is: ${ otp }`,
+    html: htmlContent,
   };
 
-  try
-  {
-    await transporter.sendMail( mailOptions );
-    res.status( 200 ).json( { success: true, message: 'OTP sent successfully' } );
-  } catch ( error )
-  {
-    console.error( 'Error sending OTP:', error );
-    res.status( 500 ).json( { success: false, message: 'Failed to send OTP' } );
+  try {
+    await transporter.sendMail(mailOptions);
+    res.status(200).json({ success: true, message: 'OTP sent successfully' });
+  } catch (error) {
+    console.error('Error sending OTP:', error);
+    res.status(500).json({ success: false, message: 'Failed to send OTP' });
   }
-} )
+});
+
 
 const verifyOtp = asyncHandler( async ( req, res ) =>
 {

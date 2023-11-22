@@ -46,7 +46,9 @@ const LoginPage = () => {
 
       const json = await response.json();
       console.log(json);
+    
       if (json.success) {
+        localStorage.setItem("token",json.authtoken)
         const decodedToken = jwtDecode(json.authtoken); // Decode the JWT token
         const userData = {
           role:  decodedToken.user['role'],
@@ -77,7 +79,9 @@ const LoginPage = () => {
   
       const json = await response.json();
       console.log(json);
+      
       if (json.success) {
+        localStorage.setItem("token",json.authtoken)
         const decodedToken = jwtDecode(json.authtoken); // Decode the JWT token
         console.log(decodedToken)
         const userData = {
@@ -112,6 +116,7 @@ const LoginPage = () => {
       const json = await response.json();
       console.log(json);
       if (json.success) {
+        localStorage.setItem("token",json.authtoken)
         const decodedToken = jwtDecode(json.authtoken); // Decode the JWT token
         const userData = {
           role:  decodedToken.user['role'],

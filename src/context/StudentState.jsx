@@ -38,13 +38,17 @@ const StudentState = (props) => {
   const getStudentsFromBackend = () => {
     axios
       .get('http://localhost:5001/api/student') // Replace with your actual API endpoint
+      
       .then((response) => {
         let studentsFromBackend = response.data;
         setStudents(studentsFromBackend);
+        console.log(students)
       })
       .catch((error) => {
         console.error('Error fetching data from the backend:', error);
       });
+
+     
   };
 
   const getStudentsFromFile = (event) => {
