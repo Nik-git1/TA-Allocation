@@ -13,8 +13,46 @@ const transporter = nodemailer.createTransport( {
   },
 } );
 
-const sendForm = asyncHandler(async (email,studentData) => {
-  console.log(studentData)
+const sendForm = asyncHandler( async ( email, studentData ) =>
+{
+  console.log( studentData )
+
+  const department = await JM.findById( studentData.department, { department: 1 } ).lean();
+  const departmentPreferences = await Promise.all(
+    studentData.departmentPreferences.map( async pref =>
+    {
+      const cdata = await Course.findById( pref.course, { name: 1, code: 1, acronym: 1, _id: 0 } ).lean();
+      return {
+        name: cdata.name,
+        code: cdata.code,
+        acronym: cdata.acronym,
+        grade: pref.grade,
+      };
+    } )
+  );
+  const nonDepartmentPreferences = await Promise.all(
+    studentData.nonDepartmentPreferences.map( async pref =>
+    {
+      const cdata = await Course.findById( pref.course, { name: 1, code: 1, acronym: 1, _id: 0 } ).lean();
+      return {
+        name: cdata.name,
+        code: cdata.code,
+        acronym: cdata.acronym,
+        grade: pref.grade,
+      };
+    } )
+  );
+  const nonPreferences = await Promise.all(
+    studentData.nonPreferences.map( async pref =>
+    {
+      const cdata = await Course.findById( pref, { name: 1, code: 1, acronym: 1, _id: 0 } ).lean();
+      return {
+        name: cdata.name,
+        code: cdata.code,
+        acronym: cdata.acronym
+      };
+    } )
+  );
 
   // Create an HTML file with the student data
   //Issues : we have to send department and courses name instead of their IDs
@@ -27,37 +65,73 @@ const sendForm = asyncHandler(async (email,studentData) => {
       </head>
       <body>
         <h1>Student Form Data</h1>
-        <p>Name: <strong>${studentData.name}</strong></p>
-        <p>Email: <strong>${studentData.emailId}</strong></p>
-        <p>Roll No: <strong>${studentData.rollNo}</strong></p>
-        <p>Program: <strong>${studentData.program}</strong></p>
-        <p>Department: <strong>${studentData.department}</strong></p>
-        <p>TA Type: <strong>${studentData.taType}</strong></p>
-        <p>CGPA: <strong>${studentData.cgpa}</strong></p>
+        <p>Name: <strong>${ studentData.name }</strong></p>
+        <p>Email: <strong>${ studentData.emailId }</strong></p>
+        <p>Roll No: <strong>${ studentData.rollNo }</strong></p>
+        <p>Program: <strong>${ studentData.program }</strong></p>
+        <p>Department: <strong>${ department.department }</strong></p>
+        <p>TA Type: <strong>${ studentData.taType }</strong></p>
+        <p>CGPA: <strong>${ studentData.cgpa }</strong></p>
         <h2>Department Preferences</h2>
-        <ul>
-          ${studentData.departmentPreferences.map((pref, index) => `
-            <li>
-              Course ${index + 1}: ${pref.course}, Grade: ${pref.grade}
-            </li>
-          `).join('')}
-        </ul>
+        <table border="1" cellspacing="0" cellpadding="0" width="500" align="center">
+        <tr>
+        <th>Index</th>
+        <th>Name</th>
+        <th>Code</th>
+        <th>Acronym</th>
+        <th>Grade</th>
+        </tr>
+        ${ departmentPreferences.map( ( pref, index ) => `
+          <tr>
+          <td>${ index + 1 }</td>
+          <td>${ pref.name }</td>
+          <td>${ pref.code }</td>
+          <td>${ pref.acronym }</td>
+          <td>${ pref.grade }</td>
+          </tr>
+        `
+  ).join( '' ) }
+        </table>
         <h2>Non-Department Preferences</h2>
-        <ul>
-          ${studentData.nonDepartmentPreferences.map((pref, index) => `
-            <li>
-              Course ${index + 1}: ${pref.course}, Grade: ${pref.grade}
-            </li>
-          `).join('')}
-        </ul>
+        <table border="1" cellspacing="0" cellpadding="0" width="500" align="center">
+        <tr>
+        <th>Index</th>
+        <th>Name</th>
+        <th>Code</th>
+        <th>Acronym</th>
+        <th>Grade</th>
+        </tr>
+        ${ nonDepartmentPreferences.map( ( pref, index ) => `
+          <tr>
+          <td>${ index + 1 }</td>
+          <td>${ pref.name }</td>
+          <td>${ pref.code }</td>
+          <td>${ pref.acronym }</td>
+          <td>${ pref.grade }</td>
+          </tr>
+        `
+  ).join( '' ) }
+        </table>
+
         <h2>Non-Preferences</h2>
-        <ul>
-          ${studentData.nonPreferences.map((course, index) => `
-            <li>
-              Non-Preference Course ${index + 1}: ${course}
-            </li>
-          `).join('')}
-        </ul>
+
+        <table border="1" cellspacing="0" cellpadding="0" width="500" align="center">
+        <tr>
+        <th>Index</th>
+        <th>Name</th>
+        <th>Code</th>
+        <th>Acronym</th>
+        </tr>
+        ${ nonPreferences.map( ( pref, index ) => `
+          <tr>
+          <td>${ index + 1 }</td>
+          <td>${ pref.name }</td>
+          <td>${ pref.code }</td>
+          <td>${ pref.acronym }</td>
+          </tr>
+        `
+  ).join( '' ) }
+        </table>
         <!-- Add more data as needed -->
       </body>
     </html>
@@ -71,8 +145,8 @@ const sendForm = asyncHandler(async (email,studentData) => {
     html: htmlContent,
   };
 
-  await transporter.sendMail(mailOptions);
-});
+  await transporter.sendMail( mailOptions );
+} );
 
 
 
@@ -248,7 +322,7 @@ async function getCourseIdByName ( courseName )
 //@access public
 const addStudent = asyncHandler( async ( req, res ) =>
 {
-  console.log("req")
+  console.log( "req" )
   var newStudents = req.body;
 
   // Check if the request body is an array
@@ -416,15 +490,18 @@ const addStudent = asyncHandler( async ( req, res ) =>
         }
       }
     }
-    console.log("here")
+    console.log( "here" )
 
     // Insert valid students into the database
     await Student.insertMany( validStudents );
-    for (const student of validStudents) {
-      try {
-        await sendForm(student.emailId, student); // Call the sendForm function for each student
-      } catch (error) {
-        console.error('Error sending student data via email:', error);
+    for ( const student of validStudents )
+    {
+      try
+      {
+        await sendForm( student.emailId, student ); // Call the sendForm function for each student
+      } catch ( error )
+      {
+        console.error( 'Error sending student data via email:', error );
         // Handle the error as needed
       }
     }
