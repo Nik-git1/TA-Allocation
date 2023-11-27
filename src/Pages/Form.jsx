@@ -46,26 +46,40 @@ const StudentForm = () => {
 
   const handleChange = (event, index, section) => {
     const { name, value } = event.target;
-    // console.log(name);
-    // console.log(value);
-    // console.log(event);
     const updatedFormData = { ...formData };
+
     if (
       section === "departmentPreferences" ||
       section === "nonDepartmentPreferences"
     ) {
+      const prevSelectedCourse = updatedFormData[section][index][name];
       updatedFormData[section][index][name] = value;
-      if (name === "course") {
-        setSelectedCourses([...selectedCourses, value]);
+
+      const updatedSelectedCourses = selectedCourses.filter(
+        (course) => course !== prevSelectedCourse
+      );
+
+      if (value !== "") {
+        updatedSelectedCourses.push(value);
       }
+
+      setSelectedCourses(updatedSelectedCourses);
+    } else if (section === "nonPreferences"){
+      const prevSelectedCourse = updatedFormData[section][index];
+      updatedFormData[section][index] = value;
+      const updatedSelectedCourses = selectedCourses.filter(
+        (course) => course !== prevSelectedCourse
+      );
+
+      if (value !== "") {
+        updatedSelectedCourses.push(value);
+      }
+      setSelectedCourses(updatedSelectedCourses);
     } else {
       updatedFormData[name] = value;
-      // console.log(updatedFormData);
     }
 
-    // console.log(selectedCourses);
     setFormData(updatedFormData);
-    // console.log(formData);
   };
 
   const handleSubmit = (event) => {
@@ -372,14 +386,17 @@ const StudentForm = () => {
                 className="w-full p-2 border rounded"
               >
                 <option value="">Select Non-Department Course</option>
-                {courses.map((course) => (
-                  <option
-                    key={course._id}
-                    value={course._id}
-                    disabled={selectedCourses.includes(course._id)}
-                  >
-                    {course.name}
-                  </option>
+                {/* Filter courses based on the selected department */}
+                {courses
+                  .filter((course) => course.department !== selectedDepartment)
+                  .map((filteredCourse) => (
+                    <option
+                      key={filteredCourse._id}
+                      value={filteredCourse._id}
+                      disabled={selectedCourses.includes(filteredCourse._id)}
+                    >
+                      {filteredCourse.name}
+                    </option>
                 ))}
               </select>
               <label
@@ -415,23 +432,21 @@ const StudentForm = () => {
             <div key={index}>
               <select
                 value={course}
-                onChange={(e) => {
-                  const nonPrefs = [...formData.nonPreferences];
-                  nonPrefs[index] = e.target.value;
-                  setSelectedCourses([...selectedCourses, e.target.value]);
-                  setFormData({ ...formData, nonPreferences: nonPrefs });
-                }}
+                onChange={(e) =>
+                  handleChange(e, index, "nonPreferences")
+                }
                 className="p-2 border rounded-md mb-2"
               >
                 <option value="">Select Non-Preference Course</option>
-                {courses.map((course) => (
-                  <option
-                    key={course._id}
-                    value={course._id}
-                    disabled={selectedCourses.includes(course._id)}
-                  >
-                    {course.name}
-                  </option>
+                {courses
+                  .map((filteredCourse) => (
+                    <option
+                      key={filteredCourse._id}
+                      value={filteredCourse._id}
+                      disabled={selectedCourses.includes(filteredCourse._id)}
+                    >
+                      {filteredCourse.name}
+                    </option>
                 ))}
               </select>
             </div>
