@@ -18,7 +18,7 @@ const AllocateHeader = () => {
   };
 
   return (
-    <div>
+    <div className="m-10">
       <div className="flex items-center mb-2">
         <h1 className="text-[#3dafaa] text-3xl font-bold mr-4">
           {selectedDepartment} DEPARTMENT
