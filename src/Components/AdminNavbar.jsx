@@ -21,6 +21,7 @@ const AdminNav = () => {
   const isAllocate = location.pathname === '/admin/allocate';
   const isDashboard = location.pathname === '/admin/dashboard';
   const isLogs = location.pathname === '/admin/log';
+  const isDepartment = location.pathname === '/admin/department'
   
   const [title,setTitle] = useState('Eligible Students of Monsoon 2023');
   const [buttontext, setButtonText] = useState('Student');
@@ -35,7 +36,7 @@ const AdminNav = () => {
   }
 
   const updateTilte = () => {
-    if(isAllocate){
+    if(isDepartment){
       setTitle("Available Courses");
     }
     else{
@@ -49,7 +50,7 @@ const AdminNav = () => {
   }, [isAllocate,isCourseRoute]);
 
   const renderSearchBarAndUploadButton = () => {
-    if (isAllocate || isDashboard  || isLogs) {
+    if (isAllocate || isDashboard  || isLogs || isDepartment) {
       return null;
     } else {
       return (
