@@ -16,6 +16,7 @@ useEffect(() => {
       const userData = {
         role: decodedToken.user['role'],
         id: decodedToken.user['id'],
+        department :decodedToken.user['department']
       };
       login(userData);
     } catch (error) {

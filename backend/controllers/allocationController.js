@@ -236,6 +236,8 @@ const deallocate = asyncHandler(async (req, res) => {
   try {
     // Check if the student exists
     var student = await Student.findById(studentId).session(session);
+    var course = await Course.findById(student.allocatedTA).session(session);
+
     const adminEmail = "nikjr7777@gmail.com";
     const professor = await Professor.findById(course.professor); //check for session parameters here
     const department = await JM.findById(course.department);
@@ -254,8 +256,7 @@ const deallocate = asyncHandler(async (req, res) => {
     }
 
     // Get the course that the student is allocated to
-    var course = await Course.findById(student.allocatedTA).session(session);
-
+   
     if (course) {
       // Remove the student from course's taAllocated
       course.taAllocated = course.taAllocated.filter(
