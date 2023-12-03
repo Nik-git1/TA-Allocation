@@ -1,9 +1,10 @@
-import React, { useState ,useContext} from "react";
+import React, { useState ,useContext, useEffect} from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import {jwtDecode }from 'jwt-decode'; 
 import AuthContext from '../context/AuthContext';
 import DepartmentContext from "../context/DepartmentContext";
 import CourseContext from "../context/CourseContext";
+import ClipLoader from "react-spinners/ClipLoader";
 const LoginPage = () => {
   const [selectedOption, setSelectedOption] = useState("");
   const [email, setEmail] = useState("");
@@ -16,7 +17,20 @@ const LoginPage = () => {
   const host = "http://localhost:5001";
   const {login} = useContext(AuthContext);
   const {setSelectedDepartment} = useContext(DepartmentContext);
-  const {setSelectedCourse} =useContext(CourseContext)
+  const {setSelectedCourse} =useContext(CourseContext);
+  const [loading, setLoading] = useState();
+
+  const startLoader = () => {
+    setLoading(true);
+  };
+
+  const stopLoader = () => {
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    startLoader(); stopLoader();
+  }, []);
 
   const handleLoginOptionClick = (option) => {
     if (option === "TA") {
@@ -144,6 +158,7 @@ const LoginPage = () => {
   const handleSendOTP = async () => {
     console.log(email);
     if (email) {
+      startLoader();
       const response = await fetch(`${host}/api/login/sendotp`, {
         method: "POST",
         headers: {
@@ -155,7 +170,9 @@ const LoginPage = () => {
       const json = await response.json();
       if (json.success) {
         setOtpSent(true);
+        stopLoader();
       } else {
+        stopLoader();
         alert("Failed to send OTP.");
       }
     } else {
@@ -175,7 +192,6 @@ const LoginPage = () => {
 
       const json = await response.json();
       if (json.success) {
-        alert("OTP verified successfully.");
         navigate("/TAform", { state: { email } }); 
         // Redirect to the appropriate page after OTP verification
       } else {
@@ -279,6 +295,17 @@ const LoginPage = () => {
           <div className="justify-center items-center"></div>
 
           {!OtpSent ? (
+            loading ? (
+              <div className="flex justify-center">
+                <ClipLoader
+                  color={'#3dafaa'}
+                  loading={loading}
+                  size={100}
+                  aria-label="Loading Spinner"
+                  data-testid="loader"
+                />
+              </div>
+            ) : (
             <div className="flex flex-col text-black py-2">
               <label>Email Id</label>
               <input
@@ -288,6 +315,7 @@ const LoginPage = () => {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
+            )
           ) : (
             <div className="flex flex-col text-black py-2">
               <label>Enter Otp</label>
