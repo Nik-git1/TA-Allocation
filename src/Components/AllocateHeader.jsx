@@ -54,7 +54,7 @@ const AllocateHeader = () => {
         </form>
         <div className="flex ml-4">
           <h2 className="text-[#3dafaa] font-bold mr-1">Total Courses:</h2>
-          <h2>{filteredCourses.length}</h2>
+          <h2>4</h2>
         </div>
         <div className="flex ml-4">
           <h2 className="text-[#3dafaa] font-bold mr-1">

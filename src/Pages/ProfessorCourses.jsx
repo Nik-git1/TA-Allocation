@@ -54,11 +54,13 @@ const ProfessorCourses = () => {
     } else {
       return (
         <tr className="bg-[#3dafaa] text-white">
-          {Object.keys(departmentCourses[0]).map((key) => (
-            <th className="border p-2 text-center" key={key}>
-              {key}
-            </th>
-          ))}
+          <th className="border p-2 text-center">Name</th>
+          <th className="border p-2 text-center">Code</th>
+          <th className="border p-2 text-center">Acronym</th>
+          <th className="border p-2 text-center">Credits</th>
+          <th className="border p-2 text-center">Total Students</th>
+          <th className="border p-2 text-center">TA Student Ratio</th>
+          <th className="border p-2 text-center">TA Required</th>
           <th className="border p-2 text-center">Actions</th>
         </tr>
       );
@@ -66,34 +68,36 @@ const ProfessorCourses = () => {
   };
 
   return (
-    <div>
+  <div>
+ <div className='m-4' style={{ fontSize: '48px' }}>Welcome Sanjit Kaul</div>
 
-      <div className="max-w-[80vw] max-h-[78vh] overflow-auto mt-4">
-        <table className="border-collapse border">
-          <thead className="sticky top-0">{renderHeaderRow()}</thead>
-          <tbody>
-            {departmentCourses.map((row, index) => (
-              <tr className="text-center" key={index}>
-                {Object.values(row).map((data, ind) => (
-                  <td className="border p-2" key={ind}>
-                    {data}
-                  </td>
-                ))}
-                <td className="border p-2">
-                  <button
-                    onClick={() => allocateCourse(row)}
-                    className="bg-[#3dafaa] text-white px-4 py-2 rounded cursor-pointer font-bold"
-                  >
-                    Allocate
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <div className="max-w-[100vw] max-h-[78vh] overflow-auto mt-4">
+      <table className="border-collapse border w-full" style={{ width: '100%' }}>
+        <thead className="sticky top-0">{renderHeaderRow()}</thead>
+        <tbody>
+          {departmentCourses.map((row, index) => (
+            <tr className="text-center" key={index}>
+              <td className="border p-2">{row.name}</td>
+              <td className="border p-2">{row.code}</td>
+              <td className="border p-2">{row.acronym}</td>
+              <td className="border p-2">{row.credits}</td>
+              <td className="border p-2">{row.totalStudents}</td>
+              <td className="border p-2">{row.taStudentRatio}</td>
+              <td className="border p-2">{row.taRequired}</td>
+              <td className="border p-2">
+                <button
+                  onClick={() => allocateCourse(row)}
+                  className="bg-[#3dafaa] text-white px-4 py-2 rounded cursor-pointer font-bold"
+                >
+                  Allocate
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
     </div>
   );
 };
-
 export default ProfessorCourses;
