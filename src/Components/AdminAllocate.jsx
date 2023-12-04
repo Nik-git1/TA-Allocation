@@ -47,7 +47,7 @@ const Department = () => {
   return (
     <div>
       <AllocateHeader />
-      <div className="max-w-full overflow-auto mt-4">
+      <div className="max-w-full max-h-[65vh] overflow-auto mt-4">
         <table className="border-collapse border w-full">
           <thead className="sticky top-0">{renderHeaderRow()}</thead>
           <tbody>

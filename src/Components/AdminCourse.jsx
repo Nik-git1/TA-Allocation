@@ -28,7 +28,7 @@ const CourseTable = () => {
       }
     }
     await updateCourse(courses[rowIndex]._id, updatedData);
-  
+    Swal.fire('Updated!', 'Your course has been Updated.', 'success');
     handleCancel();
   };
 
