@@ -249,6 +249,7 @@ const LoginPage = () => {
           <p className="text-gray-600 text-xs mt-2">For students:</p>
           <div>
             <button
+              type="button"
               className="w-full my-2 py-2 bg-[#3dafaa] shadow-lg shadow-[#3dafaa]/50 hover:shadow-[#3dafaa]/40 text-white font-semibold rounded-lg"
               onClick={() => handleLoginOptionClick("TA")}
             >
@@ -261,6 +262,7 @@ const LoginPage = () => {
           <p className="text-gray-600 text-xs mt-2">Log in as:</p>
           <div className="flex-auto mt-1">
             <button
+            type="button"
               className={`px-4 py-2 rounded-full cursor-pointer border ${
                 selectedOption === "admin"
                   ? "bg-[#3dafaa] text-white"
@@ -271,6 +273,7 @@ const LoginPage = () => {
               Admin
             </button>
             <button
+              type="button"
               className={`px-4 py-2 rounded-full cursor-pointer border ${
                 selectedOption === "department"
                   ? "bg-[#3dafaa] text-white"
@@ -281,6 +284,7 @@ const LoginPage = () => {
               Department
             </button>
             <button
+              type="button"
               className={`px-4 py-2 rounded-full cursor-pointer border ${
                 selectedOption === "professor"
                   ? "bg-[#3dafaa] text-white"
