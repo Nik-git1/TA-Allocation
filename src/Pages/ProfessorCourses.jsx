@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 
 import CourseContext from '../context/CourseContext';
-const ProfessorCourses = () => {
+const ProfessorCourses = ( ) => {
   const [departmentCourses, setDepartmentCourses] = useState([]);
   const navigate = useNavigate();
+  const {setSelectedCourse} = useContext(CourseContext)
   
-  const {setSelectedCourse,selectedCourse} = useContext(CourseContext)
   const { user } = useContext(AuthContext);
 
   // Fetch courses from the backend

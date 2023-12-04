@@ -12,12 +12,11 @@ const Department = () => {
   const navigate = useNavigate();
 
   const allocateCourse = (course) => {
-    console.log(departmentCourses);
-
+   
     var courseName = course.name;
     setSelectedCourse(course); //dont delete
     
-    navigate(`/department/${courseName}`);
+    navigate(`${courseName}`);
   };
 
   const renderHeaderRow = () => {

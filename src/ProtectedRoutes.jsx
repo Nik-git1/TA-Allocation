@@ -2,8 +2,10 @@ import React, { useContext,useEffect,useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import AuthContext from './context/AuthContext';
 import {jwtDecode }from 'jwt-decode';
+import DeptContext from './context/DepartmentContext';
 const ProtectedRoute = ({ element, allowedRoles }) => {
   const { user,login } = useContext(AuthContext);
+  const {setSelectedDepartment} = useContext(DeptContext)
 
   const [loading, setLoading] = useState(true);
 
@@ -18,6 +20,7 @@ useEffect(() => {
         id: decodedToken.user['id'],
         department :decodedToken.user['department']
       };
+      setSelectedDepartment(userData.department)
       login(userData);
     } catch (error) {
       console.error("Invalid or expired token", error);

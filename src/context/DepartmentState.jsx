@@ -10,6 +10,7 @@ const DepartmentState = (props) => {
 
   // Function to fetch department-specific courses
   const fetchDepartmentCourses = async (department) => {
+    console.log(department)
     try {
       const response = await axios.get(
         `http://localhost:5001/api/course?department=${department}`
@@ -25,8 +26,6 @@ const DepartmentState = (props) => {
       const response = await axios.get(`http://localhost:5001/api/department`);
 
       const departmentList = response.data.map((item) => item.department);
-      console.log(departmentList)
-
       setDepartments(departmentList);
     } catch (error) {
       console.error("Error fetching departments:", error);

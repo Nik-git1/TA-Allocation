@@ -89,7 +89,7 @@ const CourseState = (props) => {
     axios
       .delete(`http://localhost:5001/api/course/${CourseId}`)
       .then((response) => {
-        console.log('Course deleted:', response.data);
+  
         getCoursesFromBackend(); // Fetch updated student data after deletion
       })
       .catch((error) => {

@@ -1,5 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import CourseContext from "../context/CourseContext";
+
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import StudentContext from "../context/StudentContext";
 import axios from "axios";
 import AuthContext from "../context/AuthContext";
@@ -9,12 +11,28 @@ const CoursePage = () => {
   const { students } = useContext(StudentContext);
   const [button, setbutton] = useState(false);
   const {user} = useContext(AuthContext)
-
+  const { courseName } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [allocatedToThisCourse, setAllocatedToThisCourse] = useState([]);
   const [availableStudents, setAvailableStudents] = useState([]);
 
   useEffect(() => {
+   
+    if (!selectedCourse || selectedCourse.name !== courseName) {
+      // Redirect to the professor page if conditions are met
+      const currentPath = location.pathname;
+      const lastIndexOfSlash = currentPath.lastIndexOf('/');
+      console.log(currentPath)
   
+      if (lastIndexOfSlash !== -1) {
+        // Extract the modified path
+        const modifiedPath = currentPath.substring(0, lastIndexOfSlash);
+  
+        // Navigate to the modified path
+        navigate(modifiedPath);
+      }
+    }
     // When the component mounts, sort students into allocated and available lists
     const studentsAllocatedToCourse = students.filter(
       (student) =>
@@ -104,8 +122,14 @@ const CoursePage = () => {
       });
   };
 
+  if (!selectedCourse) {
+    // Render a message or UI indicating that the course data is not available
+    return <div>Course data is not available.</div>;
+  }
+
   return (
     <div>
+
       <h1 className="text-3xl font-bold m-5">{selectedCourse.name}</h1>
 
       <div className="m-5">
