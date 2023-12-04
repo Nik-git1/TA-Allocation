@@ -252,6 +252,7 @@ const LoginPage = () => {
               type="button"
               className="w-full my-2 py-2 bg-[#3dafaa] shadow-lg shadow-[#3dafaa]/50 hover:shadow-[#3dafaa]/40 text-white font-semibold rounded-lg"
               onClick={() => handleLoginOptionClick("TA")}
+              disabled={OtpSent} 
             >
               TA Form
             </button>

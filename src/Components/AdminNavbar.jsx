@@ -21,7 +21,7 @@ const AdminNav = () => {
   const isAllocate = location.pathname === '/admin/allocate';
   const isDashboard = location.pathname === '/admin/dashboard';
   const isLogs = location.pathname === '/admin/log';
-  const isDepartment = location.pathname === '/admin/department'
+  const isDepartment = location.pathname.startsWith('/admin/department')
   
   const [title,setTitle] = useState('Eligible Students of Monsoon 2023');
   const [buttontext, setButtonText] = useState('Student');
