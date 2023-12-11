@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import CourseContext from "../context/CourseContext";
-
+import Swal from 'sweetalert2';
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import StudentContext from "../context/StudentContext";
 import axios from "axios";
@@ -82,7 +82,9 @@ const CoursePage = () => {
         setbutton((prevState) => !prevState);
       })
       .catch((error) => {
-        // Handle any errors, e.g., display an error message
+        if(error.message === 'Request failed with status code 400'){
+          Swal.fire("Can't Allocate", 'TA limit exceeded.', 'error');
+        }
         console.error("Error allocating student:", error);
       });
   };
@@ -136,72 +138,76 @@ const CoursePage = () => {
         <h2 className="text-2xl font-bold mb-2">
           Allocated Students to This Course
         </h2>
-        <table className="w-full border-collapse border">
-          <thead>
-            <tr className="bg-gray-200 text-gray-700">
-              <th className="border p-2">Name</th>
-              <th className="border p-2">Email</th>
-              <th className="border p-2">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {allocatedToThisCourse.map((student) => (
-              <tr key={student._id} className="text-center">
-                <td className="border p-2">{student.name}</td>
-                <td className="border p-2">{student.emailId}</td>
-                <td className="border p-2">
-                  <button
-                    className="bg-red-500 text-white px-4 py-2 rounded cursor-pointer font-bold"
-                    onClick={() => handleDeallocate(student._id)}
-                  >
-                    Deallocate
-                  </button>
-                </td>
+        <div  className="overflow-auto max-h-[30vh]">
+          <table className="w-full border-collapse border">
+            <thead>
+              <tr className="bg-gray-200 text-gray-700">
+                <th className="border p-2">Name</th>
+                <th className="border p-2">Email</th>
+                <th className="border p-2">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {allocatedToThisCourse.map((student) => (
+                <tr key={student._id} className="text-center">
+                  <td className="border p-2">{student.name}</td>
+                  <td className="border p-2">{student.emailId}</td>
+                  <td className="border p-2">
+                    <button
+                      className="bg-red-500 text-white px-4 py-2 rounded cursor-pointer font-bold"
+                      onClick={() => handleDeallocate(student._id)}
+                    >
+                      Deallocate
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div className="m-5">
         <h2 className="text-2xl font-bold mb-2">Available Students</h2>
-        <table className="w-full border-collapse border">
-          <thead>
-            <tr className="bg-gray-200 text-gray-700">
-              <th className="border p-2">Name</th>
-              <th className="border p-2">Email</th>
-              <th className="border p-2">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {availableStudents.map((student) => (
-              <tr key={student._id} className="text-center">
-                <td className="border p-2">{student.name}</td>
-                <td className="border p-2">{student.emailId}</td>
-                <td className="border p-2">
-                  <button
-                    className={`${
-                      student.allocationStatus === 1 &&
-                      student.allocatedTA !== selectedCourse.name
-                        ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-[#3dafaa] cursor-pointer"
-                    } text-white px-4 py-2 rounded font-bold`}
-                    onClick={() => handleAllocate(student._id)}
-                    disabled={
-                      student.allocationStatus === 1 &&
-                      student.allocatedTA !== selectedCourse.name
-                    }
-                  >
-                    {student.allocationStatus === 1 &&
-                    student.allocatedTA !== selectedCourse.name
-                      ? `Allocated to ${student.allocatedTA}`
-                      : "Allocate"}
-                  </button>
-                </td>
+        <div  className="overflow-auto max-h-[35vh]">
+          <table className="w-full border-collapse border">
+            <thead className='sticky top-0'>
+              <tr className="bg-gray-200 text-gray-700">
+                <th className="border p-2">Name</th>
+                <th className="border p-2">Email</th>
+                <th className="border p-2">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {availableStudents.map((student) => (
+                <tr key={student._id} className="text-center">
+                  <td className="border p-2">{student.name}</td>
+                  <td className="border p-2">{student.emailId}</td>
+                  <td className="border p-2">
+                    <button
+                      className={`${
+                        student.allocationStatus === 1 &&
+                        student.allocatedTA !== selectedCourse.name
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "bg-[#3dafaa] cursor-pointer"
+                      } text-white px-4 py-2 rounded font-bold`}
+                      onClick={() => handleAllocate(student._id)}
+                      disabled={
+                        student.allocationStatus === 1 &&
+                        student.allocatedTA !== selectedCourse.name
+                      }
+                    >
+                      {student.allocationStatus === 1 &&
+                      student.allocatedTA !== selectedCourse.name
+                        ? `Allocated to ${student.allocatedTA}`
+                        : "Allocate"}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

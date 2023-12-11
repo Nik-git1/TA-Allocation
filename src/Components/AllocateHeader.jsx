@@ -30,6 +30,7 @@ const AllocateHeader = () => {
             onChange={handleDepartmentChange}
             disabled={user.role !== "admin"}
           >
+            <option value="All">All</option>
             {departments.map((department) => (
               <option key={department} value={department}>
                 {department}
@@ -52,20 +53,6 @@ const AllocateHeader = () => {
             </button>
           </div>
         </form>
-        <div className="flex ml-4">
-          <h2 className="text-[#3dafaa] font-bold mr-1">Total Courses:</h2>
-          <h2>4</h2>
-        </div>
-        <div className="flex ml-4">
-          <h2 className="text-[#3dafaa] font-bold mr-1">
-            Non-allocated Courses:
-          </h2>
-          <h2>{/* Add logic to count courses with incomplete allocation */}</h2>
-        </div>
-        <div className="flex ml-4">
-          <h2 className="text-[#3dafaa] font-bold mr-1">Allocated Courses:</h2>
-          <h2>{/* Add logic to count courses with complete allocation */}</h2>
-        </div>
       </div>
     </div>
   );

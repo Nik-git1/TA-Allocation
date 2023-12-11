@@ -170,7 +170,9 @@ const LoginPage = () => {
       const json = await response.json();
       if (json.success) {
         setOtpSent(true);
-        stopLoader();
+        setTimeout(() => {
+          stopLoader();
+        }, 1500);
       } else {
         stopLoader();
         alert("Failed to send OTP.");
