@@ -8,7 +8,6 @@ const StudentState = (props) => {
   const [students, setStudents] = useState(initStudents);
 
   const updateStudent = async (studentId, updatedData) => {
-    console.log(updatedData)
     try {
       const response = await axios.put(`http://localhost:5001/api/student/${studentId}`, updatedData);
       if (response.status === 200) {
@@ -27,7 +26,6 @@ const StudentState = (props) => {
     axios
       .delete(`http://localhost:5001/api/student/${studentId}`)
       .then((response) => {
-        console.log('Student deleted:', response.data);
         getStudentsFromBackend(); // Fetch updated student data after deletion
       })
       .catch((error) => {
@@ -79,7 +77,6 @@ const StudentState = (props) => {
         axios
           .post('http://localhost:5001/api/student', { students })
           .then((response) => {
-            console.log('Data sent to the backend:', response.data);
             getStudentsFromBackend();
           })
           .catch((error) => {

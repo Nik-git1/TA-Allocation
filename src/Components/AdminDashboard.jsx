@@ -14,7 +14,7 @@ const Dashboard = () => {
       .then((response) => response.json())
       .then((data) => {
         setCurrentRound(data.currentRound);
-        console.log(currentRound);
+
       })
       .catch((error) => console.error("Error fetching round status: " + error));
   };
@@ -24,7 +24,6 @@ const Dashboard = () => {
     fetch("http://localhost:5001/api/rd/startround", { method: "POST" })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         // Update the current round status with the new round number
         setCurrentRound(data.currentRound);
         getRound();

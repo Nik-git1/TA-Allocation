@@ -169,7 +169,7 @@ const CoursePage = () => {
 
       <div className="m-5">
         <h2 className="text-2xl font-bold mb-2">Available Students</h2>
-        <div  className="overflow-auto max-h-[35vh]">
+        <div  className="overflow-auto max-h-[44vh]">
           <table className="w-full border-collapse border">
             <thead className='sticky top-0'>
               <tr className="bg-gray-200 text-gray-700">

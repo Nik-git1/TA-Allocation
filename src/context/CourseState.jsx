@@ -70,7 +70,6 @@ const CourseState = (props) => {
         axios
           .post('http://localhost:5001/api/course', { courses })
           .then((response) => {
-            console.log('Data sent to the backend:', response.data);
             getCoursesFromBackend();
           })
           .catch((error) => {
@@ -99,7 +98,6 @@ const CourseState = (props) => {
 
   const updateCourse = async (courseId, updatedData) => {
 
-    console.log(updatedData)
     try {
       const response = await axios.put(`http://localhost:5001/api/course/${courseId}`, updatedData);
       if (response.status === 200) {

@@ -7,7 +7,6 @@ const AuthState = (props) => {
 const [loading, setLoading] = useState(true);
   const login = (userData) => {
     setUser(userData);
-    console.log(userData)
   };
 
   useEffect(() => {

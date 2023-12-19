@@ -19,7 +19,6 @@ const getJM = asyncHandler( async ( req, res ) =>
         throw new Error( "No department found" );
     }
     res.status( 200 ).json( jm );
-    console.log(res)
 } );
 
 //@desc Get filtered department
@@ -27,7 +26,7 @@ const getJM = asyncHandler( async ( req, res ) =>
 //@access public
 const getJMs = asyncHandler( async ( req, res ) =>
 {
-    console.log("reqiest")
+
     try
     {
         const { department, emailId } = req.query;
@@ -50,7 +49,6 @@ const getJMs = asyncHandler( async ( req, res ) =>
 //@access public
 const addJM = asyncHandler( async ( req, res ) =>
 {
-    console.log(req.body)
     try
     {
         let jmsToAdd = req.body;

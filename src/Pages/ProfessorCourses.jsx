@@ -11,9 +11,7 @@ const ProfessorCourses = ( ) => {
   const { user } = useContext(AuthContext);
 
   // Fetch courses from the backend
-  useEffect(() => {
-    console.log(user);
-  
+  useEffect(() => {  
     // Fetch courses from the backend
     const fetchCourses = async () => {
       try {
@@ -26,7 +24,6 @@ const ProfessorCourses = ( ) => {
         });
   
         const data = await response.json();
-        console.log(data.courses);
         setDepartmentCourses(data.courses); // Assuming data is an array of courses
       } catch (error) {
         console.error('Error fetching courses:', error);
@@ -40,7 +37,6 @@ const ProfessorCourses = ( ) => {
   const allocateCourse = (course) => {
     var courseName = course.name;
     setSelectedCourse(course)
-    console.log('Allocate course:', courseName);
     navigate(`${courseName}`);
   };
 

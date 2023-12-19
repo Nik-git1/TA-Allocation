@@ -5,6 +5,7 @@ import AuthContext from '../context/AuthContext';
 import DepartmentContext from "../context/DepartmentContext";
 import CourseContext from "../context/CourseContext";
 import ClipLoader from "react-spinners/ClipLoader";
+import CryptoJS from "crypto-js";
 const LoginPage = () => {
   const [selectedOption, setSelectedOption] = useState("");
   const [email, setEmail] = useState("");
@@ -19,6 +20,8 @@ const LoginPage = () => {
   const {setSelectedDepartment} = useContext(DepartmentContext);
   const {setSelectedCourse} =useContext(CourseContext);
   const [loading, setLoading] = useState();
+  const [encryptedEmail, setEncryptedEmail] = useState("A");
+  const [studentExist, setStudentExist] = useState();
 
   const startLoader = () => {
     setLoading(true);
@@ -47,7 +50,6 @@ const LoginPage = () => {
   };
 
   const handleAdminLogin = async (e) => {
-    console.log("admin tried");
     // Handle admin login logic here
     if (email && password) {
       const response = await fetch(`${host}/api/login/admin`, {
@@ -59,7 +61,6 @@ const LoginPage = () => {
       });
 
       const json = await response.json();
-      console.log(json);
     
       if (json.success) {
         localStorage.setItem("token",json.authtoken)
@@ -80,7 +81,6 @@ const LoginPage = () => {
   };
 
   const handleDepartmentLogin = async () => {
-    console.log("Department (JM) tried");
     // Handle Department (JM) login logic here
     if (email && password) {
       const response = await fetch(`${host}/api/login/JM`, {
@@ -92,12 +92,10 @@ const LoginPage = () => {
       });
   
       const json = await response.json();
-      console.log(json);
-      
+    
       if (json.success) {
         localStorage.setItem("token",json.authtoken)
         const decodedToken = jwtDecode(json.authtoken); // Decode the JWT token
-        console.log(decodedToken)
         const userData = {
           role:  decodedToken.user['role'],
           id: decodedToken.user['id'],
@@ -116,7 +114,7 @@ const LoginPage = () => {
   
 
   const handleProfessorLogin = async () => {
-    console.log("Professor tried");
+
     // Handle Professor login logic here
     if (email && password) {
       const response = await fetch(`${host}/api/login/Professor`, {
@@ -128,7 +126,6 @@ const LoginPage = () => {
       });
   
       const json = await response.json();
-      console.log(json);
       if (json.success) {
         localStorage.setItem("token",json.authtoken)
         const decodedToken = jwtDecode(json.authtoken); // Decode the JWT token
@@ -152,11 +149,9 @@ const LoginPage = () => {
 
   const handleTAForm = () => {
     if (email) {
-      console.log(email);
     }
   };
   const handleSendOTP = async () => {
-    console.log(email);
     if (email) {
       startLoader();
       const response = await fetch(`${host}/api/login/sendotp`, {
@@ -170,9 +165,10 @@ const LoginPage = () => {
       const json = await response.json();
       if (json.success) {
         setOtpSent(true);
+        setStudentExist(json.studentExist);
         setTimeout(() => {
           stopLoader();
-        }, 1500);
+        }, 1600);
       } else {
         stopLoader();
         alert("Failed to send OTP.");
@@ -182,7 +178,6 @@ const LoginPage = () => {
     }
   };
   const handleVerifyOTP = async () => {
-    console.log(Otp);
     if (email && Otp) {
       const response = await fetch(`${host}/api/login/verifyOTP`, {
         method: "POST",
@@ -194,7 +189,9 @@ const LoginPage = () => {
 
       const json = await response.json();
       if (json.success) {
-        navigate("/TAform", { state: { email } }); 
+        const eEmail = encryptEmail(email);
+        setEncryptedEmail(eEmail);
+        navigate("/TAform", { state: { email, encryptedEmail: eEmail, studentExist: studentExist } }); 
         // Redirect to the appropriate page after OTP verification
       } else {
         alert("Invalid OTP.");
@@ -204,11 +201,16 @@ const LoginPage = () => {
     }
   };
 
+  const encryptEmail = (email) => {
+    const secretKey = "your-secret-key";
+    const encryptedEmail = CryptoJS.AES.encrypt(email, secretKey).toString();
+    return encryptedEmail;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
     if (signInButton) {
-      console.log(selectedOption);
       switch (selectedOption) {
         case "admin":
           handleAdminLogin();

@@ -171,7 +171,6 @@ const addCourse = asyncHandler( async ( req, res ) =>
                     // newCourse.professor = null; // Assign null if professor not found
                     continue; // Skip adding this course
                 }
-                console.log( professor )
             }
 
             // Check for collisions based on the index

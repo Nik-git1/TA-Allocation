@@ -21,10 +21,10 @@ const SideBar = () => {
           Allocate
         </Link>
         <hr className='border-t-2' />
-        <Link to="/admin/log" className='bg-[#3dafaa] p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold'>
+        {/* <Link to="/admin/log" className='bg-[#3dafaa] p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold'>
           Logs
         </Link>
-        <hr className='border-t-2' />
+        <hr className='border-t-2' /> */}
       </div>
     </div>
   );

@@ -66,10 +66,12 @@ const CourseTable = () => {
   const renderRow = (course, index) => {
     const isEditing = index === editingRow;
     const editingRowClass = 'bg-gray-300';
-
+  
+    const courseContent = Object.keys(course);
     return (
       <tr className={`text-center ${isEditing ? editingRowClass : ''}`} key={index}>
-        {Object.keys(course).map((key, ind) => (
+        <td className='border p-2'>{index + 1}</td>
+        {courseContent.slice(1).map((key, ind) => (
           <td className='border p-2' key={ind}>
             {isEditing ? (
               <input
@@ -125,18 +127,23 @@ const CourseTable = () => {
       return (
         <tr>
           <th className="bg-[#3dafaa] text-center font-bold p-2 text-white">
-           No Courses 
+            No Courses
           </th>
         </tr>
       );
     } else {
+      const courseKeys = Object.keys(courses[0]);
+  
       return (
-        <tr className="bg-[#3dafaa] text-white">
-          {Object.keys(courses[0]).map((key, index) => (
-            <th className='border p-2 text-center' key={index}>{key}</th>
-          ))}
-          <th className='border p-2 text-center'>Action</th>
-        </tr>
+        <>
+          <tr className="bg-[#3dafaa] text-white">
+            <th className='border p-2 text-center'>S.No</th>
+            {courseKeys.slice(1).map((key, index) => (
+              <th className='border p-2 text-center' key={index}>{key}</th>
+            ))}
+            <th className='border p-2 text-center'>Action</th>
+          </tr>
+        </>
       );
     }
   };

@@ -15,7 +15,6 @@ const transporter = nodemailer.createTransport( {
 
 const sendForm = asyncHandler( async ( email, studentData ) =>
 {
-  console.log( studentData )
 
   const department = await JM.findById( studentData.department, { department: 1 } ).lean();
   const departmentPreferences = await Promise.all(
@@ -322,7 +321,6 @@ async function getCourseIdByName ( courseName )
 //@access public
 const addStudent = asyncHandler( async ( req, res ) =>
 {
-  console.log( "req" )
   var newStudents = req.body;
 
   // Check if the request body is an array
@@ -490,7 +488,6 @@ const addStudent = asyncHandler( async ( req, res ) =>
         }
       }
     }
-    console.log( "here" )
 
     // Insert valid students into the database
     await Student.insertMany( validStudents );
@@ -526,7 +523,6 @@ const updateStudent = asyncHandler( async ( req, res ) =>
 {
   const studentId = req.params.id;
   var updates = req.body;
-
   try
   {
     // Step 1: Validate that the student exists

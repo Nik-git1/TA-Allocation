@@ -2,7 +2,8 @@ const asyncHandler = require( 'express-async-handler' );
 const Admin = require( "../models/Admin" );
 const JM = require( "../models/JM" );
 const Professor = require( "../models/Professor" );
-const Course = require( "../models/Course" )
+const Student = require( "../models/Student" );
+const Course = require( "../models/Course" );
 const argon2 = require( 'argon2' );
 const jwt = require( "jsonwebtoken" );
 const nodemailer = require( 'nodemailer' );
@@ -34,6 +35,7 @@ const transporter = nodemailer.createTransport( {
 
 const sendOtp= asyncHandler(async (req, res) => {
   const { email_id } = req.body;
+  const findStudent = await Student.findOne({emailId : email_id}, '_id');
   let otp = otpGenerator.generate(6, {
     upperCaseAlphabets: false,
     lowerCaseAlphabets: false,
@@ -67,10 +69,10 @@ const sendOtp= asyncHandler(async (req, res) => {
 
   try {
     await transporter.sendMail(mailOptions);
-    res.status(200).json({ success: true, message: 'OTP sent successfully' });
+    res.status(200).json({ success: true, message: 'OTP sent successfully', studentExist: findStudent });
   } catch (error) {
     console.error('Error sending OTP:', error);
-    res.status(500).json({ success: false, message: 'Failed to send OTP' });
+    res.status(500).json({ success: false, message: 'Failed to send OTP', studentExist: findStudent });
   }
 });
 
@@ -78,9 +80,7 @@ const sendOtp= asyncHandler(async (req, res) => {
 const verifyOtp = asyncHandler( async ( req, res ) =>
 {
   const { email, enteredOTP } = req.body;
-  console.log( 'Entered OTP:', enteredOTP );
   const storedOTP = otpStorage.get( email );
-  console.log( 'Stored OTP:', storedOTP );
 
   if ( !storedOTP || storedOTP.toString() !== enteredOTP.toString() )
   {
@@ -167,7 +167,6 @@ const JMLogin = asyncHandler(async (req, res) => {
     return res.status(400).json({ success: false, error: "Please enter valid credentials" });
   }
 
-  console.log(user.department)
 
   // Find if the professor teaches any courses
   const professorId = user._id; // Get the professor's ID

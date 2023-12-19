@@ -2,10 +2,16 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from 'sweetalert2';
 import { useLocation } from "react-router-dom";
+import CryptoJS from "crypto-js";
 
 const StudentForm = () => {
   const location = useLocation();
-  const email = location.state?.email || 'your email id';
+  const [email, setEmail] = useState(location.state?.email || 'your email id');
+  const encryptedEmail = location.state?.encryptedEmail;
+  const studentExist = location.state?.studentExist._id;
+  const secretKey = "your-secret-key"; // Use the same secret key used for encryption
+  const decryptedEmail = CryptoJS.AES.decrypt(encryptedEmail, secretKey).toString(CryptoJS.enc.Utf8);
+
   const [formData, setFormData] = useState({
     name: "",
     emailId: email,
@@ -99,6 +105,16 @@ const StudentForm = () => {
       return;
     }
 
+    if(email !== decryptedEmail){
+      alert("Invalid email");
+      return
+    }
+
+    if(!decryptedEmail.endsWith("iiitd.ac.in")){
+      alert("Only IIITD Students allowed");
+      return
+    }
+
     // Create a JSON object from your form data
     const studentData = {
       name: formData.name,
@@ -127,19 +143,55 @@ const StudentForm = () => {
     });
     
     if (allValuesNotEmpty) {
-      // Send a POST request to the API endpoint
-      axios
-        .post("http://localhost:5001/api/student", studentData)
-        .then((response) => {
-          // Handle success, e.g., display a success message
-          console.log("Student data submitted successfully:", response.data);
-  
-          Swal.fire('Submitted!', "Form Submitted Successfully", 'success');
-        })
-        .catch((error) => {
-          // Handle any errors that occur during the POST request
-          console.error("Error submitting student data:", error);
-        });
+      if (studentExist === null){
+        // Send a POST request to the API endpoint
+        axios
+          .post("http://localhost:5001/api/student", studentData)
+          .then((response) => {  
+            Swal.fire('Submitted!', "Form Submitted Successfully", 'success');
+          })
+          .catch((error) => {
+            alert("Internal server erro, error status: ",error.status)
+            // Handle any errors that occur during the POST request
+            console.error("Error submitting student data:", error);
+          });
+      }
+      else {
+        // Send a PUT request to the API endpoint
+        axios
+          .put(`http://localhost:5001/api/student/${studentExist}`, studentData)
+          .then((response) => {  
+            Swal.fire('Submitted!', "Form Submitted Successfully", 'success');
+          })
+          .catch((error) => {
+            alert("Internal server erro, error status: ",error.status)
+            // Handle any errors that occur during the POST request
+            console.error("Error submitting student data:", error);
+          });
+      }
+      setEmail('your email id');
+      delete location.state.email;
+      setFormData({
+        name: "",
+        emailId: email,
+        rollNo: "",
+        program: "",
+        department: "",
+        taType: "",
+        cgpa: "",
+        departmentPreferences: [
+          { course: "", grade: "" },
+          { course: "", grade: "" },
+        ],
+        nonDepartmentPreferences: [
+          { course: "", grade: "" },
+          { course: "", grade: "" },
+          { course: "", grade: "" },
+          { course: "", grade: "" },
+          { course: "", grade: "" },
+        ],
+        nonPreferences: ["", "", ""],
+      });
     }
     else{
       alert("Please fill in all the fields :)")
@@ -251,7 +303,7 @@ const StudentForm = () => {
             <option value="MATHS">Maths</option>
             <option value="CSE">CSE</option>
             <option value="ECE">ECE</option>
-            <option value="ECE">HCD</option>
+            <option value="HCD">HCD</option>
             <option value="CB">CB</option>
             <option value="SSH">SSH</option>
             {/* Add more department options here */}

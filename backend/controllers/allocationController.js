@@ -20,7 +20,6 @@ const transporter = nodemailer.createTransport({
 
   const sendDeallocationDetails = asyncHandler(
     async (email, adminEmail, JMEmail, professorEmail, deallocatedBy) => {
-      console.log("in mail");
       JMEmail=''//FOR TESTING REDECLARE EMAILS SO THAT REAL USERS DONT GET THE MAIL
   
       console.log(email, adminEmail, JMEmail, professorEmail, deallocatedBy);
@@ -61,7 +60,6 @@ const transporter = nodemailer.createTransport({
   
   const sendAllocationDetails = asyncHandler(
     async (email, adminEmail, JMEmail, professorEmail, AllocatedBy) => {
-      console.log("in mail");
       JMEmail=''//FOR TESTING REDECLARE EMAILS SO THAT REAL USERS DONT GET THE MAIL
 
       console.log(email, adminEmail, JMEmail, professorEmail, AllocatedBy);
@@ -107,8 +105,6 @@ const transporter = nodemailer.createTransport({
 //@access public
 const allocate = asyncHandler(async (req, res) => {
   const { studentId, courseId ,allocatedBy, allocatedByID } = req.body;
-  console.log(allocatedBy);
-  console.log(allocatedByID);
   const session = await mongoose.startSession();
   session.startTransaction();
 
