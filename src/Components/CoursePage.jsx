@@ -16,6 +16,7 @@ const CoursePage = () => {
   const location = useLocation();
   const [allocatedToThisCourse, setAllocatedToThisCourse] = useState([]);
   const [availableStudents, setAvailableStudents] = useState([]);
+  const [allocated, setAllocated] = useState(true);
 
   useEffect(() => {
    
@@ -129,86 +130,116 @@ const CoursePage = () => {
     return <div>Course data is not available.</div>;
   }
 
+  const handleRenderAllocatedTable = async() => {
+    setAllocated(true);
+  }
+
+  const handleRenderAvailableStudentTable = async() => {
+    setAllocated(false);
+  }
+
   return (
     <div>
 
       <h1 className="text-3xl font-bold m-5">{selectedCourse.name}</h1>
-
-      <div className="m-5">
-        <h2 className="text-2xl font-bold mb-2">
-          Allocated Students to This Course
-        </h2>
-        <div  className="overflow-auto max-h-[30vh]">
-          <table className="w-full border-collapse border">
-            <thead>
-              <tr className="bg-gray-200 text-gray-700">
-                <th className="border p-2">Name</th>
-                <th className="border p-2">Email</th>
-                <th className="border p-2">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {allocatedToThisCourse.map((student) => (
-                <tr key={student._id} className="text-center">
-                  <td className="border p-2">{student.name}</td>
-                  <td className="border p-2">{student.emailId}</td>
-                  <td className="border p-2">
-                    <button
-                      className="bg-red-500 text-white px-4 py-2 rounded cursor-pointer font-bold"
-                      onClick={() => handleDeallocate(student._id)}
-                    >
-                      Deallocate
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <div className="flex">
+        <button
+          type="button"
+            className = {`px-4 py-1 rounded-full cursor-pointer border border-[#3dafaa] ${allocated ? 'bg-[#3dafaa] text-white' : 'text-[#3dafaa]'} hover:bg-[#3dafaa] hover:text-white mr-2`}
+            onClick={handleRenderAllocatedTable}
+          >
+            Allocated Student
+          </button>
+          <button
+          type="button"
+          className = {`px-4 py-1 rounded-full cursor-pointer border border-[#3dafaa] ${!allocated ? 'bg-[#3dafaa] text-white' : 'text-[#3dafaa]'} hover:bg-[#3dafaa] hover:text-white mr-2`}
+            onClick={handleRenderAvailableStudentTable}
+          >
+            Available Student
+          </button>
       </div>
-
-      <div className="m-5">
-        <h2 className="text-2xl font-bold mb-2">Available Students</h2>
-        <div  className="overflow-auto max-h-[44vh]">
-          <table className="w-full border-collapse border">
-            <thead className='sticky top-0'>
-              <tr className="bg-gray-200 text-gray-700">
-                <th className="border p-2">Name</th>
-                <th className="border p-2">Email</th>
-                <th className="border p-2">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {availableStudents.map((student) => (
-                <tr key={student._id} className="text-center">
-                  <td className="border p-2">{student.name}</td>
-                  <td className="border p-2">{student.emailId}</td>
-                  <td className="border p-2">
-                    <button
-                      className={`${
-                        student.allocationStatus === 1 &&
-                        student.allocatedTA !== selectedCourse.name
-                          ? "bg-gray-400 cursor-not-allowed"
-                          : "bg-[#3dafaa] cursor-pointer"
-                      } text-white px-4 py-2 rounded font-bold`}
-                      onClick={() => handleAllocate(student._id)}
-                      disabled={
-                        student.allocationStatus === 1 &&
-                        student.allocatedTA !== selectedCourse.name
-                      }
-                    >
+      {allocated ? (
+        <div className="m-5">
+          <h2 className="text-2xl font-bold mb-2">
+            Allocated Students to This Course
+          </h2>
+          <div  className="overflow-auto max-h-[65vh]">
+            <table className="w-full border-collapse border">
+              <thead>
+                <tr className="bg-gray-200 text-gray-700">
+                  <th className="border p-2">Name</th>
+                  <th className="border p-2">Email</th>
+                  <th className="border p-2">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {allocatedToThisCourse.map((student) => (
+                  <tr key={student._id} className="text-center">
+                    <td className="border p-2">{student.name}</td>
+                    <td className="border p-2">{student.emailId}</td>
+                    <td className="border p-2">
+                      <button
+                        className="bg-red-500 text-white px-4 py-2 rounded cursor-pointer font-bold"
+                        onClick={() => handleDeallocate(student._id)}
+                      >
+                        Deallocate
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : (
+        <div className="m-5">
+          <h2 className="text-2xl font-bold mb-2">Available Students</h2>
+          <div  className="overflow-auto max-h-[65vh]">
+            <table className="w-full border-collapse border">
+              <thead className='sticky top-0'>
+                <tr className="bg-gray-200 text-gray-700">
+                  <th className="border p-2">Name</th>
+                  <th className="border p-2">Email</th>
+                  <th className="border p-2">Action</th>
+                  <th className="border p-2">Allocated To</th>
+                </tr>
+              </thead>
+              <tbody>
+                {availableStudents.map((student) => (
+                  <tr key={student._id} className="text-center">
+                    <td className="border p-2">{student.name}</td>
+                    <td className="border p-2">{student.emailId}</td>
+                    <td className="border p-2">
+                      <button
+                        className={`${
+                          student.allocationStatus === 1 &&
+                          student.allocatedTA !== selectedCourse.name
+                            ? "bg-gray-400 cursor-not-allowed"
+                            : "bg-[#3dafaa] cursor-pointer"
+                        } text-white px-4 py-2 rounded font-bold`}
+                        onClick={() => handleAllocate(student._id)}
+                        disabled={
+                          student.allocationStatus === 1 &&
+                          student.allocatedTA !== selectedCourse.name
+                        }
+                      >
+                        Allocate
+                      </button>
+                    </td>
+                    <td className="border p-2">
                       {student.allocationStatus === 1 &&
-                      student.allocatedTA !== selectedCourse.name
-                        ? `Allocated to ${student.allocatedTA}`
-                        : "Allocate"}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                        student.allocatedTA !== selectedCourse.name
+                          ? `${student.allocatedTA}`
+                          : "NA"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
+
     </div>
   );
 };
