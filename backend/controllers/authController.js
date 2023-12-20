@@ -14,7 +14,7 @@ const otpStorage = new Map();
 // Function to generate and store OTP
 const generateAndStoreOTP = ( email, otp ) =>
 {
-  const expirationTime =  3 * 60 * 1000; // OTP valid for 5 minutes
+  const expirationTime = 3 * 60 * 1000; // OTP valid for 5 minutes
   // Store the OTP along with its expiration time
   otpStorage.set( email, otp );
   console.log( otpStorage )
@@ -33,16 +33,17 @@ const transporter = nodemailer.createTransport( {
   },
 } );
 
-const sendOtp= asyncHandler(async (req, res) => {
+const sendOtp = asyncHandler( async ( req, res ) =>
+{
   const { email_id } = req.body;
-  const findStudent = await Student.findOne({emailId : email_id}, '_id');
-  let otp = otpGenerator.generate(6, {
+  const findStudent = await Student.findOne( { emailId: email_id }, '_id' );
+  let otp = otpGenerator.generate( 6, {
     upperCaseAlphabets: false,
     lowerCaseAlphabets: false,
     specialChars: false,
-  });
-  console.log(otp);
-  generateAndStoreOTP(email_id, otp);
+  } );
+  console.log( otp );
+  generateAndStoreOTP( email_id, otp );
 
   // Create an HTML file with the OTP and other data
   const htmlContent = `
@@ -54,7 +55,7 @@ const sendOtp= asyncHandler(async (req, res) => {
       </head>
       <body>
         <h1>OTP Verification</h1>
-        <p>Your OTP for verification is: <strong>${otp}</strong></p>
+        <p>Your OTP for verification is: <strong>${ otp }</strong></p>
       </body>
     </html>
   `;
@@ -67,14 +68,16 @@ const sendOtp= asyncHandler(async (req, res) => {
     html: htmlContent,
   };
 
-  try {
-    await transporter.sendMail(mailOptions);
-    res.status(200).json({ success: true, message: 'OTP sent successfully', studentExist: findStudent });
-  } catch (error) {
-    console.error('Error sending OTP:', error);
-    res.status(500).json({ success: false, message: 'Failed to send OTP', studentExist: findStudent });
+  try
+  {
+    await transporter.sendMail( mailOptions );
+    res.status( 200 ).json( { success: true, message: 'OTP sent successfully', studentExist: findStudent } );
+  } catch ( error )
+  {
+    console.error( 'Error sending OTP:', error );
+    res.status( 500 ).json( { success: false, message: 'Failed to send OTP', studentExist: findStudent } );
   }
-});
+} );
 
 
 const verifyOtp = asyncHandler( async ( req, res ) =>
@@ -143,8 +146,8 @@ const adminLogin = asyncHandler( async ( req, res ) =>
   const data = {
     user: {
       id: user.id,
-      role:"admin",
-      department:"all"
+      role: "admin",
+      department: "all"
     },
   };
 
@@ -154,17 +157,20 @@ const adminLogin = asyncHandler( async ( req, res ) =>
   res.json( { success, authtoken } );
 } );
 
-const JMLogin = asyncHandler(async (req, res) => {
+const JMLogin = asyncHandler( async ( req, res ) =>
+{
   const { email_id, password } = req.body;
-  let user = await JM.findOne({ emailId: email_id });
-  if (!user) {
-    return res.status(400).json({ error: "Please enter valid credentials" });
+  let user = await JM.findOne( { emailId: email_id } );
+  if ( !user )
+  {
+    return res.status( 400 ).json( { error: "Please enter valid credentials" } );
   }
 
-  const passwordMatch = await argon2.verify(user.password, password);
+  const passwordMatch = await argon2.verify( user.password, password );
 
-  if (!passwordMatch) {
-    return res.status(400).json({ success: false, error: "Please enter valid credentials" });
+  if ( !passwordMatch )
+  {
+    return res.status( 400 ).json( { success: false, error: "Please enter valid credentials" } );
   }
 
 
@@ -176,28 +182,31 @@ const JMLogin = asyncHandler(async (req, res) => {
     user: {
       id: user.id,
       department: user.department,
-      role:"jm" // Include the department in the token
+      role: "jm" // Include the department in the token
     },
   };
 
-  const authtoken = jwt.sign(data, JWT_SECRET);
+  const authtoken = jwt.sign( data, JWT_SECRET );
   const success = true;
 
-  res.json({ success, authtoken });
-});
+  res.json( { success, authtoken } );
+} );
 
 
-const ProfessorLogin = asyncHandler(async (req, res) => {
+const ProfessorLogin = asyncHandler( async ( req, res ) =>
+{
   const { email_id, password } = req.body;
-  let user = await Professor.findOne({ emailId: email_id });
-  if (!user) {
-    return res.status(400).json({ error: "Please enter valid credentials" });
+  let user = await Professor.findOne( { emailId: email_id } );
+  if ( !user )
+  {
+    return res.status( 400 ).json( { error: "Please enter valid credentials" } );
   }
 
-  const passwordMatch = await argon2.verify(user.password, password);
+  const passwordMatch = await argon2.verify( user.password, password );
 
-  if (!passwordMatch) {
-    return res.status(400).json({ success: false, error: "Please enter valid credentials" });
+  if ( !passwordMatch )
+  {
+    return res.status( 400 ).json( { success: false, error: "Please enter valid credentials" } );
   }
 
   // Find if the professor teaches any courses
@@ -206,14 +215,14 @@ const ProfessorLogin = asyncHandler(async (req, res) => {
     user: {
       id: user.id,
       department: user.department,
-      role: 'professor' 
+      role: 'professor'
     },
   };
-  const authtoken = jwt.sign(data, JWT_SECRET);
+  const authtoken = jwt.sign( data, JWT_SECRET );
   const success = true;
 
-  res.json({ success, authtoken });
-});
+  res.json( { success, authtoken } );
+} );
 
 
 module.exports = { adminLogin, ProfessorLogin, JMLogin, sendOtp, verifyOtp, addAdmin };

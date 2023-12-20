@@ -588,7 +588,7 @@ const updateStudent = asyncHandler( async ( req, res ) =>
         newDepartmentPrefs.map( async ( pref ) =>
         {
           const course = await Course.findById( pref.course );
-          return course && course.department.equals( student.department );
+          return course && course.department.equals( updates.department ? updates.department : student.department );
         } )
       );
 
@@ -607,6 +607,14 @@ const updateStudent = asyncHandler( async ( req, res ) =>
     const updatedStudent = await Student.findByIdAndUpdate( studentId, updates, {
       new: true,
     } );
+
+    try
+    {
+      await sendForm( student.emailId, student );
+    } catch ( error )
+    {
+      console.error( 'Error sending student data via email:', error );
+    }
 
     return res
       .status( 200 )
