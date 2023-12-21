@@ -610,7 +610,7 @@ const updateStudent = asyncHandler( async ( req, res ) =>
 
     try
     {
-      await sendForm( student.emailId, student );
+      await sendForm( updatedStudent.emailId, updatedStudent );
     } catch ( error )
     {
       console.error( 'Error sending student data via email:', error );
