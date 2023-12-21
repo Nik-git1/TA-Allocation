@@ -5,6 +5,8 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import StudentContext from "../context/StudentContext";
 import axios from "axios";
 import AuthContext from "../context/AuthContext";
+import * as XLSX from 'xlsx';
+import { AiOutlineSearch } from 'react-icons/ai';
 
 const CoursePage = () => {
   const { selectedCourse } = useContext(CourseContext);
@@ -17,6 +19,7 @@ const CoursePage = () => {
   const [allocatedToThisCourse, setAllocatedToThisCourse] = useState([]);
   const [availableStudents, setAvailableStudents] = useState([]);
   const [allocated, setAllocated] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
    
@@ -138,25 +141,72 @@ const CoursePage = () => {
     setAllocated(false);
   }
 
+  const handleDownload = () => {
+    const dataToDownload = allocated
+      ? allocatedToThisCourse.map(({ _id, allocationStatus, __v, ...rest }) => rest)  // Exclude _id and allocationStatus from allocatedToThisCourse
+      : availableStudents.map(({ _id, allocationStatus, __v, ...rest }) => rest);   // Exclude _id and allocationStatus from availableStudents
+  
+    const ws = XLSX.utils.json_to_sheet(dataToDownload);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Students');
+    XLSX.writeFile(wb, `${selectedCourse.name}_${allocated ? 'Allocated' : 'Available'}_Students.xlsx`);
+  };
+  
+  const filterStudents = (studentsList) => {
+    return studentsList.filter((student) =>
+      student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student.emailId.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  };
+
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const filteredStudents = filterStudents(
+    allocated ? allocatedToThisCourse : availableStudents
+  );
+
   return (
     <div>
 
       <h1 className="text-3xl font-bold m-5">{selectedCourse.name}</h1>
-      <div className="flex">
-        <button
-          type="button"
-            className = {`px-4 py-1 rounded-full cursor-pointer border border-[#3dafaa] ${allocated ? 'bg-[#3dafaa] text-white' : 'text-[#3dafaa]'} hover:bg-[#3dafaa] hover:text-white mr-2`}
-            onClick={handleRenderAllocatedTable}
-          >
-            Allocated Student
+      <div className="flex justify-between">
+        <div className="flex">
+          <button
+            type="button"
+              className = {`px-4 py-1 rounded-full cursor-pointer border border-[#3dafaa] ${allocated ? 'bg-[#3dafaa] text-white' : 'text-[#3dafaa]'} hover:bg-[#3dafaa] hover:text-white mr-2`}
+              onClick={handleRenderAllocatedTable}
+            >
+              Allocated Student
           </button>
           <button
-          type="button"
-          className = {`px-4 py-1 rounded-full cursor-pointer border border-[#3dafaa] ${!allocated ? 'bg-[#3dafaa] text-white' : 'text-[#3dafaa]'} hover:bg-[#3dafaa] hover:text-white mr-2`}
-            onClick={handleRenderAvailableStudentTable}
-          >
-            Available Student
+            type="button"
+            className = {`px-4 py-1 rounded-full cursor-pointer border border-[#3dafaa] ${!allocated ? 'bg-[#3dafaa] text-white' : 'text-[#3dafaa]'} hover:bg-[#3dafaa] hover:text-white mr-4`}
+              onClick={handleRenderAvailableStudentTable}
+            >
+              Available Student
           </button>
+          <form className="w-[350px]">
+          <div className="relative mr-2">
+            <input
+              type="search"
+              placeholder='Search Student...'
+              className="w-full p-4 rounded-full h-10 border border-[#3dafaa] outline-none focus:border-[#3dafaa]"
+              value={searchQuery}
+              onChange={handleSearch}
+            />
+            <button className="absolute right-0 top-1/2 -translate-y-1/2 p-3 bg-[#3dafaa] rounded-full search-button">
+              <AiOutlineSearch />
+            </button>
+          </div>
+        </form>
+        </div>
+        <button className="bg-[#3dafaa] text-white px-4 py-2 rounded cursor-pointer font-bold mr-6"
+          onClick={handleDownload}
+          >
+            Download
+        </button>
       </div>
       {allocated ? (
         <div className="m-5">
@@ -173,7 +223,7 @@ const CoursePage = () => {
                 </tr>
               </thead>
               <tbody>
-                {allocatedToThisCourse.map((student) => (
+                {filteredStudents.map((student) => (
                   <tr key={student._id} className="text-center">
                     <td className="border p-2">{student.name}</td>
                     <td className="border p-2">{student.emailId}</td>
@@ -205,7 +255,7 @@ const CoursePage = () => {
                 </tr>
               </thead>
               <tbody>
-                {availableStudents.map((student) => (
+                {filteredStudents.map((student) => (
                   <tr key={student._id} className="text-center">
                     <td className="border p-2">{student.name}</td>
                     <td className="border p-2">{student.emailId}</td>

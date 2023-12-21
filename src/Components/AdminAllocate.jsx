@@ -12,6 +12,7 @@ const Department = () => {
   const { setSelectedCourse, selectedCourse } = useContext(CourseContext);
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     console.log(user.department);
@@ -50,37 +51,58 @@ const Department = () => {
     }
   };
 
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const filteredCourses = departmentCourses.filter(
+    (course) =>
+      (user.department === 'all' || course.department === user.department) &&
+      course.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div>
       <AllocateHeader />
-      <div className="max-w-full max-h-[65vh] overflow-auto mt-4">
+      <div className="flex items-center mb-4">
+        <form className="w-[500px] relative mr-3">
+          <div className="relative">
+            <input
+              type="search"
+              placeholder="Search Course.."
+              value={searchQuery}
+              onChange={handleSearch}
+              className="w-full p-4 rounded-full h-10 border border-[#3dafaa] outline-none focus.border-[#3dafaa]"
+            />
+            <button className="absolute right-0 top-1/2 -translate-y-1/2 p-3 bg-[#3dafaa] rounded-full search-button">
+              <AiOutlineSearch />
+            </button>
+          </div>
+        </form>
+      </div>
+      <div className="max-w-full max-h-[75vh] overflow-auto">
         <table className="border-collapse border w-full">
           <thead className="sticky top-0">{renderHeaderRow()}</thead>
           <tbody>
-            {departmentCourses
-               .filter(
-                (course) => user.department === 'all' || course.department === user.department
-              )
-              .map((row, index) => (
-                <tr className="text-center" key={index}>
-                  {Object.values(row).map((data, ind) =>
-                    // Use ind to skip rendering the first column
-                    ind !== 0 ? (
-                      <td className="border p-2" key={ind}>
-                        {data}
-                      </td>
-                    ) : null
-                  )}
-                  <td className="border p-2">
-                    <button
-                      onClick={() => allocateCourse(row)}
-                      className="bg-[#3dafaa] text-white px-4 py-2 rounded cursor-pointer font-bold"
-                    >
-                      Allocate
-                    </button>
-                  </td>
-                </tr>
-              ))}
+            {filteredCourses.map((row, index) => (
+              <tr className="text-center" key={index}>
+                {Object.values(row).map((data, ind) =>
+                  ind !== 0 ? (
+                    <td className="border p-2" key={ind}>
+                      {data}
+                    </td>
+                  ) : null
+                )}
+                <td className="border p-2">
+                  <button
+                    onClick={() => allocateCourse(row)}
+                    className="bg-[#3dafaa] text-white px-4 py-2 rounded cursor-pointer font-bold"
+                  >
+                    Allocate
+                  </button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

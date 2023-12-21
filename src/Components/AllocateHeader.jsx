@@ -1,7 +1,6 @@
 import React, { useContext, useState, useEffect } from "react";
 import CourseContext from "../context/CourseContext";
 import DepartmentContext from "../context/DepartmentContext";
-import { AiOutlineSearch } from "react-icons/ai";
 import "../App.css";
 import { Link, useNavigate } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
@@ -18,7 +17,7 @@ const AllocateHeader = () => {
   };
 
   return (
-    <div className="m-10">
+    <div className="mb-2">
       <div className="flex items-center mb-2">
         <h1 className="text-[#3dafaa] text-3xl font-bold mr-4">
           {selectedDepartment} DEPARTMENT
@@ -40,20 +39,7 @@ const AllocateHeader = () => {
         </div>
       </div>
 
-      <div className="flex items-center mb-4">
-        <form className="w-[500px] relative mr-3">
-          <div className="relative">
-            <input
-              type="search"
-              placeholder="Search Course.."
-              className="w-full p-4 rounded-full h-10 border border-[#3dafaa] outline-none focus.border-[#3dafaa]"
-            />
-            <button className="absolute right-0 top-1/2 -translate-y-1/2 p-3 bg-[#3dafaa] rounded-full search-button">
-              <AiOutlineSearch />
-            </button>
-          </div>
-        </form>
-      </div>
+      
     </div>
   );
 };
