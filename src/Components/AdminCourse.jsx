@@ -76,7 +76,7 @@ const CourseTable = () => {
     return (
       <tr className={`text-center ${isEditing ? editingRowClass : ''}`} key={index}>
         <td className='border p-2'>{index + 1}</td>
-        {courseContent.slice(1).map((key, ind) => (
+        {courseContent.slice(1,10).map((key, ind) => (
           <td className='border p-2' key={ind}>
             {isEditing ? (
               <input
@@ -142,7 +142,7 @@ const CourseTable = () => {
         <>
           <tr className="bg-[#3dafaa] text-white">
             <th className='border p-2 text-center'>S.No</th>
-            {courseKeys.slice(1).map((key, index) => (
+            {courseKeys.slice(1,10).map((key, index) => (
               <th className='border p-2 text-center' key={index}>{key}</th>
             ))}
             <th className='border p-2 text-center'>Action</th>
@@ -153,7 +153,7 @@ const CourseTable = () => {
   };
 
   const handleDownload = () => {
-    const ws = XLSX.utils.json_to_sheet(courses);
+    const ws = XLSX.utils.json_to_sheet(filteredCourses);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Courses');
     XLSX.writeFile(wb, 'Courses_Downloaded.xlsx');

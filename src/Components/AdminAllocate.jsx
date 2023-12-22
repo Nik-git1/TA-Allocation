@@ -39,7 +39,7 @@ const Department = () => {
         <tr className="bg-[#3dafaa] text-white">
           {Object.keys(departmentCourses[0]).map((key, index) =>
             // Use index to skip rendering the first column
-            index !== 0 ? (
+            index !== 0 && index !== 10 ? (
               <th className="border p-2 text-center" key={key}>
                 {key}
               </th>
@@ -87,7 +87,7 @@ const Department = () => {
             {filteredCourses.map((row, index) => (
               <tr className="text-center" key={index}>
                 {Object.values(row).map((data, ind) =>
-                  ind !== 0 ? (
+                  ind !== 0 && ind !== 10 ? (
                     <td className="border p-2" key={ind}>
                       {data}
                     </td>

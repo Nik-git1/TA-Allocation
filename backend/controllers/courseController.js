@@ -95,7 +95,7 @@ const getCourses = asyncHandler( async ( req, res ) =>
             totalStudents: course.totalStudents,
             taStudentRatio: course.taStudentRatio,
             taRequired: course.taRequired,
-            // taAllocated: course.taAllocated,
+            taAllocated: course.taAllocated,
         } ) );
 
         res.status( 200 ).json( flattenedCourses );

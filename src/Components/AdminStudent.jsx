@@ -174,7 +174,7 @@ const Tablestudents = () => {
             {isEditing ? (
               <input
                 type='text'
-                value={editedStudentData[customLabels[itemIndex]] || ''}
+                value={editedStudentData[customLabels[itemIndex]] || extractedData[index][itemIndex]}
                 onChange={(e) => handleInputChange(e, customLabels[itemIndex])}
               />
             ) : item}
@@ -218,7 +218,7 @@ const Tablestudents = () => {
   };
 
   const handleDownload = () => {
-    const ws = XLSX.utils.json_to_sheet(students);
+    const ws = XLSX.utils.json_to_sheet([customLabels, ...filteredStudents]);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Students');
     XLSX.writeFile(wb, 'Students_Downloaded.xlsx');
