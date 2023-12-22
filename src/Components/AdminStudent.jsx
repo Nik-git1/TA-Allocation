@@ -9,7 +9,7 @@ const Tablestudents = () => {
   const { students, updateStudent, deleteStudent } = useContext(StudentContext);
   const [editingRow, setEditingRow] = useState(-1);
   const [editedStudentData, setEditedStudentData] = useState({});
-
+  const [searchQuery, setSearchQuery] = useState('');
   const customLabels = [
     'Name',
     'Email Id',
@@ -37,6 +37,10 @@ const Tablestudents = () => {
     'Non-Prefs 2',
     'Non-Prefs 3',
   ];
+
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+  };
 
   const handleEdit = (rowIndex) => {
     setEditingRow(rowIndex);
@@ -141,6 +145,11 @@ const Tablestudents = () => {
     return formattedData;
   });
 
+  const filteredStudents = searchQuery === ''? extractedData: extractedData.filter((student) => {
+    const values = Object.values(student).join(' ').toLowerCase();
+    return values.includes(searchQuery.toLowerCase());
+  });
+  
   const renderHeaderRow = () => {
     return (
       <tr className="bg-[#3dafaa] text-white">
@@ -222,7 +231,9 @@ const Tablestudents = () => {
           <div className="relative mr-2">
             <input
               type="search"
-              placeholder='Search Course...'
+              placeholder='Search Students...'
+              value={searchQuery}
+              onChange={handleSearch}
               className="w-full p-4 rounded-full h-10 border border-[#3dafaa] outline-none focus:border-[#3dafaa]"
             />
             <button className="absolute right-0 top-1/2 -translate-y-1/2 p-3 bg-[#3dafaa] rounded-full search-button">
@@ -242,7 +253,7 @@ const Tablestudents = () => {
             {renderHeaderRow()}
           </thead>
           <tbody>
-            {extractedData.map((data, index) => (
+            {filteredStudents.map((data, index) => (
               renderRow(data, index)
             ))}
           </tbody>

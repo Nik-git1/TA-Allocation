@@ -69,7 +69,7 @@ const Department = () => {
           <div className="relative">
             <input
               type="search"
-              placeholder="Search Course.."
+              placeholder="Search Course by name..."
               value={searchQuery}
               onChange={handleSearch}
               className="w-full p-4 rounded-full h-10 border border-[#3dafaa] outline-none focus.border-[#3dafaa]"
