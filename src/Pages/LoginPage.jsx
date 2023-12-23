@@ -337,7 +337,11 @@ const LoginPage = () => {
               />
             </div>
           )}
-
+            {OtpSent ? (
+              !loading ? (
+               <p className="text-gray-600">Otp sent to {email}</p>
+              ) : (null)
+            ):(null)}
           {!TaOptionSelected ? (
             <>
               <div className="flex flex-col text-black py-2">
@@ -361,6 +365,9 @@ const LoginPage = () => {
               </button>
             </>
           ) : (
+            loading ? (
+              null
+            ) : (
             <button
               type="submit"
               className="w-full my-5 py-2 bg-[#3dafaa] shadow-lg shadow-[#3dafaa]/50 hover:shadow-[#3dafaa]/40 text-white font-semibold rounded-lg"
@@ -368,6 +375,7 @@ const LoginPage = () => {
             >
               {OtpSent ? "Verify OTP" : "Send OTP"}
             </button>
+            )
           )}
         </form>
       </div>
