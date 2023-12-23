@@ -339,7 +339,7 @@ const LoginPage = () => {
           )}
             {OtpSent ? (
               !loading ? (
-               <p className="text-gray-600">Otp sent to {email}</p>
+               <p className="text-gray-600 text-xs">Otp sent to {email}</p>
               ) : (null)
             ):(null)}
           {!TaOptionSelected ? (
