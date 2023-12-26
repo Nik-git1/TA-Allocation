@@ -43,7 +43,7 @@ const Tablestudents = () => {
     'Non-Prefs 2',
     'Non-Prefs 3',
   ];
-
+  
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
   };
