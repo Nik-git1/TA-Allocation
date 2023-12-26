@@ -34,6 +34,9 @@ const StudentForm = () => {
       { course: "", grade: "" },
       { course: "", grade: "" },
       { course: "", grade: "" },
+      { course: "", grade: "" },
+      { course: "", grade: "" },
+      { course: "", grade: "" },
     ],
     nonPreferences: ["", "", ""],
   });
@@ -106,7 +109,7 @@ const StudentForm = () => {
 
     if (email === "your email id") {
       alert(
-        "please visite login page and generate valid otp for your email Id"
+        "please visit login page and generate valid otp for your email Id"
       );
       return;
     }
