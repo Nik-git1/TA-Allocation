@@ -297,7 +297,8 @@ const StudentForm = () => {
                   <option value="">Select Program</option>
                   <option value="B.Tech 3rd Year">B.Tech 3rd Year</option>
                   <option value="B.Tech 4th Year">B.Tech 4th Year</option>
-                  <option value="M.Tech">M.Tech</option>
+                  <option value="M.Tech 1st Year">M.Tech 1st Year</option>
+                  <option value="M.Tech 2nd Year">M.Tech 2nd Year</option>
                   <option value="PhD">PhD</option>
                 </select>
               </div>

@@ -366,7 +366,8 @@ const addStudent = asyncHandler( async ( req, res ) =>
       const validPrograms = [
         "B.Tech 3rd Year",
         "B.Tech 4th Year",
-        "M.Tech",
+        "M.Tech 1st Year",
+        "M.Tech 2nd Year",
         "PhD",
       ];
       if ( !validPrograms.includes( newStudent.program ) )
@@ -376,6 +377,20 @@ const addStudent = asyncHandler( async ( req, res ) =>
           message: "Invalid program value",
         } );
         continue; // Skip this student and move to the next one
+      }
+
+      const validTypes = [
+        "Credit",
+        "Paid",
+        "Voluntary"
+      ]
+      if ( !validTypes.includes( newStudent.taType ) )
+      {
+        invalidStudents.push( {
+          student: newStudent,
+          message: "Invalid TA Type value"
+        } );
+        continue;
       }
 
       // Check cgpa range
@@ -441,11 +456,11 @@ const addStudent = asyncHandler( async ( req, res ) =>
             }
 
             // Validate nonDepartmentPreferences
-            if ( newStudent.nonDepartmentPreferences.length > 5 )
+            if ( newStudent.nonDepartmentPreferences.length > 8 )
             {
               invalidStudents.push( {
                 student: newStudent,
-                message: "More than allowed normal preferences entered",
+                message: "More than allowed other preferences entered",
               } );
               continue; // Skip this student and move to the next one
             }
@@ -458,6 +473,40 @@ const addStudent = asyncHandler( async ( req, res ) =>
                 message: "More than allowed non preferences entered",
               } );
               continue; // Skip this student and move to the next one
+            }
+            // Check for valid grade values
+            const validGrades = [ 'A+(10)', 'A(10)', 'A-(9)', 'B(8)', 'B-(7)', 'C(6)', 'C-(5)', 'D(4)', 'Course Not Done' ]
+
+            const deptgrade = await Promise.all(
+              newStudent.departmentPreference.map( async ( pref ) =>
+              {
+                return validGrades.includes( pref.grade );
+              } )
+            )
+
+            const othergrade = await Promise.all(
+              newStudent.nonDepartmentPreference.map( async ( pref ) =>
+              {
+                return validGrades.includes( pref.grade );
+              } )
+            )
+
+            if ( deptgrade.includes( false ) )
+            {
+              invalidStudents.push( {
+                student: newStudent,
+                message: "Invalid Grade value in departmental preferences"
+              } );
+              continue;
+            }
+
+            if ( othergrade.includes( false ) )
+            {
+              invalidStudents.push( {
+                student: newStudent,
+                message: "Invalid Grade value in other preferences"
+              } );
+              continue;
             }
 
             // Check if all courses in departmentPreferences are from the same department as the student
@@ -542,6 +591,34 @@ const updateStudent = asyncHandler( async ( req, res ) =>
       delete updates.allocatedTA;
     }
 
+    if ( "taType" in updates )
+    {
+      const validTypes = [
+        "Credit",
+        "Paid",
+        "Voluntary"
+      ]
+      if ( !validTypes.includes( updates.taType ) )
+      {
+        return res.status( 400 ).json( { message: "Invalid TA Type selected" } );
+      }
+    }
+
+    if ( "program" in updates )
+    {
+      const validPrograms = [
+        "B.Tech 3rd Year",
+        "B.Tech 4th Year",
+        "M.Tech 1st Year",
+        "M.Tech 2nd Year",
+        "PhD",
+      ];
+      if ( !validPrograms.includes( updates.program ) )
+      {
+        return res.status( 400 ).json( { message: "Invalid Program Selected" } );
+      }
+    }
+
     // Step 3: Update the department reference based on the department name
     if ( "department" in updates )
     {
@@ -555,23 +632,66 @@ const updateStudent = asyncHandler( async ( req, res ) =>
       }
     }
 
+    if ( "cgpa" in updates )
+    {
+      // Check cgpa range
+      if ( updates.cgpa < 0 || updates.cgpa > 10 )
+      {
+        return res.status( 400 ).json( { message: "Invalid CGPA value" } );
+      }
+    }
+
+    // Check for valid grade values
+    const validGrades = [ 'A+(10)', 'A(10)', 'A-(9)', 'B(8)', 'B-(7)', 'C(6)', 'C-(5)', 'D(4)', 'Course Not Done' ]
+
     if (
-      "departmentPreferences" in updates &&
-      updates.departmentPreferences.length > 2
+      "departmentPreferences" in updates
     )
     {
-      return res
-        .status( 400 )
-        .json( { message: "Atmost 2 departmental preferences allowed" } );
+      if (
+        updates.departmentPreferences.length > 2
+      )
+      {
+        return res
+          .status( 400 )
+          .json( { message: "Atmost 2 departmental preferences allowed" } );
+      }
+
+      const deptgrade = await Promise.all(
+        updates.departmentPreference.map( async ( pref ) =>
+        {
+          return validGrades.includes( pref.grade );
+        } )
+      )
+
+      if ( deptgrade.includes( false ) )
+      {
+        return res.status( 400 ).json( { message: "Invalid Grade Value in departmental preferences" } );
+      }
     }
     if (
-      "nonDepartmentPreferences" in updates &&
-      updates.nonDepartmentPreferences.length > 5
+      "nonDepartmentPreferences" in updates
     )
     {
-      return res
-        .status( 400 )
-        .json( { message: "Atmost 5 normal preferences allowed" } );
+      if ( updates.nonDepartmentPreferences.length > 8 )
+      {
+        return res
+          .status( 400 )
+          .json( { message: "Atmost 8 other preferences allowed" } );
+      }
+
+      const othergrade = await Promise.all(
+        updates.nonDepartmentPreference.map( async ( pref ) =>
+        {
+          return validGrades.includes( pref.grade );
+        } )
+      )
+
+
+      if ( othergrade.includes( false ) )
+      {
+        return res.status(400).json({message: "Invalid Grade Value in other preferences"})
+      }
     }
     if ( "nonPreferences" in updates && updates.nonPreferences.length > 3 )
     {

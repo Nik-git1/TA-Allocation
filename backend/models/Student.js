@@ -17,7 +17,7 @@ const studentSchema = new mongoose.Schema( {
     },
     program: {
         type: String,
-        enum: [ 'B.Tech 3rd Year', 'B.Tech 4th Year', 'M.Tech', 'PhD' ],
+        enum: [ 'B.Tech 3rd Year', 'B.Tech 4th Year', 'M.Tech 1st Year', 'M.Tech 2nd Year', 'PhD' ],
         required: true,
     },
     department: {
@@ -57,7 +57,7 @@ const studentSchema = new mongoose.Schema( {
             },
             grade: {
                 type: String,
-                enum: [ 'A+(10)', 'A(10)', 'A-(9)', 'B(8)', 'B-(7)', 'C(6)', 'C-(5)', 'D(4)', 'F(2)', 'Course Not Done' ],
+                enum: [ 'A+(10)', 'A(10)', 'A-(9)', 'B(8)', 'B-(7)', 'C(6)', 'C-(5)', 'D(4)', 'Course Not Done' ],
             }
         } ],
         validate: [
@@ -92,15 +92,15 @@ const studentSchema = new mongoose.Schema( {
             },
             grade: {
                 type: String,
-                enum: [ 'A+(10)', 'A(10)', 'A-(9)', 'B(8)', 'B-(7)', 'C(6)', 'C-(5)', 'D(4)', 'F(2)', 'Course Not Done' ],
+                enum: [ 'A+(10)', 'A(10)', 'A-(9)', 'B(8)', 'B-(7)', 'C(6)', 'C-(5)', 'D(4)', 'Course Not Done' ],
             }
         } ],
         validate: {
             validator: function ( prefs )
             {
-                return prefs.length <= 5;
+                return prefs.length <= 8;
             },
-            message: 'Enter atmost 5 non departmental course preferences',
+            message: 'Enter atmost 8 other course preferences',
         },
     },
     nonPreferences: {
