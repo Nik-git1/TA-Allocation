@@ -95,7 +95,7 @@ const getCourses = asyncHandler( async ( req, res ) =>
             totalStudents: course.totalStudents,
             taStudentRatio: course.taStudentRatio,
             taRequired: course.taRequired,
-            // taAllocated: course.taAllocated,
+            taAllocated: course.taAllocated,
         } ) );
 
         res.status( 200 ).json( flattenedCourses );
@@ -311,20 +311,23 @@ const deleteCourse = asyncHandler( async ( req, res ) =>
     }
 } );
 
-const ProfessorCourses = asyncHandler(async (req, res) => {
-    try {
-      // Assuming you're sending the professor's ID in the request body
-      const professorId = req.body.professor;
-      // Find courses taught by the professor
-      const coursesTaught = await Course.find({ professor: professorId });
-  
-      res.json({ success: true, courses: coursesTaught });
-    } catch (error) {
-      console.error('Error fetching professor courses:', error);
-      res.status(500).json({ success: false, error: 'Internal Server Error' });
+const ProfessorCourses = asyncHandler( async ( req, res ) =>
+{
+    try
+    {
+        // Assuming you're sending the professor's ID in the request body
+        const professorId = req.body.professor;
+        // Find courses taught by the professor
+        const coursesTaught = await Course.find( { professor: professorId } );
+
+        res.json( { success: true, courses: coursesTaught } );
+    } catch ( error )
+    {
+        console.error( 'Error fetching professor courses:', error );
+        res.status( 500 ).json( { success: false, error: 'Internal Server Error' } );
     }
-  });
-  
+} );
 
 
-module.exports = { getCourse, addCourse, updateCourse, deleteCourse, getCourses,ProfessorCourses };
+
+module.exports = { getCourse, addCourse, updateCourse, deleteCourse, getCourses, ProfessorCourses };
