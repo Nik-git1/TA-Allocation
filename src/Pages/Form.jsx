@@ -164,7 +164,7 @@ const StudentForm = () => {
             setLoading(false);
             Swal.fire("Submitted!", "Form Submitted Successfully", "success").then((result) => {
               if (result.isConfirmed) {
-                window.location.replace("http://localhost:5173/");
+                window.location.replace("http://localhost:5001");
               }
             });
           })
@@ -185,7 +185,7 @@ const StudentForm = () => {
             setLoading(false);
             Swal.fire("Submitted!", "Form Submitted Successfully", "success").then((result) => {
               if (result.isConfirmed) {
-                window.location.replace("http://localhost:5173/");
+                window.location.replace("http://localhost:5001");
               }
             });
           })
