@@ -441,7 +441,11 @@ const StudentForm = () => {
                       <option value="A(10)">A(10)</option>
                       <option value="A-(9)">A-(9)</option>
                       <option value="B(8)">B(8)</option>
-                      {/* Add more grade options here */}
+                      <option value="B-(7)">B-(7)</option>
+                      <option value="C(6)">C(6)</option>
+                      <option value="C-(5)">C-(5)</option>
+                      <option value="D(4)">D(4)</option>
+                      <option valie="Course Not Done"> Course Not Done </option>
                     </select>
                   </div>
                 ))}
@@ -505,6 +509,11 @@ const StudentForm = () => {
                       <option value="A(10)">A(10)</option>
                       <option value="A-(9)">A-(9)</option>
                       <option value="B(8)">B(8)</option>
+                      <option value="B-(7)">B-(7)</option>
+                      <option value="C(6)">C(6)</option>
+                      <option value="C-(5)">C-(5)</option>
+                      <option value="D(4)">D(4)</option>
+                      <option valie="Course Not Done"> Course Not Done </option>
                       {/* Add more grade options here */}
                     </select>
                   </div>
