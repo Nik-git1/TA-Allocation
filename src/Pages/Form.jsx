@@ -392,7 +392,7 @@ const StudentForm = () => {
                       htmlFor="course"
                       className="block text-gray-700 font-bold"
                     >
-                      Course {index + 1}:
+                      Preference {index + 1}:
                     </label>
                     <select
                       id={`deptCourse-${index}`}
@@ -458,7 +458,7 @@ const StudentForm = () => {
                       htmlFor="course"
                       className="block text-gray-700 font-bold"
                     >
-                      Course {index + 1}:
+                      Preference {index + 1}:
                     </label>
                     <select
                       id={`nonDeptCourse-${index}`}
