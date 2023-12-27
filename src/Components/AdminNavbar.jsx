@@ -41,7 +41,7 @@ const AdminNav = () => {
       setTitle("Available Courses");
     }
     else{
-      setTitle("Eligible Students of Monsoon 2023");
+      setTitle("Eligible Students of Winter 2024");
     }
   }
 

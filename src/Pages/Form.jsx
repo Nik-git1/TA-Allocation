@@ -9,20 +9,13 @@ const StudentForm = () => {
   const location = useLocation();
   const [email, setEmail] = useState(location.state?.email || "your email id");
   const encryptedEmail = location.state?.encryptedEmail || "NA";
+  const studentExistDepartment = location.state?.department || "";
   const studentExist = location.state?.studentExist;
-  const secretKey = "your-secret-key"; // Use the same secret key used for encryption
-  const decryptedEmail = CryptoJS.AES.decrypt(
-    encryptedEmail,
-    secretKey
-  ).toString(CryptoJS.enc.Utf8);
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const studentExistData = studentExist || {
     name: "",
-    emailId: email,
     rollNo: "",
     program: "",
     department: "",
-    taType: "",
     cgpa: "",
     departmentPreferences: [
       { course: "", grade: "" },
@@ -39,6 +32,24 @@ const StudentForm = () => {
       { course: "", grade: "" },
     ],
     nonPreferences: ["", "", ""],
+  };
+  const secretKey = "your-secret-key"; // Use the same secret key used for encryption
+  const decryptedEmail = CryptoJS.AES.decrypt(
+    encryptedEmail,
+    secretKey
+  ).toString(CryptoJS.enc.Utf8);
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: studentExistData.name,
+    emailId: email,
+    rollNo: studentExistData.rollNo,
+    program: studentExistData.program,
+    department: studentExistDepartment,
+    taType: studentExistData.taType,
+    cgpa: studentExistData.cgpa,
+    departmentPreferences: studentExistData.departmentPreferences,
+    nonDepartmentPreferences: studentExistData.nonDepartmentPreferences,
+    nonPreferences: studentExistData.nonPreferences,
   });
 
   const [courses, setCourses] = useState([]);
@@ -100,7 +111,7 @@ const StudentForm = () => {
 
     // Additional validation for Roll No length and pattern
     if (
-      (formData.rollNo.length !== 7 && formData.rollNo.length !== 8) || // Check length
+      (formData.rollNo.length !== 7 || formData.rollNo.length !== 8) && // Check length
       !/^(PhD|MT\d|\d{3})/.test(formData.rollNo) // Check pattern
     ) {
       alert("Invalid roll number");
@@ -122,6 +133,10 @@ const StudentForm = () => {
     if (!decryptedEmail.endsWith("iiitd.ac.in")) {
       alert("Only IIITD Students allowed");
       return;
+    }
+
+    if(!formData.program.startsWith('B.Tech')){
+      formData.taType = 'Credit';
     }
 
     // Create a JSON object from your form data
@@ -346,8 +361,8 @@ const StudentForm = () => {
                   value={formData.taType}
                   onChange={handleChange}
                   className="w-full p-2 border rounded"
+                  disabled={!formData.program.startsWith('B.Tech')}
                 >
-                  <option value="">Select TA Type</option>
                   <option value="Credit">Credit</option>
                   <option value="Paid">Paid</option>
                   <option value="Voluntary">Voluntary</option>
@@ -420,7 +435,7 @@ const StudentForm = () => {
                             value={filteredCourse._id}
                             disabled={selectedCourses.includes(filteredCourse._id)}
                           >
-                            {filteredCourse.name}
+                            {`${filteredCourse.code} \u00a0\u00a0${filteredCourse.name}-(${filteredCourse.acronym}) \u00a0\u00a0\u00a0\u00a0Prof: ${filteredCourse.professor}`}
                           </option>
                         ))}
                     </select>
@@ -457,7 +472,7 @@ const StudentForm = () => {
               {/* Non-Department Preferences */}
               <div className="mb-4">
                 <h3 className="text-xl font-bold mb-2">
-                  Non-Department Preferences
+                  Other Preferences
                 </h3>
                 {formData.nonDepartmentPreferences.map((pref, index) => (
                   <div key={index} className="mb-4">
@@ -478,17 +493,14 @@ const StudentForm = () => {
                     >
                       <option value="">Select Non-Department Course</option>
                       {/* Filter courses based on the selected department */}
-                      {courses
-                        .filter(
-                          (course) => course.department !== selectedDepartment
-                        )
-                        .map((filteredCourse) => (
+                      {courses.map((filteredCourse) => (
                           <option
                             key={filteredCourse._id}
                             value={filteredCourse._id}
                             disabled={selectedCourses.includes(filteredCourse._id)}
+                            // className="font-bold"
                           >
-                            {filteredCourse.name}
+                            {`${filteredCourse.code} \u00a0\u00a0${filteredCourse.name}-(${filteredCourse.acronym}) \u00a0\u00a0\u00a0\u00a0Prof: ${filteredCourse.professor}`}
                           </option>
                         ))}
                     </select>
@@ -525,7 +537,9 @@ const StudentForm = () => {
     
               {/* Non-Preferences */}
               <div>
-                <h3>Non-Preferences</h3>
+              <h3 className="text-xl font-bold mb-2">
+                  Non-Preferences
+                </h3>
                 {formData.nonPreferences.map((course, index) => (
                   <div key={index}>
                     <select
@@ -540,7 +554,7 @@ const StudentForm = () => {
                           value={filteredCourse._id}
                           disabled={selectedCourses.includes(filteredCourse._id)}
                         >
-                          {filteredCourse.name}
+                          {`${filteredCourse.code} \u00a0\u00a0${filteredCourse.name}-(${filteredCourse.acronym}) \u00a0\u00a0\u00a0\u00a0Prof: ${filteredCourse.professor}`}
                         </option>
                       ))}
                     </select>

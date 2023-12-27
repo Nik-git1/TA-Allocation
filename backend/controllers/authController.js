@@ -36,7 +36,12 @@ const transporter = nodemailer.createTransport( {
 const sendOtp = asyncHandler( async ( req, res ) =>
 {
   const { email_id } = req.body;
-  const findStudent = await Student.findOne( { emailId: email_id }, '_id' );
+  const findStudent = await Student.findOne( { emailId: email_id });
+  let department = "";
+  if(findStudent){
+    department = await JM.findById(findStudent.department, "department");
+    department = department.department
+  }
   let otp = otpGenerator.generate( 6, {
     upperCaseAlphabets: false,
     lowerCaseAlphabets: false,
@@ -70,12 +75,13 @@ const sendOtp = asyncHandler( async ( req, res ) =>
 
   try
   {
+    console.log(":",department,":")
     await transporter.sendMail( mailOptions );
-    res.status( 200 ).json( { success: true, message: 'OTP sent successfully', studentExist: findStudent } );
+    res.status( 200 ).json( { success: true, message: 'OTP sent successfully', studentExist: findStudent, department: department } );
   } catch ( error )
   {
     console.error( 'Error sending OTP:', error );
-    res.status( 500 ).json( { success: false, message: 'Failed to send OTP', studentExist: findStudent } );
+    res.status( 500 ).json( { success: false, message: 'Failed to send OTP', studentExist: findStudent, department: department } );
   }
 } );
 
@@ -221,7 +227,7 @@ const ProfessorLogin = asyncHandler( async ( req, res ) =>
   const authtoken = jwt.sign( data, JWT_SECRET );
   const success = true;
 
-  res.json( { success, authtoken } );
+  res.json( { success, authtoken, name: user.name } );
 } );
 
 

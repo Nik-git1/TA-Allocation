@@ -22,6 +22,7 @@ const LoginPage = () => {
   const [loading, setLoading] = useState();
   const [encryptedEmail, setEncryptedEmail] = useState("A");
   const [studentExist, setStudentExist] = useState();
+  const [studentExistDepartment, setStudentExistDepartment] = useState();
 
   const startLoader = () => {
     setLoading(true);
@@ -136,7 +137,7 @@ const LoginPage = () => {
         login(userData);
         // setSelectedDepartment(userData.department)
         // setSelectedCourse(userData.courses)
-        navigate("/professor");
+        navigate("/professor",{state: {name: json.name}});
       } else {
         alert("Login Error");
       }
@@ -164,6 +165,7 @@ const LoginPage = () => {
       if (json.success) {
         setOtpSent(true);
         setStudentExist(json.studentExist);
+        setStudentExistDepartment(json.department);
         setTimeout(() => {
           stopLoader();
         }, 1600);
@@ -190,7 +192,7 @@ const LoginPage = () => {
         const eEmail = encryptEmail(email);
         setEncryptedEmail(eEmail);
         navigate("/TAform", {
-          state: { email, encryptedEmail: eEmail, studentExist: studentExist },
+          state: { email, encryptedEmail: eEmail, studentExist: studentExist, department: studentExistDepartment },
         });
         // Redirect to the appropriate page after OTP verification
       } else {
