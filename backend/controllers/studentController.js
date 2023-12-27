@@ -63,7 +63,13 @@ const sendForm = asyncHandler( async ( email, studentData ) =>
         </style>
       </head>
       <body>
-        <h1>Student Form Data</h1>
+        <h1>Student TAship Form Preference</h1>
+        <p>
+          Dear Student,<br/>
+          You have filled below details in your TAship Form. Kindly check your details and edit your response in case of any error.<br/>
+          This is an Auto Generated Email. Please do not reply to this mail.<br/>
+          For any concerns, write an email to <a href="mailto:mohit@iiitd.ac.in">mohit@iiitd.ac.in</a>
+        </p>
         <p>Name: <strong>${ studentData.name }</strong></p>
         <p>Email: <strong>${ studentData.emailId }</strong></p>
         <p>Roll No: <strong>${ studentData.rollNo }</strong></p>
@@ -140,7 +146,7 @@ const sendForm = asyncHandler( async ( email, studentData ) =>
   const mailOptions = {
     from: 'btp3517@gmail.com',
     to: email,
-    subject: 'Student Form Data',
+    subject: 'Student TAship Form Preference',
     html: htmlContent,
   };
 
@@ -346,7 +352,6 @@ const addStudent = asyncHandler( async ( req, res ) =>
         "rollNo",
         "program",
         "department",
-        "taType",
       ];
       const missingFields = requiredFields.filter(
         ( field ) => !newStudent[ field ]
@@ -384,7 +389,7 @@ const addStudent = asyncHandler( async ( req, res ) =>
         "Paid",
         "Voluntary"
       ]
-      if ( !validTypes.includes( newStudent.taType ) )
+      if ( newStudent.taType && !validTypes.includes( newStudent.taType ) )
       {
         invalidStudents.push( {
           student: newStudent,

@@ -296,10 +296,13 @@ const deleteCourse = asyncHandler( async ( req, res ) =>
         var studentIds = course.taAllocated;
 
         // Step 3: Set taAllocated to null for students in the list
-        await Student.updateMany(
-            { _id: { $in: studentIds } },
-            { $set: { allocatedTA: null } }
-        );
+        if ( studentIds !== null && studentIds.length !== 0 )
+        {
+            await Student.updateMany(
+                { _id: { $in: studentIds } },
+                { $set: { allocatedTA: null } }
+            );
+        }
 
         // Step 4: Delete the course
         await Course.findByIdAndRemove( courseId );

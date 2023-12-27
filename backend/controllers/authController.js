@@ -14,7 +14,7 @@ const otpStorage = new Map();
 // Function to generate and store OTP
 const generateAndStoreOTP = ( email, otp ) =>
 {
-  const expirationTime = 3 * 60 * 1000; // OTP valid for 5 minutes
+  const expirationTime = 3 * 60 * 1000; // OTP valid for 3 minutes
   // Store the OTP along with its expiration time
   otpStorage.set( email, otp );
   console.log( otpStorage )
@@ -36,10 +36,11 @@ const transporter = nodemailer.createTransport( {
 const sendOtp = asyncHandler( async ( req, res ) =>
 {
   const { email_id } = req.body;
-  const findStudent = await Student.findOne( { emailId: email_id });
+  const findStudent = await Student.findOne( { emailId: email_id } );
   let department = "";
-  if(findStudent){
-    department = await JM.findById(findStudent.department, "department");
+  if ( findStudent )
+  {
+    department = await JM.findById( findStudent.department, "department" );
     department = department.department
   }
   let otp = otpGenerator.generate( 6, {
@@ -59,8 +60,10 @@ const sendOtp = asyncHandler( async ( req, res ) =>
         </style>
       </head>
       <body>
-        <h1>OTP Verification</h1>
+        <h1>OTP Verification for TAship Form</h1>
         <p>Your OTP for verification is: <strong>${ otp }</strong></p>
+        <p style="color:red;">This OTP is valid for 3 minutes. Please do not share it with anyone.<br/>
+        <strong>This is an Auto Generated Mail. Please do not reply.</strong></p>
       </body>
     </html>
   `;
@@ -69,13 +72,13 @@ const sendOtp = asyncHandler( async ( req, res ) =>
   const mailOptions = {
     from: 'btp3517@gmail.com',
     to: email_id,
-    subject: 'OTP Verification',
+    subject: 'OTP Verification for TAship Form',
     html: htmlContent,
   };
 
   try
   {
-    console.log(":",department,":")
+    console.log( ":", department, ":" )
     await transporter.sendMail( mailOptions );
     res.status( 200 ).json( { success: true, message: 'OTP sent successfully', studentExist: findStudent, department: department } );
   } catch ( error )
