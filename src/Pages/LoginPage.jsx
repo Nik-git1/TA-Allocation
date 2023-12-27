@@ -137,7 +137,7 @@ const LoginPage = () => {
         login(userData);
         // setSelectedDepartment(userData.department)
         // setSelectedCourse(userData.courses)
-        navigate("/professor");
+        navigate("/professor",{state: {name: json.name}});
       } else {
         alert("Login Error");
       }

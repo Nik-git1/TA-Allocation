@@ -227,7 +227,7 @@ const ProfessorLogin = asyncHandler( async ( req, res ) =>
   const authtoken = jwt.sign( data, JWT_SECRET );
   const success = true;
 
-  res.json( { success, authtoken } );
+  res.json( { success, authtoken, name: user.name } );
 } );
 
 

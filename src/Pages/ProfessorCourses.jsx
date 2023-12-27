@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 
 import CourseContext from '../context/CourseContext';
 const ProfessorCourses = ( ) => {
+  const location = useLocation();
+  const profName = location.state?.name || "Professor";
   const [departmentCourses, setDepartmentCourses] = useState([]);
   const navigate = useNavigate();
   const {setSelectedCourse} = useContext(CourseContext)
@@ -65,7 +67,7 @@ const ProfessorCourses = ( ) => {
 
   return (
   <div>
- <div className='m-4' style={{ fontSize: '48px' }}>Welcome Sanjit Kaul</div>
+ <div className='m-4' style={{ fontSize: '48px' }}>Welcome {profName}</div>
 
     <div className="max-w-[100vw] max-h-[78vh] overflow-auto mt-4">
       <table className="border-collapse border w-full" style={{ width: '100%' }}>
