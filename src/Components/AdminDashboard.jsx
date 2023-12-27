@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import DashboardCardList from "./DashboardCards"; // Import your DashboardCardList component
+import CourseContext from '../context/CourseContext'
 
 const Dashboard = () => {
   const [currentRound, setCurrentRound] = useState(null);
-
   useEffect(() => {
     // Fetch the current round status from your backend when the component mounts
     getRound();
@@ -62,9 +62,26 @@ const Dashboard = () => {
       });
   };
 
+  const openForm = async () => {
+    const response = await fetch(`http://localhost:3000/api/form/changeState}`, { method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ state: true}) }); 
+  }
+
+  const closeForm = async () => {
+    
+    const response = await fetch(`http://localhost:3000/api/form/changeState}`, { method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ state: false}) }); 
+  }
+
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-4">
+      {/* <h2 className="text-xl font-semibold mb-4">
         Current Round:{" "}
         {currentRound !== null ? currentRound : "No round is ongoing"}
       </h2>
@@ -86,6 +103,21 @@ const Dashboard = () => {
           className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
         >
           Reset Rounds
+        </button>
+      </div> */}
+
+      <div className="mb-4 space-x-4">
+        <button
+          onClick={openForm}
+          className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+        >
+          Open TA Form
+        </button>
+        <button
+          onClick={closeForm}
+          className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+        >
+          Close TA Form
         </button>
       </div>
 

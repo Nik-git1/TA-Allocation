@@ -19,6 +19,7 @@ app.use( "/api/department", require( "./routes/jmRoutes" ) );
 app.use( "/api/professor", require( "./routes/professorRoutes" ) );
 app.use( "/api/rd", require( "./routes/roundRoutes" ) );
 app.use( "/api/new", require( "./routes/semesterRoutes" ) );
+app.use( "/api/form", require( "./routes/fromRoutes" ) );
 app.use( errorHandler );
 
 app.listen( port, () =>

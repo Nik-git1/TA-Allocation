@@ -70,7 +70,8 @@ const StudentForm = () => {
     ? ["", "", ""]
     : studentExistData.nonPreferences,
   });
-  console.log("Length: ",studentExistData.departmentPreferences.length);
+  console.log("Length: ",formData);
+  
   const [courses, setCourses] = useState([]);
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState(formData.department);

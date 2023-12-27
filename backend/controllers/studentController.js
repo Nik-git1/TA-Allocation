@@ -9,7 +9,7 @@ const transporter = nodemailer.createTransport( {
   service: 'Gmail',
   auth: {
     user: 'arnav20363@iiitd.ac.in',
-    pass: 'meatiiitdelhi@123', // use env file for this data , also kuch settings account ki change krni padti vo krliyo
+    pass: 'zcqk zhpg wjkf xwxq', // use env file for this data , also kuch settings account ki change krni padti vo krliyo
   },
 } );
 
