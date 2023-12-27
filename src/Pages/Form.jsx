@@ -435,7 +435,7 @@ const StudentForm = () => {
                             value={filteredCourse._id}
                             disabled={selectedCourses.includes(filteredCourse._id)}
                           >
-                            {`${filteredCourse.code} \u00a0\u00a0${filteredCourse.name}-(${filteredCourse.acronym}) \u00a0\u00a0\u00a0\u00a0Prof: ${filteredCourse.professor}`}
+                            {`${filteredCourse.code} \u00a0\u00a0${filteredCourse.name}-(${filteredCourse.acronym}) \u00a0\u00a0\u00a0\u00a0${filteredCourse.professor}`}
                           </option>
                         ))}
                     </select>
@@ -500,7 +500,7 @@ const StudentForm = () => {
                             disabled={selectedCourses.includes(filteredCourse._id)}
                             // className="font-bold"
                           >
-                            {`${filteredCourse.code} \u00a0\u00a0${filteredCourse.name}-(${filteredCourse.acronym}) \u00a0\u00a0\u00a0\u00a0Prof: ${filteredCourse.professor}`}
+                            {`${filteredCourse.code} \u00a0\u00a0${filteredCourse.name}-(${filteredCourse.acronym}) \u00a0\u00a0\u00a0\u00a0${filteredCourse.professor}`}
                           </option>
                         ))}
                     </select>
@@ -554,7 +554,7 @@ const StudentForm = () => {
                           value={filteredCourse._id}
                           disabled={selectedCourses.includes(filteredCourse._id)}
                         >
-                          {`${filteredCourse.code} \u00a0\u00a0${filteredCourse.name}-(${filteredCourse.acronym}) \u00a0\u00a0\u00a0\u00a0Prof: ${filteredCourse.professor}`}
+                          {`${filteredCourse.code} \u00a0\u00a0${filteredCourse.name}-(${filteredCourse.acronym}) \u00a0\u00a0\u00a0\u00a0${filteredCourse.professor}`}
                         </option>
                       ))}
                     </select>

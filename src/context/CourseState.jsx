@@ -68,7 +68,7 @@ const CourseState = (props) => {
         });
 
         axios
-          .post('http://localhost:5001/api/course', { courses })
+          .post('http://localhost:5001/api/course', courses )
           .then((response) => {
             getCoursesFromBackend();
           })
