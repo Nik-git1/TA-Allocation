@@ -116,7 +116,6 @@ const addCourse = asyncHandler( async ( req, res ) =>
     {
         newCourses = [ newCourses ];
     }
-
     try
     {
         var collidingCourses = [];
@@ -161,7 +160,8 @@ const addCourse = asyncHandler( async ( req, res ) =>
             // Handle "professor" reference
             if ( newCourse.professor )
             {
-                var professor = await Professor.findOne( { name: newCourse.professor } );
+                var profname = newCourse.professor.split( " (" )[ 0 ];
+                var professor = await Professor.findOne( { name: profname } );
                 if ( professor )
                 {
                     newCourse.professor = professor._id;

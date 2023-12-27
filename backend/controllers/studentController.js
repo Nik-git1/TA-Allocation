@@ -330,7 +330,6 @@ const addStudent = asyncHandler( async ( req, res ) =>
     newStudents = [ newStudents ];
   }
 
-  console.log( "newStudents:", newStudents );
 
   try
   {
@@ -560,7 +559,7 @@ const addStudent = asyncHandler( async ( req, res ) =>
     } );
   } catch ( error )
   {
-    console.log(error)
+    console.log( error )
     return res
       .status( 500 )
       .json( { message: "Internal server error", error: error.message } );
@@ -574,7 +573,6 @@ const updateStudent = asyncHandler( async ( req, res ) =>
 {
   const studentId = req.params.id;
   var updates = req.body;
-  console.log( "updates:", updates );
   try
   {
     // Step 1: Validate that the student exists
