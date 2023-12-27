@@ -9,6 +9,17 @@ const CourseTable = () => {
   const [editingRow, setEditingRow] = useState(-1); // -1 indicates no row is being edited
   const [editedCourseData, setEditedCourseData] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
+  const columnName = {
+    name: 'Name',
+    code: 'Code',
+    acronym: 'Acronym',
+    department: 'Department',
+    credits: 'Credits',
+    professor: 'Professor',
+    totalStudents: 'Total Students',
+    taStudentRatio: 'Ta Student Ratio',
+    taRequired: 'Ta Required'
+  }
 
   useEffect(() => {
     setEditedCourseData({});
@@ -143,7 +154,7 @@ const CourseTable = () => {
           <tr className="bg-[#3dafaa] text-white">
             <th className='border p-2 text-center'>S.No</th>
             {courseKeys.slice(1,10).map((key, index) => (
-              <th className='border p-2 text-center' key={index}>{key}</th>
+              <th className='border p-2 text-center' key={index}>{columnName[key]}</th>
             ))}
             <th className='border p-2 text-center'>Action</th>
           </tr>
@@ -153,11 +164,27 @@ const CourseTable = () => {
   };
 
   const handleDownload = () => {
-    const ws = XLSX.utils.json_to_sheet(filteredCourses);
+    // Assuming filteredCourses is an array of objects representing rows with columns
+  
+    // Function to remove first and last keys/columns from an object
+    const removeFirstLastColumns = obj => {
+      const keys = Object.keys(obj);
+      const modifiedObj = {};
+      for (let i = 1; i < keys.length - 1; i++) {
+        modifiedObj[keys[i]] = obj[keys[i]];
+      }
+      return modifiedObj;
+    };
+  
+    // Remove first and last columns from each row in filteredCourses
+    const modifiedCourses = filteredCourses.map(course => removeFirstLastColumns(course));
+  
+    const ws = XLSX.utils.json_to_sheet(modifiedCourses);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Courses');
     XLSX.writeFile(wb, 'Courses_Downloaded.xlsx');
   };
+  
 
   const filteredCourses = courses.filter((course) => {
     const values = Object.values(course).join(' ').toLowerCase();

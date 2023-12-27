@@ -224,11 +224,41 @@ const Tablestudents = () => {
   };
 
   const handleDownload = () => {
-    const ws = XLSX.utils.json_to_sheet([customLabels, ...filteredStudents]);
+    const ws = XLSX.utils.json_to_sheet(filteredStudents);
+  
+    // Set custom headers as the first row
+    const headers = ['Name', 'Email Id', 'Roll No', 'Program', 'Department', 'TA Type', 'TA Status',
+    'TA Allotted',
+    'Dept Pref 1',
+    'Grade Dept Pref 1',
+    'Dept Pref 2',
+    'Grade Dept Pref 2',
+    'Non-Dept Pref 1',
+    'Grade Non-Dept Pref 1',
+    'Non-Dept Pref 2',
+    'Grade Non-Dept Pref 2',
+    'Non-Dept Pref 3',
+    'Grade Non-Dept Pref 3',
+    'Non-Dept Pref 4',
+    'Grade Non-Dept Pref 4',
+    'Non-Dept Pref 5',
+    'Grade Non-Dept Pref 5',
+    'Non-Dept Pref 6',
+    'Grade Non-Dept Pref 6',
+    'Non-Dept Pref 7',
+    'Grade Non-Dept Pref 7',
+    'Non-Dept Pref 8',
+    'Grade Non-Dept Pref 8',
+    'Non-Prefs 1',
+    'Non-Prefs 2',
+    'Non-Prefs 3',]; // Replace with your custom headers
+    XLSX.utils.sheet_add_aoa(ws, [headers], { origin: 'A1' });
+  
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Students');
     XLSX.writeFile(wb, 'Students_Downloaded.xlsx');
   };
+  
 
   return (
     <div>
