@@ -8,8 +8,8 @@ const nodemailer = require( 'nodemailer' );
 const transporter = nodemailer.createTransport( {
   service: 'Gmail',
   auth: {
-    user: 'arnav20363@iiitd.ac.in',
-    pass: 'meatiiitdelhi@123', // use env file for this data , also kuch settings account ki change krni padti vo krliyo
+    user: process.env.USERMAIL,
+    pass: process.env.PASS, // use env file for this data , also kuch settings account ki change krni padti vo krliyo
   },
 } );
 

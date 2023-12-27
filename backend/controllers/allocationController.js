@@ -1,29 +1,30 @@
-const asyncHandler = require("express-async-handler");
-const mongoose = require("mongoose");
-const Student = require("../models/Student");
-const Course = require("../models/Course");
-const Round = require("../models/Round");
-const Professor = require("../models/Professor")
-const JM = require("../models/JM")
+const asyncHandler = require( "express-async-handler" );
+const mongoose = require( "mongoose" );
+const Student = require( "../models/Student" );
+const Course = require( "../models/Course" );
+const Round = require( "../models/Round" );
+const Professor = require( "../models/Professor" )
+const JM = require( "../models/JM" )
 
 const nodemailer = require( 'nodemailer' );
 
 
 
-const transporter = nodemailer.createTransport({
-    service: "Gmail",
-    auth: {
-      user: "arnav20363@iiitd.ac.in",
-      pass: "meatiiitdelhi@123", // use env file for this data , also kuch settings account ki change krni padti vo krliyo
-    },
-  });
+const transporter = nodemailer.createTransport( {
+  service: "Gmail",
+  auth: {
+    user: process.env.USERMAIL,
+    pass: process.env.PASS, // use env file for this data , also kuch settings account ki change krni padti vo krliyo
+  },
+} );
 
-  const sendDeallocationDetails = asyncHandler(
-    async (email, adminEmail, JMEmail, professorEmail, deallocatedBy) => {
-      JMEmail=''//FOR TESTING REDECLARE EMAILS SO THAT REAL USERS DONT GET THE MAIL
-  
-      console.log(email, adminEmail, JMEmail, professorEmail, deallocatedBy);
-      const htmlContent = `
+const sendDeallocationDetails = asyncHandler(
+  async ( email, adminEmail, JMEmail, professorEmail, deallocatedBy ) =>
+  {
+    JMEmail = ''//FOR TESTING REDECLARE EMAILS SO THAT REAL USERS DONT GET THE MAIL
+
+    console.log( email, adminEmail, JMEmail, professorEmail, deallocatedBy );
+    const htmlContent = `
         <html>
           <head>
             <style>
@@ -36,34 +37,35 @@ const transporter = nodemailer.createTransport({
             
             <p>This is only for testing purpose of the new allocation system(PLEASE IGNORE THE MAIL) </p>
             <ul>
-              <li><strong>Email:</strong> ${email}</li>
-              <li><strong>Deallocated by:</strong> ${deallocatedBy}</li>
-              <li><strong>Admin ID:</strong> ${adminEmail}</li>
-              <li><strong>JM ID:</strong> ${JMEmail}</li>
-              <li><strong>Professor ID:</strong> ${professorEmail}</li>
+              <li><strong>Email:</strong> ${ email }</li>
+              <li><strong>Deallocated by:</strong> ${ deallocatedBy }</li>
+              <li><strong>Admin ID:</strong> ${ adminEmail }</li>
+              <li><strong>JM ID:</strong> ${ JMEmail }</li>
+              <li><strong>Professor ID:</strong> ${ professorEmail }</li>
             </ul>
            
           </body>
         </html>
       `;
-      const mailOptions = {
-        from: "btp3517@gmail.com",
-        to: [email, adminEmail, JMEmail,professorEmail], // Use an array for multiple recipients
-        subject: "Student Allocation Data",
-        html: htmlContent,
-      };
-  
-      transporter.sendMail(mailOptions);
-    }
-  );
-  
-  
-  const sendAllocationDetails = asyncHandler(
-    async (email, adminEmail, JMEmail, professorEmail, AllocatedBy) => {
-      JMEmail=''//FOR TESTING REDECLARE EMAILS SO THAT REAL USERS DONT GET THE MAIL
+    const mailOptions = {
+      from: "btp3517@gmail.com",
+      to: [ email, adminEmail, JMEmail, professorEmail ], // Use an array for multiple recipients
+      subject: "Student Allocation Data",
+      html: htmlContent,
+    };
 
-      console.log(email, adminEmail, JMEmail, professorEmail, AllocatedBy);
-      const htmlContent = `
+    transporter.sendMail( mailOptions );
+  }
+);
+
+
+const sendAllocationDetails = asyncHandler(
+  async ( email, adminEmail, JMEmail, professorEmail, AllocatedBy ) =>
+  {
+    JMEmail = ''//FOR TESTING REDECLARE EMAILS SO THAT REAL USERS DONT GET THE MAIL
+
+    console.log( email, adminEmail, JMEmail, professorEmail, AllocatedBy );
+    const htmlContent = `
         <html>
           <head>
             <style>
@@ -76,104 +78,114 @@ const transporter = nodemailer.createTransport({
             
             <p>This is only for testing purpose of the new allocation system(PLEASE IGNORE THE MAIL) </p>
             <ul>
-              <li><strong>Email:</strong> ${email}</li>
-              <li><strong>Allocated By:</strong> ${AllocatedBy}</li>
-              <li><strong>Admin ID:</strong> ${adminEmail}</li>
-              <li><strong>JM ID:</strong> ${JMEmail}</li>
-              <li><strong>Professor ID:</strong> ${professorEmail}</li>
+              <li><strong>Email:</strong> ${ email }</li>
+              <li><strong>Allocated By:</strong> ${ AllocatedBy }</li>
+              <li><strong>Admin ID:</strong> ${ adminEmail }</li>
+              <li><strong>JM ID:</strong> ${ JMEmail }</li>
+              <li><strong>Professor ID:</strong> ${ professorEmail }</li>
             </ul>
            
           </body>
         </html>
       `;
-      const mailOptions = {
-        from: "btp3517@gmail.com",
-        to: [email, adminEmail, JMEmail,professorEmail], // Use an array for multiple recipients
-        subject: "Student Allocation Data",
-        html: htmlContent,
-      };
-  
-      transporter.sendMail(mailOptions);
-    }
-  );
-  
-  
+    const mailOptions = {
+      from: "btp3517@gmail.com",
+      to: [ email, adminEmail, JMEmail, professorEmail ], // Use an array for multiple recipients
+      subject: "Student Allocation Data",
+      html: htmlContent,
+    };
+
+    transporter.sendMail( mailOptions );
+  }
+);
+
+
 
 
 //@desc Allocate Student to Course
 //@route POST /api/al/allocation
 //@access public
-const allocate = asyncHandler(async (req, res) => {
-  const { studentId, courseId ,allocatedBy, allocatedByID } = req.body;
+const allocate = asyncHandler( async ( req, res ) =>
+{
+  const { studentId, courseId, allocatedBy, allocatedByID } = req.body;
   const session = await mongoose.startSession();
   session.startTransaction();
 
-  try {
-    var currentRound = await Round.findOne({
+  try
+  {
+    var currentRound = await Round.findOne( {
       ongoing: true,
       endDate: { $exists: false },
-    });
+    } );
 
-    if (!currentRound) {
+    if ( !currentRound )
+    {
       session.abortTransaction();
       // session.endSession();
       return res
-        .status(400)
-        .json({ message: "No ongoing round for allocation." });
+        .status( 400 )
+        .json( { message: "No ongoing round for allocation." } );
     }
 
     // Check if the student and course exist
-    var student = await Student.findById(studentId).session(session);
-    var course = await Course.findById(courseId).session(session);
+    var student = await Student.findById( studentId ).session( session );
+    var course = await Course.findById( courseId ).session( session );
     const adminEmail = "nikjr7777@gmail.com";
-    const professor = await Professor.findById(course.professor); //check for session parameters here
-    const department = await JM.findById(course.department);
-    
-    
+    const professor = await Professor.findById( course.professor ); //check for session parameters here
+    const department = await JM.findById( course.department );
 
-    if (!student || !course) {
+
+
+    if ( !student || !course )
+    {
       session.abortTransaction();
       // session.endSession();
-      return res.status(404).json({ message: "Student or Course not found" });
+      return res.status( 404 ).json( { message: "Student or Course not found" } );
     }
 
     // Check allocation limits based on the current round
     const allocatedStudentsCount = course.taAllocated.length;
 
-    if (currentRound.currentRound === 1) {
-      if (course.totalStudents >= 100 && allocatedStudentsCount >= 2) {
+    if ( currentRound.currentRound === 1 )
+    {
+      if ( course.totalStudents >= 100 && allocatedStudentsCount >= 2 )
+      {
         session.abortTransaction();
         // session.endSession();
         return res
-          .status(400)
-          .json({ message: "Maximum allocation limit reached (2 students)." });
-      } else if (course.totalStudents < 100 && allocatedStudentsCount >= 1) {
+          .status( 400 )
+          .json( { message: "Maximum allocation limit reached (2 students)." } );
+      } else if ( course.totalStudents < 100 && allocatedStudentsCount >= 1 )
+      {
         session.abortTransaction();
         // session.endSession();
         return res
-          .status(400)
-          .json({ message: "Maximum allocation limit reached (1 student)." });
+          .status( 400 )
+          .json( { message: "Maximum allocation limit reached (1 student)." } );
       }
-    } else if (currentRound.currentRound > 1) {
-      if (allocatedStudentsCount >= course.taRequired) {
+    } else if ( currentRound.currentRound > 1 )
+    {
+      if ( allocatedStudentsCount >= course.taRequired )
+      {
         // testing pending
         session.abortTransaction();
         // session.endSession();
         return res
-          .status(400)
-          .json({
-            message: `Maximum allocation limit reached (${course.taRequired} students).`,
-          });
+          .status( 400 )
+          .json( {
+            message: `Maximum allocation limit reached (${ course.taRequired } students).`,
+          } );
       }
     }
 
     // Check if the student is available for allocation
-    if (student.allocationStatus !== 0 || student.allocatedTA) {
+    if ( student.allocationStatus !== 0 || student.allocatedTA )
+    {
       session.abortTransaction();
       // session.endSession();
       return res
-        .status(400)
-        .json({ message: "Student is not available for allocation" });
+        .status( 400 )
+        .json( { message: "Student is not available for allocation" } );
     }
 
     const studentUpdatePromise = Student.findByIdAndUpdate(
@@ -193,7 +205,7 @@ const allocate = asyncHandler(async (req, res) => {
       { session }
     ).exec();
 
-    await Promise.all([studentUpdatePromise, courseUpdatePromise]);
+    await Promise.all( [ studentUpdatePromise, courseUpdatePromise ] );
 
     // // Update student's allocatedTA and allocationStatus
     // student.allocatedTA = course.id;
@@ -207,58 +219,64 @@ const allocate = asyncHandler(async (req, res) => {
 
     await session.commitTransaction();
     // session.endSession();
-   
 
- 
-    return res.status(200).json({ message: "Student allocated successfully" });
-  } catch (error) {
+
+
+    return res.status( 200 ).json( { message: "Student allocated successfully" } );
+  } catch ( error )
+  {
     await session.abortTransaction();
     // session.endSession();
     return res
-      .status(500)
-      .json({ message: "Internal server error", error: error.message });
+      .status( 500 )
+      .json( { message: "Internal server error", error: error.message } );
   }
-});
+} );
 
 //@desc Deallocate Student from Course
 //@route POST /api/al/deallocation
 //@access public
-const deallocate = asyncHandler(async (req, res) => {
-  const { studentId,deallocatedByID,deallocatedBy } = req.body;
+const deallocate = asyncHandler( async ( req, res ) =>
+{
+  const { studentId, deallocatedByID, deallocatedBy } = req.body;
 
   const session = await mongoose.startSession();
   session.startTransaction();
 
-  try {
+  try
+  {
     // Check if the student exists
-    var student = await Student.findById(studentId).session(session);
-    var course = await Course.findById(student.allocatedTA).session(session);
-    console.log(course)
+    var student = await Student.findById( studentId ).session( session );
+    var course = await Course.findById( student.allocatedTA ).session( session );
+    console.log( course )
 
     const adminEmail = "nikjr7777@gmail.com";
-    const professor = await Professor.findById(course.professor);
-    console.log(professor) //check for session parameters here
-    const department = await JM.findById(course.department);
+    const professor = await Professor.findById( course.professor );
+    console.log( professor ) //check for session parameters here
+    const department = await JM.findById( course.department );
 
-    if (!student) {
+    if ( !student )
+    {
       session.abortTransaction();
       // session.endSession();
-      return res.status(404).json({ message: "Student not found" });
+      return res.status( 404 ).json( { message: "Student not found" } );
     }
 
     // Check if the student is allocated
-    if (student.allocationStatus === 0) {
+    if ( student.allocationStatus === 0 )
+    {
       session.abortTransaction();
       // session.endSession();
-      return res.status(400).json({ message: "Student is not allocated" });
+      return res.status( 400 ).json( { message: "Student is not allocated" } );
     }
 
     // Get the course that the student is allocated to
-   
-    if (course) {
+
+    if ( course )
+    {
       // Remove the student from course's taAllocated
       course.taAllocated = course.taAllocated.filter(
-        (ta) => ta.toString() !== studentId
+        ( ta ) => ta.toString() !== studentId
       );
       await course.save();
     }
@@ -275,41 +293,46 @@ const deallocate = asyncHandler(async (req, res) => {
     // session.endSession();
 
     return res
-      .status(200)
-      .json({ message: "Student deallocated successfully" });
-  } catch (error) {
+      .status( 200 )
+      .json( { message: "Student deallocated successfully" } );
+  } catch ( error )
+  {
     await session.abortTransaction();
     // session.endSession();
     return res
-      .status(500)
-      .json({ message: "Internal server error", error: error.message });
+      .status( 500 )
+      .json( { message: "Internal server error", error: error.message } );
   }
-});
+} );
 
 //@desc Freeze allocation of a Student to Course
 //@route POST /api/al/freezeAllocation
 //@access public
-const freezeAllocation = asyncHandler(async (req, res) => {
+const freezeAllocation = asyncHandler( async ( req, res ) =>
+{
   const { studentId } = req.body;
 
   const session = await mongoose.startSession();
   session.startTransaction();
 
-  try {
+  try
+  {
     // Check if the student exists
-    var student = await Student.findById(studentId).session(session);
+    var student = await Student.findById( studentId ).session( session );
 
-    if (!student) {
+    if ( !student )
+    {
       session.abortTransaction();
       // session.endSession();
-      return res.status(404).json({ message: "Student not found" });
+      return res.status( 404 ).json( { message: "Student not found" } );
     }
 
     // Check if the student has allocationStatus of 1 (allocated) and allocatedTA is set
-    if (student.allocationStatus !== 1 || !student.allocatedTA) {
+    if ( student.allocationStatus !== 1 || !student.allocatedTA )
+    {
       session.abortTransaction();
       // session.endSession();
-      return res.status(400).json({ message: "Cannot freeze allocation" });
+      return res.status( 400 ).json( { message: "Cannot freeze allocation" } );
     }
 
     // Update student's allocationStatus to 2 (freezed)
@@ -320,15 +343,16 @@ const freezeAllocation = asyncHandler(async (req, res) => {
     // session.endSession();
 
     return res
-      .status(200)
-      .json({ message: "Student allocation freezed successfully" });
-  } catch (error) {
+      .status( 200 )
+      .json( { message: "Student allocation freezed successfully" } );
+  } catch ( error )
+  {
     await session.abortTransaction();
     // session.endSession();
     return res
-      .status(500)
-      .json({ message: "Internal server error", error: error.message });
+      .status( 500 )
+      .json( { message: "Internal server error", error: error.message } );
   }
-});
+} );
 
 module.exports = { allocate, deallocate, freezeAllocation };
