@@ -67,7 +67,8 @@ const getCourses = asyncHandler( async ( req, res ) =>
         }
         if ( professor )
         {
-            const professorId = await Professor.findOne( { name: professor } ).select( '_id' );
+            var profname = professor.split( " (" )[ 0 ];
+            const professorId = await Professor.findOne( { name: profname } ).select( '_id' );
             if ( professorId )
             {
                 filter.professor = professorId._id;
@@ -232,7 +233,8 @@ const updateCourse = asyncHandler( async ( req, res ) =>
 
         if ( updates.professor )
         {
-            const professor = await Professor.findOne( { name: updates.professor } );
+            var profname = updates.professor.split( " (" )[ 0 ];
+            const professor = await Professor.findOne( { name: profname } );
             if ( !professor )
             {
                 return res.status( 400 ).json( { message: 'Invalid Professor value' } );
