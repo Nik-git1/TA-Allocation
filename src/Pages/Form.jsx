@@ -33,6 +33,7 @@ const StudentForm = () => {
     ],
     nonPreferences: ["", "", ""],
   };
+  console.log(studentExistData.nonPreferences)
   const secretKey = "your-secret-key"; // Use the same secret key used for encryption
   const decryptedEmail = CryptoJS.AES.decrypt(
     encryptedEmail,
@@ -47,14 +48,32 @@ const StudentForm = () => {
     department: studentExistDepartment,
     taType: studentExistData.taType,
     cgpa: studentExistData.cgpa,
-    departmentPreferences: studentExistData.departmentPreferences,
-    nonDepartmentPreferences: studentExistData.nonDepartmentPreferences,
-    nonPreferences: studentExistData.nonPreferences,
+    departmentPreferences: studentExistData.departmentPreferences.length === 0
+      ? [
+          { course: "", grade: "" },
+          { course: "", grade: "" },
+        ]
+      : studentExistData.departmentPreferences,
+    nonDepartmentPreferences: studentExistData.nonDepartmentPreferences.length === 0
+    ? [
+      { course: "", grade: "" },
+      { course: "", grade: "" },
+      { course: "", grade: "" },
+      { course: "", grade: "" },
+      { course: "", grade: "" },
+      { course: "", grade: "" },
+      { course: "", grade: "" },
+      { course: "", grade: "" },
+    ]
+    : studentExistData.nonDepartmentPreferences,
+    nonPreferences: studentExistData.nonPreferences.length === 0
+    ? ["", "", ""]
+    : studentExistData.nonPreferences,
   });
-
+  console.log("Length: ",studentExistData.departmentPreferences.length);
   const [courses, setCourses] = useState([]);
   const [selectedCourses, setSelectedCourses] = useState([]);
-  const [selectedDepartment, setSelectedDepartment] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState(formData.department);
 
   useEffect(() => {
     // Fetch course data from the backend API
@@ -136,7 +155,7 @@ const StudentForm = () => {
     }
 
     if(!formData.program.startsWith('B.Tech')){
-      formData.taType = 'Credit';
+      formData.taType = 'Paid';
     }
 
     // Create a JSON object from your form data
@@ -363,9 +382,19 @@ const StudentForm = () => {
                   className="w-full p-2 border rounded"
                   disabled={!formData.program.startsWith('B.Tech')}
                 >
-                  <option value="Credit">Credit</option>
-                  <option value="Paid">Paid</option>
-                  <option value="Voluntary">Voluntary</option>
+                  {/* Rendering options based on condition */}
+                  {formData.program.startsWith('B.Tech') ? (
+                    <>
+                      <option value="">Select TA Type</option>
+                      <option value="Credit">Credit</option>
+                      <option value="Paid">Paid</option>
+                      <option value="Voluntary">Voluntary</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="Paid">Paid</option>
+                    </>
+                  )}
                 </select>
               </div>
     
@@ -491,7 +520,7 @@ const StudentForm = () => {
                       }
                       className="w-full p-2 border rounded"
                     >
-                      <option value="">Select Non-Department Course</option>
+                      <option value="">Select Preferred Course</option>
                       {/* Filter courses based on the selected department */}
                       {courses.map((filteredCourse) => (
                           <option
