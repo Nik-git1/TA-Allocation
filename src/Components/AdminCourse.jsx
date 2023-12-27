@@ -6,8 +6,8 @@ import * as XLSX from 'xlsx';
 
 const CourseTable = () => {
   const { courses, updateCourse, deleteCourse } = useContext(CourseContext);
-  const [editingRow, setEditingRow] = useState(-1); // -1 indicates no row is being edited
-  const [editedCourseData, setEditedCourseData] = useState({});
+  const [editingRow, setEditingRow] = useState(null); 
+  // const [editedCourseData, setEditedCourseData] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
   const columnName = {
     name: 'Name',
@@ -21,36 +21,36 @@ const CourseTable = () => {
     taRequired: 'Ta Required'
   }
 
-  useEffect(() => {
+/*   useEffect(() => {
     setEditedCourseData({});
-  }, [editingRow]);
+  }, [editingRow]);*/
 
-  const handleEdit = (rowIndex) => {
-    setEditingRow(rowIndex);
-    setEditedCourseData({ ...courses[rowIndex] });
+  const handleEdit = (row) => {
+    setEditingRow(row);
+    // setEditedCourseData({ ...courses[rowIndex] });
   };
 
-  const handleSave = async (rowIndex) => {
-    if (JSON.stringify(editedCourseData) === JSON.stringify(courses[rowIndex])) {
+  const handleSave = async (row) => {
+ /*    if (JSON.stringify(editedCourseData) === JSON.stringify(courses[rowIndex])) {
       handleCancel();
       return;
-    }
-    const originalCourseData = courses[rowIndex];
+    } */
+/*     const originalCourseData = courses[rowIndex];
     const updatedData = {};
 
     for (const key in editedCourseData) {
       if (editedCourseData[key] !== originalCourseData[key]) {
         updatedData[key] = editedCourseData[key]; // Add changed field to updatedData
       }
-    }
-    await updateCourse(courses[rowIndex]._id, updatedData);
+    } */
+    await updateCourse(row._id, row);
     Swal.fire('Updated!', 'Your course has been Updated.', 'success');
     handleCancel();
   };
 
   const handleCancel = () => {
-    setEditingRow(-1);
-    setEditedCourseData({});
+    setEditingRow(null);
+    // setEditedCourseData({});
   };
 
   const handleDelete = async (courseId) => {
@@ -74,25 +74,28 @@ const CourseTable = () => {
     if (key === 'search') {
       setSearchTerm(e.target.value);
     } else {
-      const updatedData = { ...editedCourseData, [key]: e.target.value };
-      setEditedCourseData(updatedData);
+      const updatedData = { ...editingRow, [key]: e.target.value };
+      setEditingRow(updatedData);
+      // setEditedCourseData(updatedData);
     }
   };
 
   const renderRow = (course, index) => {
-    const isEditing = index === editingRow;
+    // const isEditing = index === editingRow;
     const editingRowClass = 'bg-gray-300';
-
+    // console.log("Editing row: ", editingRow);
+    // console.log("Course: ", course);
     const courseContent = Object.keys(course);
     return (
-      <tr className={`text-center ${isEditing ? editingRowClass : ''}`} key={index}>
+      <tr className={`text-center ${editingRow && editingRow._id === course._id? editingRowClass : ''}`} key={index}>
         <td className='border p-2'>{index + 1}</td>
         {courseContent.slice(1,10).map((key, ind) => (
           <td className='border p-2' key={ind}>
-            {isEditing ? (
+            {editingRow && editingRow._id === course._id? (
               <input
                 type='text'
-                value={editedCourseData[key] ?? course[key]}
+                value = {editingRow[key]?? course[key]}
+                // value={editedCourseData[key] ?? course[key]}
                 onChange={(e) => handleInputChange(e, key)}
               />
             ) : (
@@ -101,11 +104,11 @@ const CourseTable = () => {
           </td>
         ))}
         <td className='border p-2'>
-          {isEditing ? (
+          {editingRow && editingRow._id === course._id? (
             <div className='flex'>
               <button
                 className='bg-green-500 text-white px-2 py-1 rounded-md flex items-center mr-1'
-                onClick={() => handleSave(index)}
+                onClick={() => handleSave(editingRow)}
               >
                 Save
               </button>
@@ -120,7 +123,7 @@ const CourseTable = () => {
             <div className='flex'>
               <button
                 className='bg-blue-500 text-white px-2 py-1 rounded-md flex items-center mr-1'
-                onClick={() => handleEdit(index)}
+                onClick={() => handleEdit(course)}
               >
                 Edit
               </button>
