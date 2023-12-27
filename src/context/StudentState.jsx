@@ -75,7 +75,7 @@ const StudentState = (props) => {
         });
 
         axios
-          .post('http://localhost:5001/api/student', { students })
+          .post('http://localhost:5001/api/student',  students )
           .then((response) => {
             getStudentsFromBackend();
           })

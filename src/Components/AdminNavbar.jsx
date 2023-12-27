@@ -8,10 +8,10 @@ const AdminNav = () => {
   // Define the function to handle file changes (you'll need to implement this function)
   
   let {getStudentsFromFile} =useContext(StudentContext)
-  let {getCourse} = useContext(CourseContext)
+  let {getCourseFromFile } = useContext(CourseContext)
   const handleFileChange = (event) => {
     if(isCourseRoute){
-      getCourse(event)
+      getCourseFromFile(event)
     }else{
       getStudentsFromFile(event);
     }
