@@ -330,6 +330,7 @@ const addStudent = asyncHandler( async ( req, res ) =>
     newStudents = [ newStudents ];
   }
 
+  console.log( "newStudents:", newStudents );
 
   try
   {
@@ -475,39 +476,39 @@ const addStudent = asyncHandler( async ( req, res ) =>
               continue; // Skip this student and move to the next one
             }
             // Check for valid grade values
-            const validGrades = [ 'A+(10)', 'A(10)', 'A-(9)', 'B(8)', 'B-(7)', 'C(6)', 'C-(5)', 'D(4)', 'Course Not Done' ]
+            // const validGrades = [ 'A+(10)', 'A(10)', 'A-(9)', 'B(8)', 'B-(7)', 'C(6)', 'C-(5)', 'D(4)', 'Course Not Done' ]
 
-            const deptgrade = await Promise.all(
-              newStudent.departmentPreference.map( async ( pref ) =>
-              {
-                return validGrades.includes( pref.grade );
-              } )
-            )
+            // const deptgrade = await Promise.all(
+            //   newStudent.departmentPreference.map( async ( pref ) =>
+            //   {
+            //     return validGrades.includes( pref.grade );
+            //   } )
+            // )
 
-            const othergrade = await Promise.all(
-              newStudent.nonDepartmentPreference.map( async ( pref ) =>
-              {
-                return validGrades.includes( pref.grade );
-              } )
-            )
+            // const othergrade = await Promise.all(
+            //   newStudent.nonDepartmentPreference.map( async ( pref ) =>
+            //   {
+            //     return validGrades.includes( pref.grade );
+            //   } )
+            // )
 
-            if ( deptgrade.includes( false ) )
-            {
-              invalidStudents.push( {
-                student: newStudent,
-                message: "Invalid Grade value in departmental preferences"
-              } );
-              continue;
-            }
+            // if ( deptgrade.includes( false ) )
+            // {
+            //   invalidStudents.push( {
+            //     student: newStudent,
+            //     message: "Invalid Grade value in departmental preferences"
+            //   } );
+            //   continue;
+            // }
 
-            if ( othergrade.includes( false ) )
-            {
-              invalidStudents.push( {
-                student: newStudent,
-                message: "Invalid Grade value in other preferences"
-              } );
-              continue;
-            }
+            // if ( othergrade.includes( false ) )
+            // {
+            //   invalidStudents.push( {
+            //     student: newStudent,
+            //     message: "Invalid Grade value in other preferences"
+            //   } );
+            //   continue;
+            // }
 
             // Check if all courses in departmentPreferences are from the same department as the student
 
@@ -572,6 +573,7 @@ const updateStudent = asyncHandler( async ( req, res ) =>
 {
   const studentId = req.params.id;
   var updates = req.body;
+  console.log( "updates:", updates );
   try
   {
     // Step 1: Validate that the student exists
@@ -642,7 +644,7 @@ const updateStudent = asyncHandler( async ( req, res ) =>
     }
 
     // Check for valid grade values
-    const validGrades = [ 'A+(10)', 'A(10)', 'A-(9)', 'B(8)', 'B-(7)', 'C(6)', 'C-(5)', 'D(4)', 'Course Not Done' ]
+    // const validGrades = [ 'A+(10)', 'A(10)', 'A-(9)', 'B(8)', 'B-(7)', 'C(6)', 'C-(5)', 'D(4)', 'Course Not Done' ]
 
     if (
       "departmentPreferences" in updates
@@ -657,17 +659,17 @@ const updateStudent = asyncHandler( async ( req, res ) =>
           .json( { message: "Atmost 2 departmental preferences allowed" } );
       }
 
-      const deptgrade = await Promise.all(
-        updates.departmentPreference.map( async ( pref ) =>
-        {
-          return validGrades.includes( pref.grade );
-        } )
-      )
+      // const deptgrade = await Promise.all(
+      //   updates.departmentPreference.map( async ( pref ) =>
+      //   {
+      //     return validGrades.includes( pref.grade );
+      //   } )
+      // )
 
-      if ( deptgrade.includes( false ) )
-      {
-        return res.status( 400 ).json( { message: "Invalid Grade Value in departmental preferences" } );
-      }
+      // if ( deptgrade.includes( false ) )
+      // {
+      //   return res.status( 400 ).json( { message: "Invalid Grade Value in departmental preferences" } );
+      // }
     }
     if (
       "nonDepartmentPreferences" in updates
@@ -680,18 +682,18 @@ const updateStudent = asyncHandler( async ( req, res ) =>
           .json( { message: "Atmost 8 other preferences allowed" } );
       }
 
-      const othergrade = await Promise.all(
-        updates.nonDepartmentPreference.map( async ( pref ) =>
-        {
-          return validGrades.includes( pref.grade );
-        } )
-      )
+      // const othergrade = await Promise.all(
+      //   updates.nonDepartmentPreference.map( async ( pref ) =>
+      //   {
+      //     return validGrades.includes( pref.grade );
+      //   } )
+      // )
 
 
-      if ( othergrade.includes( false ) )
-      {
-        return res.status(400).json({message: "Invalid Grade Value in other preferences"})
-      }
+      // if ( othergrade.includes( false ) )
+      // {
+      //   return res.status( 400 ).json( { message: "Invalid Grade Value in other preferences" } )
+      // }
     }
     if ( "nonPreferences" in updates && updates.nonPreferences.length > 3 )
     {
