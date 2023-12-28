@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from "react";
 import DashboardCardList from "./DashboardCards"; // Import your DashboardCardList component
-import CourseContext from '../context/CourseContext'
+import axios from "axios";
 
 const Dashboard = () => {
   const [currentRound, setCurrentRound] = useState(null);
+  const [formOpened, setFormOpened] = useState(true);
   useEffect(() => {
     // Fetch the current round status from your backend when the component mounts
     getRound();
+    axios
+      .get("http://localhost:5001/api/form")
+      .then((response) => {
+        setFormOpened(response.data.state);
+      })
+      .catch((error) => {
+        console.error("Error fetching courses:", error);
+      });
   }, []);
 
   const getRound = () => {
@@ -68,6 +77,8 @@ const Dashboard = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ state: true}) }); 
+        // Reload the page after the form state is changed
+        window.location.reload();
   }
 
   const closeForm = async () => {
@@ -77,6 +88,8 @@ const Dashboard = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ state: false}) }); 
+        // Reload the page after the form state is changed
+        window.location.reload();
   }
 
   return (
@@ -106,7 +119,7 @@ const Dashboard = () => {
         </button>
       </div> */}
 
-      <div className="mb-4 space-x-4">
+      <div className="mb-4 space-x-4 flex">
         <button
           onClick={openForm}
           className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
@@ -119,6 +132,9 @@ const Dashboard = () => {
         >
           Close TA Form
         </button>
+        <div className="font-bold text-2xl">
+          {formOpened ? "Form is opened" : "Form is closed"}
+        </div>
       </div>
 
       {/* Include your DashboardCardList component here */}

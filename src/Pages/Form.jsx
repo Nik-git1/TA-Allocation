@@ -34,7 +34,7 @@ const StudentForm = () => {
     ],
     nonPreferences: ["", "", ""],
   };
-  console.log(studentExistData.nonPreferences)
+
   const secretKey = "your-secret-key"; // Use the same secret key used for encryption
   const decryptedEmail = CryptoJS.AES.decrypt(
     encryptedEmail,
@@ -71,8 +71,7 @@ const StudentForm = () => {
     ? ["", "", ""]
     : studentExistData.nonPreferences,
   });
-  console.log("Length: ",formData);
-  
+
   const [courses, setCourses] = useState([]);
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState(formData.department);
@@ -91,7 +90,7 @@ const StudentForm = () => {
       axios
       .get("http://localhost:5001/api/form")
       .then((response) => {
-        setFormOpened(response.status);
+        setFormOpened(response.data.state);
       })
       .catch((error) => {
         console.error("Error fetching courses:", error);
@@ -614,7 +613,7 @@ const StudentForm = () => {
           </div>
         ) : (
           <div className="flex justify-center items-center">
-                <h2 className="text-3xl font-bold mb-2  text-[#3dafaa]">Form Closed</h2>
+                <h2 className="text-8xl font-bold mb-2  text-[#3dafaa]">Form Closed</h2>
               </div>
         )
       )
