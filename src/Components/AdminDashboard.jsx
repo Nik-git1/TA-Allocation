@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from "react";
 import DashboardCardList from "./DashboardCards"; // Import your DashboardCardList component
+import axios from "axios";
 
 const Dashboard = () => {
   const [currentRound, setCurrentRound] = useState(null);
-
+  const [formOpened, setFormOpened] = useState(true);
   useEffect(() => {
     // Fetch the current round status from your backend when the component mounts
     getRound();
+    axios
+      .get("http://localhost:5001/api/form")
+      .then((response) => {
+        setFormOpened(response.data.state);
+      })
+      .catch((error) => {
+        console.error("Error fetching courses:", error);
+      });
   }, []);
 
   const getRound = () => {
@@ -62,9 +71,30 @@ const Dashboard = () => {
       });
   };
 
+  const openForm = async () => {
+    const response = await fetch(`http://localhost:5001/api/form/changeState`, { method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ state: true}) }); 
+        // Reload the page after the form state is changed
+        window.location.reload();
+  }
+
+  const closeForm = async () => {
+    
+    const response = await fetch(`http://localhost:5001/api/form/changeState`, { method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ state: false}) }); 
+        // Reload the page after the form state is changed
+        window.location.reload();
+  }
+
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-4">
+      {/* <h2 className="text-xl font-semibold mb-4">
         Current Round:{" "}
         {currentRound !== null ? currentRound : "No round is ongoing"}
       </h2>
@@ -87,6 +117,24 @@ const Dashboard = () => {
         >
           Reset Rounds
         </button>
+      </div> */}
+
+      <div className="mb-4 space-x-4 flex">
+        <button
+          onClick={openForm}
+          className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+        >
+          Open TA Form
+        </button>
+        <button
+          onClick={closeForm}
+          className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+        >
+          Close TA Form
+        </button>
+        <div className="font-bold text-2xl">
+          {formOpened ? "Form is opened" : "Form is closed"}
+        </div>
       </div>
 
       {/* Include your DashboardCardList component here */}
