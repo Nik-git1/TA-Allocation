@@ -14,31 +14,32 @@ const Tablestudents = () => {
     'Name',
     'Email Id',
     'Roll No',
+    'CGPA',
     'Program',
     'Department',
     'TA Type',
-    'TA Status',
-    'TA Allotted',
+    /* 'TA Status',
+    'TA Allotted', */
     'Dept Pref 1',
     'Grade Dept Pref 1',
     'Dept Pref 2',
     'Grade Dept Pref 2',
-    'Non-Dept Pref 1',
-    'Grade Non-Dept Pref 1',
-    'Non-Dept Pref 2',
-    'Grade Non-Dept Pref 2',
-    'Non-Dept Pref 3',
-    'Grade Non-Dept Pref 3',
-    'Non-Dept Pref 4',
-    'Grade Non-Dept Pref 4',
-    'Non-Dept Pref 5',
-    'Grade Non-Dept Pref 5',
-    'Non-Dept Pref 6',
-    'Grade Non-Dept Pref 6',
-    'Non-Dept Pref 7',
-    'Grade Non-Dept Pref 7',
-    'Non-Dept Pref 8',
-    'Grade Non-Dept Pref 8',
+    'Other Pref 1',
+    'Grade Other Pref 1',
+    'Other Pref 2',
+    'Grade Other Pref 2',
+    'Other Pref 3',
+    'Grade Other Pref 3',
+    'Other Pref 4',
+    'Grade Other Pref 4',
+    'Other Pref 5',
+    'Grade Other Pref 5',
+    'Other Pref 6',
+    'Grade Other Pref 6',
+    'Other Pref 7',
+    'Grade Other Pref 7',
+    'Other Pref 8',
+    'Grade Other Pref 8',
     'Non-Prefs 1',
     'Non-Prefs 2',
     'Non-Prefs 3',
@@ -54,7 +55,7 @@ const Tablestudents = () => {
   };
 
   const handleSave = async (rowIndex) => {
-    if (JSON.stringify(editedStudentData) === JSON.stringify(students[rowIndex])) {
+if (JSON.stringify(editedStudentData) === JSON.stringify(students[rowIndex])) {
       handleCancel();
       return;
     }
@@ -66,9 +67,9 @@ const Tablestudents = () => {
         updatedData[key] = editedStudentData[key];
       }
     }
-
+ 
     await updateStudent(students[rowIndex]._id, updatedData);
-
+    Swal.fire('Updated!', 'Student has been updated', 'success');
     handleCancel();
   };
 
@@ -90,7 +91,7 @@ const Tablestudents = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         deleteStudent(studentId);
-        Swal.fire('Deleted!', 'Your data has been deleted.', 'success');
+        Swal.fire('Deleted!', 'Student has been deleted', 'success');
       }
     });
     // if (window.confirm('Are you sure you want to delete this student?')) {
@@ -104,20 +105,22 @@ const Tablestudents = () => {
   };
 
   const extractedData = students.map((student) => {
-    const formattedData = customLabels.map((label) => {
+   const formattedData = customLabels.map((label) => {
       if (label === 'Name') {
         return student.name;
       } else if (label === 'Email Id') {
         return student.emailId;
       } else if (label === 'Roll No') {
         return student.rollNo;
+      } else if (label === 'CGPA') {
+        return student.cgpa;
       } else if (label === 'Program') {
         return student.program;
       } else if (label === 'Department') {
         return student.department;
       } else if (label === 'TA Type') {
         return student.taType;
-      } else if (label === 'TA Status') {
+} else if (label === 'TA Status') {
         return student.allocationStatus;
       } else if (label === 'TA Allotted') {
         return student.allocatedTA;
@@ -131,13 +134,13 @@ const Tablestudents = () => {
         return index < student.departmentPreferences.length
           ? student.departmentPreferences[index].grade
           : '';
-      } else if (label.startsWith('Non-Dept Pref ')) {
-        const index = parseInt(label.replace('Non-Dept Pref ', ''), 10) - 1;
+      } else if (label.startsWith('Other Pref ')) {
+        const index = parseInt(label.replace('Other Pref ', ''), 10) - 1;
         return index < student.nonDepartmentPreferences.length
           ? student.nonDepartmentPreferences[index].course
           : '';
-      } else if (label.startsWith('Grade Non-Dept Pref')) {
-        const index = parseInt(label.replace('Grade Non-Dept Pref ', ''), 10) - 1;
+      } else if (label.startsWith('Grade Other Pref')) {
+        const index = parseInt(label.replace('Grade Other Pref ', ''), 10) - 1;
         return index < student.nonDepartmentPreferences.length
           ? student.nonDepartmentPreferences[index].grade
           : '';
@@ -151,11 +154,11 @@ const Tablestudents = () => {
     return formattedData;
   });
 
-  const filteredStudents = searchQuery === ''? extractedData: extractedData.filter((student) => {
+const filteredStudents = searchQuery === ''? extractedData: extractedData.filter((student) => {
     const values = Object.values(student).join(' ').toLowerCase();
     return values.includes(searchQuery.toLowerCase());
   });
-  
+   
   const renderHeaderRow = () => {
     return (
       <tr className="bg-[#3dafaa] text-white">
@@ -181,7 +184,7 @@ const Tablestudents = () => {
               <input
                 type='text'
                 value={editedStudentData[customLabels[itemIndex]] || extractedData[index][itemIndex]}
-                onChange={(e) => handleInputChange(e, customLabels[itemIndex])}
+                                onChange={(e) => handleInputChange(e, customLabels[itemIndex])}
               />
             ) : item}
           </td>
@@ -227,32 +230,33 @@ const Tablestudents = () => {
     const ws = XLSX.utils.json_to_sheet(filteredStudents);
   
     // Set custom headers as the first row
-    const headers = ['Name', 'Email Id', 'Roll No', 'Program', 'Department', 'TA Type', 'TA Status',
-    'TA Allotted',
+    const headers = ['Name', 'Email Id', 'Roll No', 'CGPA','Program', 'Department', 'TA Type', 
+   /*  'TA Status',
+    'TA Allotted', */
     'Dept Pref 1',
     'Grade Dept Pref 1',
     'Dept Pref 2',
     'Grade Dept Pref 2',
-    'Non-Dept Pref 1',
-    'Grade Non-Dept Pref 1',
-    'Non-Dept Pref 2',
-    'Grade Non-Dept Pref 2',
-    'Non-Dept Pref 3',
-    'Grade Non-Dept Pref 3',
-    'Non-Dept Pref 4',
-    'Grade Non-Dept Pref 4',
-    'Non-Dept Pref 5',
-    'Grade Non-Dept Pref 5',
-    'Non-Dept Pref 6',
-    'Grade Non-Dept Pref 6',
-    'Non-Dept Pref 7',
-    'Grade Non-Dept Pref 7',
-    'Non-Dept Pref 8',
-    'Grade Non-Dept Pref 8',
+    'Other Pref 1',
+    'Grade Other Pref 1',
+    'Other Pref 2',
+    'Grade Other Pref 2',
+    'Other Pref 3',
+    'Grade Other Pref 3',
+    'Other Pref 4',
+    'Grade Other Pref 4',
+    'Other Pref 5',
+    'Grade Other Pref 5',
+    'Other Pref 6',
+    'Grade Other Pref 6',
+    'Other Pref 7',
+    'Grade Other Pref 7',
+    'Other Pref 8',
+    'Grade Other Pref 8',
     'Non-Prefs 1',
     'Non-Prefs 2',
     'Non-Prefs 3',]; // Replace with your custom headers
-    XLSX.utils.sheet_add_aoa(ws, [headers], { origin: 'A1' });
+    XLSX.utils.sheet_add_aoa(ws, [customLabels], { origin: 'A1' });
   
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Students');
