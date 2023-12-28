@@ -68,7 +68,8 @@ const sendForm = asyncHandler( async ( email, studentData ) =>
           Dear Student,<br/>
           You have filled below details in your TAship Form. Kindly check your details and edit your response in case of any error.<br/>
           This is an Auto Generated Email. Please do not reply to this mail.<br/>
-          For any concerns, write an email to <a href="mailto:mohit@iiitd.ac.in">mohit@iiitd.ac.in</a>
+          For TA related concerns, please contact respective department admin. <br/>
+          For any other concern, write an email to <a href="mailto:mohit@iiitd.ac.in">mohit@iiitd.ac.in</a>
         </p>
         <p>Name: <strong>${ studentData.name }</strong></p>
         <p>Email: <strong>${ studentData.emailId }</strong></p>
