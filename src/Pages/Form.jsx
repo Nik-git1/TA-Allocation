@@ -72,6 +72,7 @@ const StudentForm = () => {
     : studentExistData.nonPreferences,
   });
 
+  
   const [courses, setCourses] = useState([]);
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState(formData.department);
