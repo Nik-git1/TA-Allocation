@@ -7,7 +7,10 @@ const Admin = require( "../models/Admin" );
 const setFormStatus = async (req, res) => {
     try{
         const state = req.body;
-        const admin = await Admin.findById('6551f0580b17612a2edbf852');
+        const admin = await Admin.findOne({});
+        if (!admin) {
+        return res.status(404).json({ success: false, message: 'Admin not found' });
+    }
         admin.studentFormAccess = state;
         await admin.save();
         res.status(200).json({success:true, message:"Form state changed"});
@@ -22,7 +25,10 @@ const setFormStatus = async (req, res) => {
 const getFormStatus = async (req, res) => {
 
     try{
-        const admin = await Admin.findById('6551f0580b17612a2edbf852');
+        const admin = await Admin.findOne({});
+        if (!admin) {
+        return res.status(404).json({ success: false, message: 'Admin not found' });
+        }
         res.status(200).json({success:true, status: admin.studentFormAccess});
     } catch (error) {
         res.status(500).json({ success: false, message: 'Internal Server Error' });

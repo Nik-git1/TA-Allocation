@@ -63,7 +63,7 @@ const Dashboard = () => {
   };
 
   const openForm = async () => {
-    const response = await fetch(`http://localhost:3000/api/form/changeState}`, { method: 'POST',
+    const response = await fetch(`http://localhost:5001/api/form/changeState`, { method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -72,7 +72,7 @@ const Dashboard = () => {
 
   const closeForm = async () => {
     
-    const response = await fetch(`http://localhost:3000/api/form/changeState}`, { method: 'POST',
+    const response = await fetch(`http://localhost:5001/api/form/changeState`, { method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
