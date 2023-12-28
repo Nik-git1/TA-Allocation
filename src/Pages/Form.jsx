@@ -164,6 +164,11 @@ const StudentForm = () => {
       return;
     }
 
+    if(!formOpened){
+      alert("Form Closed");
+      return
+    }
+
     if(!formData.program.startsWith('B.Tech')){
       formData.taType = 'Paid';
     }
@@ -211,7 +216,7 @@ const StudentForm = () => {
             setLoading(false);
             Swal.fire("Submitted!", "Form Submitted Successfully", "success").then((result) => {
               if (result.isConfirmed) {
-                window.location.replace("http://localhost:5001");
+                window.location.replace("http://192.168.3.170");
               }
             });
           })
@@ -232,7 +237,7 @@ const StudentForm = () => {
             setLoading(false);
             Swal.fire("Submitted!", "Form Submitted Successfully", "success").then((result) => {
               if (result.isConfirmed) {
-                window.location.replace("http://localhost:5001");
+                window.location.replace("http://192.168.3.170");
               }
             });
           })
