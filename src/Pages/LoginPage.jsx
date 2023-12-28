@@ -253,7 +253,7 @@ const LoginPage = () => {
             />
           </div>
           <p className="text-gray-600 text-xs mt-2">For students:</p>
-          <div>
+          <div className="mb-5">
             <button
               type="button"
               className="w-full my-2 py-2 bg-[#3dafaa] shadow-lg shadow-[#3dafaa]/50 hover:shadow-[#3dafaa]/40 text-white font-semibold rounded-lg"
@@ -266,7 +266,7 @@ const LoginPage = () => {
           {!TaOptionSelected ? (
             <>
               <hr className="border-2 border-[#7d7f7f]" />
-              <p className="text-gray-600 text-xs mt-2">Log in as:</p>
+              <p className="text-gray-600 text-xs mt-6">Log in as:</p>
               <div className="flex-auto mt-1">
                 <button
                   type="button"
