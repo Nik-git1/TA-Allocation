@@ -198,6 +198,7 @@ const getStudent = asyncHandler( async ( req, res ) =>
     taType: student.taType,
     allocationStatus: student.allocationStatus,
     allocatedTA: student.allocatedTA ? student.allocatedTA.name : null,
+    cgpa: student.cgpa,
     nonPreferences: student.nonPreferences.map( preference => preference ? preference.name : null ),
     departmentPreferences: student.departmentPreferences.map( preference => ( {
       course: preference.course ? preference.course.name : null,
@@ -296,6 +297,7 @@ const getStudents = asyncHandler( async ( req, res ) =>
       taType: student.taType,
       allocationStatus: student.allocationStatus,
       allocatedTA: student.allocatedTA ? student.allocatedTA.name : null,
+      cgpa: student.cgpa,
       nonPreferences: student.nonPreferences.map( preference => preference ? preference.name : null ),
       departmentPreferences: student.departmentPreferences.map( preference => ( {
         course: preference.course ? preference.course.name : null,

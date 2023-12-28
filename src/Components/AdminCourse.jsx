@@ -44,7 +44,7 @@ const CourseTable = () => {
       }
     } */
     await updateCourse(row._id, row);
-    Swal.fire('Updated!', 'Your course has been Updated.', 'success');
+    Swal.fire('Updated!', 'Course has been Updated', 'success');
     handleCancel();
   };
 
@@ -65,7 +65,7 @@ const CourseTable = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         deleteCourse(courseId);
-        Swal.fire('Deleted!', 'Your course has been deleted.', 'success');
+        Swal.fire('Deleted!', 'Course has been deleted', 'success');
       }
     });
   };
