@@ -72,7 +72,6 @@ const StudentForm = () => {
     : studentExistData.nonPreferences,
   });
 
-  
   const [courses, setCourses] = useState([]);
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState(formData.department);
@@ -141,7 +140,7 @@ const StudentForm = () => {
 
     // Additional validation for Roll No length and pattern
     if (
-      (formData.rollNo.length !== 7 || formData.rollNo.length !== 8) && // Check length
+      (formData.rollNo.length > 8 || formData.rollNo.length < 7) || // Check length
       !/^(PhD|MT\d|\d{3})/.test(formData.rollNo) // Check pattern
     ) {
       alert("Invalid roll number");
@@ -167,7 +166,12 @@ const StudentForm = () => {
 
     if(!formOpened){
       alert("Form Closed");
-      return
+      return;
+    }
+
+    if (formData.cgpa > 10){
+      alert("Invalid CGPA");
+      return;
     }
 
     if(!formData.program.startsWith('B.Tech')){
@@ -217,7 +221,6 @@ const StudentForm = () => {
             setLoading(false);
             Swal.fire("Submitted!", "Form Submitted Successfully", "success").then((result) => {
               if (result.isConfirmed) {
-                window.location.replace("http://192.168.3.170");
               }
             });
           })
@@ -238,7 +241,6 @@ const StudentForm = () => {
             setLoading(false);
             Swal.fire("Submitted!", "Form Submitted Successfully", "success").then((result) => {
               if (result.isConfirmed) {
-                window.location.replace("http://192.168.3.170");
               }
             });
           })
@@ -249,8 +251,6 @@ const StudentForm = () => {
             console.error("Error submitting student data:", error);
           });
       }
-      setEmail("your email id");
-      delete location.state.email;
     } else {
       alert("Please fill in all the fields :)");
     }
@@ -420,32 +420,23 @@ const StudentForm = () => {
                     CGPA:
                   </label>
                   <input
-                    type="number"
+                    type="text"
+                    pattern="^(?:\d*\.\d{1,2}|\d{1,2})$"
+                    inputMode="numeric"
                     id="cgpa"
                     name="cgpa"
                     value={formData.cgpa}
                     onChange={handleChange}
                     onKeyPress={(e) => {
-                      // Allow only non-negative numbers
-                      if (e.key === "-" || e.key === "e" || e.key === "E") {
+                      const allowedChars = /^[0-9.]$/;
+                      if (!allowedChars.test(e.key)) {
                         e.preventDefault();
-                      }
-                    }}
-                    onInput={(e) => {
-                      // Prevent negative values when using increment/decrement buttons
-                      const value = e.target.value;
-                      if (parseFloat(value) < 0) {
-                        e.target.value = "0";
-                        setFormData((prevFormData) => ({
-                          ...prevFormData,
-                          cgpa: "0",
-                        }));
                       }
                     }}
                     className="w-full p-2 border rounded"
                   />
                 </div>
-      
+
                 {/* Department Preferences */}
                 <div className="mb-4">
                   <h3 className="text-xl font-bold mb-2">Department Preferences</h3>
