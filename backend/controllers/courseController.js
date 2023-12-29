@@ -161,8 +161,8 @@ const addCourse = asyncHandler( async ( req, res ) =>
             // Handle "professor" reference
             if ( newCourse.professor )
             {
-                var profname = newCourse.professor.split( " (" )[ 0 ];
-                var professor = await Professor.findOne( { name: profname } );
+                // var profname = newCourse.professor.split( " (" )[ 0 ];
+                var professor = await Professor.findOne( { name: newCourse.professor } );
                 if ( professor )
                 {
                     newCourse.professor = professor._id;
