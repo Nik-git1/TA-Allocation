@@ -422,7 +422,7 @@ const StudentForm = () => {
                 {/* CGPA */}
                 <div className="mb-4">
                   <label htmlFor="cgpa" className="block text-gray-700 font-bold">
-                    CGPA: (Must have two digits before and after decimal eg: xx.xx)
+                    CGPA: (Must have two digits before and after decimal eg: XX.XX)
                   </label>
                   <input
                     type="text"
