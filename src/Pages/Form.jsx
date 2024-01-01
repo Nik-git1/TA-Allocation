@@ -140,10 +140,15 @@ const StudentForm = () => {
 
     // Additional validation for Roll No length and pattern
     if (
-      (formData.rollNo.length > 8 || formData.rollNo.length < 7) || // Check length
-      !/^(PhD|MT\d|\d{3})/.test(formData.rollNo) // Check pattern
+      (formData.rollNo.length > 8 || formData.rollNo.length < 7) // Check length
+       // Check pattern
     ) {
       alert("Invalid roll number");
+      return;
+    }
+
+    if (!/^(PhD|MT\d|\d{3})/.test(formData.rollNo) && !/^(phd|mt\d|\d{3})/.test(formData.rollNo)){
+      alert("Roll number should start with either phd, mt or with numeric");
       return;
     }
 
@@ -417,11 +422,11 @@ const StudentForm = () => {
                 {/* CGPA */}
                 <div className="mb-4">
                   <label htmlFor="cgpa" className="block text-gray-700 font-bold">
-                    CGPA:
+                    CGPA: (Must have two digits before and after decimal eg: xx.xx)
                   </label>
                   <input
                     type="text"
-                    pattern="^(?:\d*\.\d{1,2}|\d{1,2})$"
+                    pattern="^\d{2}\.\d{2}$"
                     inputMode="numeric"
                     id="cgpa"
                     name="cgpa"
