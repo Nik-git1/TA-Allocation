@@ -152,6 +152,15 @@ const LoginPage = () => {
   };
   const handleSendOTP = async () => {
     if (email) {
+      // if (!email.endsWith("@iiitd.ac.in")) {
+      //   alert("Only IIITD Students allowed");
+      //   return;
+      // }
+      const emailRegex = /^[^\s@]+@iiitd.ac.in$/;
+      if (!emailRegex.test(email)){
+        alert("Only IIITD Students allowed");
+        return;
+      }
       startLoader();
       const response = await fetch(`${host}/api/login/sendotp`, {
         method: "POST",
@@ -330,7 +339,7 @@ const LoginPage = () => {
             )
           ) : (
             <div className="flex flex-col text-black py-2">
-              <label>Enter Otp</label>
+              <label>Enter OTP</label>
               <input
                 className="text-black rounded-lg bg-white mt-2 p-2 border-2 border-gray-500 focus:bg-gray-200 focus:outline-none"
                 type="Otp"
@@ -341,7 +350,10 @@ const LoginPage = () => {
           )}
             {OtpSent ? (
               !loading ? (
-               <p className="text-gray-600 text-xs">Otp sent to {email}</p>
+                <div className="flex">
+                  <p className="text-gray-600 text-xs mr-1">OTP sent to </p>
+                  <p className="text-red-500 text-xs">{email}</p>
+                </div>
               ) : (null)
             ):(null)}
           {!TaOptionSelected ? (

@@ -140,10 +140,15 @@ const StudentForm = () => {
 
     // Additional validation for Roll No length and pattern
     if (
-      (formData.rollNo.length > 8 || formData.rollNo.length < 7) || // Check length
-      !/^(PhD|MT\d|\d{3})/.test(formData.rollNo) // Check pattern
+      (formData.rollNo.length > 8 || formData.rollNo.length < 7) // Check length
+       // Check pattern
     ) {
       alert("Invalid roll number");
+      return;
+    }
+
+    if (!/^(PhD|MT\d|\d{3})/.test(formData.rollNo) && !/^(phd|mt\d|\d{3})/.test(formData.rollNo)){
+      alert("Roll number should start with either phd, mt or with numeric");
       return;
     }
 
@@ -159,7 +164,7 @@ const StudentForm = () => {
       return;
     }
 
-    if (!decryptedEmail.endsWith("iiitd.ac.in")) {
+    if (!decryptedEmail.endsWith("@iiitd.ac.in")) {
       alert("Only IIITD Students allowed");
       return;
     }
@@ -194,9 +199,14 @@ const StudentForm = () => {
 
     const allValuesNotEmpty = Object.values(studentData).every((value) => {
       if (Array.isArray(value)) {
+        console.log("Array");
+        if(value.length === 3){
+          return value.every((pref) => pref !== "");
+        }
         // If the property is an array, check each element in the array
         return value.every((pref) => pref.course !== "" && pref.grade !== "");
       } else if (typeof value === "object" && value !== null) {
+        console.log("Object");
         // If the property is an object (nested object), recursively check its values
         return Object.values(value).every(
           (v) =>
@@ -417,11 +427,11 @@ const StudentForm = () => {
                 {/* CGPA */}
                 <div className="mb-4">
                   <label htmlFor="cgpa" className="block text-gray-700 font-bold">
-                    CGPA:
+                    CGPA: (Must have two digits before and after decimal eg: XX.XX)
                   </label>
                   <input
                     type="text"
-                    pattern="^(?:\d*\.\d{1,2}|\d{1,2})$"
+                    pattern="^\d{2}\.\d{2}$"
                     inputMode="numeric"
                     id="cgpa"
                     name="cgpa"
