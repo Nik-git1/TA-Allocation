@@ -580,7 +580,7 @@ const addStudent = asyncHandler( async ( req, res ) =>
 const updateStudent = asyncHandler( async ( req, res ) =>
 {
   const studentId = req.params.id;
-  var updates = req.body;
+  let updates = req.body;
   try
   {
     // Step 1: Validate that the student exists
