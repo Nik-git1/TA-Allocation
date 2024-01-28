@@ -4,6 +4,7 @@ import test from "./test.json"
 import Swal from 'sweetalert2';
 import { AiOutlineSearch } from 'react-icons/ai';
 import * as XLSX from 'xlsx';
+import ClipLoader from "react-spinners/ClipLoader";
 
 const Tablestudents = () => {
   const { students, updateStudent, deleteStudent } = useContext(StudentContext);
@@ -11,6 +12,7 @@ const Tablestudents = () => {
   const [editingStudentIndex, setEditingStudentIndex] = useState()
   const [editedStudentData, setEditedStudentData] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
+  const [loader, setLoader] = useState(false);
   const customLabels = [
     'Name',
     'Email Id',
@@ -59,13 +61,11 @@ const Tablestudents = () => {
       }
       count++;
     }
-    setEditingStudentIndex(count)
-    // console.log('editing',editingStudentIndex)
-    // setEditedStudentData({ ...students[editingStudentIndex] });
+    setEditingStudentIndex(count);
   };
 
   const handleSave = async (ID) => {
-    
+    setLoader(true);
     if (JSON.stringify(editedStudentData) === JSON.stringify(students[editingStudentIndex])) {
       handleCancel();
       return;
@@ -79,6 +79,7 @@ const Tablestudents = () => {
       }
     }  
     await updateStudent(ID, updatedData);
+    setLoader(false);
     Swal.fire('Updated!', 'Student has been updated', 'success');
     handleCancel();
   };
@@ -116,7 +117,6 @@ const Tablestudents = () => {
 
   useEffect(() => {
     // This code will run after the state has been updated
-    console.log('editing', editingStudentIndex);
     setEditedStudentData({ ...students[editingStudentIndex] });
   }, [editingStudentIndex]);
 
@@ -209,6 +209,17 @@ const filteredStudents = searchQuery === ''? extractedData: extractedData.filter
         ))}
         <td className='border p-2'>
           {isEditing ? (
+            loader ? (
+              <div className="flex justify-center">
+                <ClipLoader
+                  color={"#3dafaa"}
+                  loading={loader}
+                  size={100}
+                  aria-label="Loading Spinner"
+                  data-testid="loader"
+                />
+              </div>
+            ) : (
             <div className='flex'>
               <button
                 className='bg-green-500 text-white px-2 py-1 rounded-md flex items-center mr-1'
@@ -223,6 +234,7 @@ const filteredStudents = searchQuery === ''? extractedData: extractedData.filter
                 Cancel
               </button>
             </div>
+            )
           ) : (
             <div className='flex'>
               <button
