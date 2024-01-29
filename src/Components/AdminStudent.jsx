@@ -1,15 +1,18 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import StudentContext from '../context/StudentContext';
 import test from "./test.json"
 import Swal from 'sweetalert2';
 import { AiOutlineSearch } from 'react-icons/ai';
 import * as XLSX from 'xlsx';
+import ClipLoader from "react-spinners/ClipLoader";
 
 const Tablestudents = () => {
   const { students, updateStudent, deleteStudent } = useContext(StudentContext);
   const [editingRow, setEditingRow] = useState(-1);
+  const [editingStudentIndex, setEditingStudentIndex] = useState()
   const [editedStudentData, setEditedStudentData] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
+  const [loader, setLoader] = useState(false);
   const customLabels = [
     'Name',
     'Email Id',
@@ -44,31 +47,39 @@ const Tablestudents = () => {
     'Non-Prefs 2',
     'Non-Prefs 3',
   ];
-  
+
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
   };
 
-  const handleEdit = (rowIndex) => {
+  const handleEdit = (rowIndex, ID) => {
     setEditingRow(rowIndex);
-    setEditedStudentData({ ...students[rowIndex] });
+    let count = 0;
+    for(const s of students){
+      if (s._id === ID){
+        break;
+      }
+      count++;
+    }
+    setEditingStudentIndex(count);
   };
 
-  const handleSave = async (rowIndex) => {
-if (JSON.stringify(editedStudentData) === JSON.stringify(students[rowIndex])) {
+  const handleSave = async (ID) => {
+    setLoader(true);
+    if (JSON.stringify(editedStudentData) === JSON.stringify(students[editingStudentIndex])) {
       handleCancel();
       return;
     }
-    const originalStudentData = students[rowIndex];
+    const originalStudentData = students[editingStudentIndex];
     const updatedData = {};
-
+  
     for (const key in editedStudentData) {
       if (editedStudentData[key] !== originalStudentData[key]) {
-        updatedData[key] = editedStudentData[key];
+        updatedData[key.toLowerCase()] = editedStudentData[key];
       }
-    }
- 
-    await updateStudent(students[rowIndex]._id, updatedData);
+    }  
+    await updateStudent(ID, updatedData);
+    setLoader(false);
     Swal.fire('Updated!', 'Student has been updated', 'success');
     handleCancel();
   };
@@ -104,6 +115,11 @@ if (JSON.stringify(editedStudentData) === JSON.stringify(students[rowIndex])) {
     setEditedStudentData(updatedData);
   };
 
+  useEffect(() => {
+    // This code will run after the state has been updated
+    setEditedStudentData({ ...students[editingStudentIndex] });
+  }, [editingStudentIndex]);
+
   const extractedData = students.map((student) => {
    const formattedData = customLabels.map((label) => {
       if (label === 'Name') {
@@ -120,7 +136,7 @@ if (JSON.stringify(editedStudentData) === JSON.stringify(students[rowIndex])) {
         return student.department;
       } else if (label === 'TA Type') {
         return student.taType;
-} else if (label === 'TA Status') {
+      } else if (label === 'TA Status') {
         return student.allocationStatus;
       } else if (label === 'TA Allotted') {
         return student.allocatedTA;
@@ -150,7 +166,7 @@ if (JSON.stringify(editedStudentData) === JSON.stringify(students[rowIndex])) {
       }
       return '';
     });
-
+    formattedData.push(student._id);
     return formattedData;
   });
 
@@ -162,6 +178,7 @@ const filteredStudents = searchQuery === ''? extractedData: extractedData.filter
   const renderHeaderRow = () => {
     return (
       <tr className="bg-[#3dafaa] text-white">
+        <th className='border p-2 text-center'>S.No</th>
         {customLabels.map((label, index) => (
           <th className='border p-2 text-center' key={index}>
             {label}
@@ -178,23 +195,35 @@ const filteredStudents = searchQuery === ''? extractedData: extractedData.filter
 
     return (
       <tr className={`text-center ${isEditing ? editingRowClass : ''}`} key={index}>
-        {data.map((item, itemIndex) => (
+        <td className='border p-2'>{index+1}</td>
+        {data.slice(0,30).map((item, itemIndex) => (
           <td className='border p-2' key={itemIndex}>
             {isEditing ? (
               <input
                 type='text'
-                value={editedStudentData[customLabels[itemIndex]] || extractedData[index][itemIndex]}
-                                onChange={(e) => handleInputChange(e, customLabels[itemIndex])}
+                value={editedStudentData[customLabels[itemIndex]] || data[itemIndex]}
+                onChange={(e) => handleInputChange(e, customLabels[itemIndex])}
               />
             ) : item}
           </td>
         ))}
         <td className='border p-2'>
           {isEditing ? (
+            loader ? (
+              <div className="flex justify-center">
+                <ClipLoader
+                  color={"#3dafaa"}
+                  loading={loader}
+                  size={100}
+                  aria-label="Loading Spinner"
+                  data-testid="loader"
+                />
+              </div>
+            ) : (
             <div className='flex'>
               <button
                 className='bg-green-500 text-white px-2 py-1 rounded-md flex items-center mr-1'
-                onClick={() => handleSave(index)}
+                onClick={() => handleSave(data[30])}
               >
                 Save
               </button>
@@ -205,17 +234,18 @@ const filteredStudents = searchQuery === ''? extractedData: extractedData.filter
                 Cancel
               </button>
             </div>
+            )
           ) : (
             <div className='flex'>
               <button
                 className='bg-blue-500 text-white px-2 py-1 rounded-md flex items-center mr-1'
-                onClick={() => handleEdit(index)}
+                onClick={() => handleEdit(index,data[30])}
               >
                 Edit
               </button>
               <button
                 className='bg-red-500 text-white px-2 py-1 rounded-md flex items-center'
-                onClick={() => handleDelete(students[index]._id)}
+                onClick={() => handleDelete(data[30])}
               >
                 Delete
               </button>
