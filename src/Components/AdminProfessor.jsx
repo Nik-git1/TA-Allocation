@@ -8,7 +8,6 @@ const AdminProfessor = () => {
   const { professors, updateProfessor, deleteProfessor } = useContext(ProfContext);
   const [editingRow, setEditingRow] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  console.log(professors)
 
   const handleEdit = (row) => {
     setEditingRow(row);
