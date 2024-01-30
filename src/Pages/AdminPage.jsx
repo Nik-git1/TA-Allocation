@@ -8,6 +8,7 @@ import Department from '../Components/AdminAllocate';
 import CoursePage from '../Components/CoursePage';
 import AdminDashboard from '../Components/AdminDashboard';
 import AdminLog from '../Components/AdminLog';
+import AdminProf from '../Components/AdminProf'
 
 const AdminPage = () => {
   return (
@@ -21,6 +22,7 @@ const AdminPage = () => {
           <Routes>
             <Route element={<AdminStudent />} path="/" />
             <Route element={<AdminCourse />} path="/course" />
+            <Route element={<AdminProf />} path="/professor" />
             <Route element={<Department />} path="/department" />
             <Route element={<AdminDashboard />} path="/dashboard" />
             <Route element={<CoursePage />} path="/department/:courseName" />

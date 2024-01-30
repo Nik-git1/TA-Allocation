@@ -23,7 +23,7 @@ const AdminNav = () => {
   const isLogs = location.pathname === '/admin/log';
   const isDepartment = location.pathname === '/admin/department';
   const isStudentRoute = location.pathname === '/admin/';
-  
+  const isProf = location.pathname === '/admin/professor';
   const [title,setTitle] = useState('Eligible Students of Monsoon 2023');
   const [buttontext, setButtonText] = useState('Student');
 
@@ -31,8 +31,11 @@ const AdminNav = () => {
     if(isCourseRoute){
       setButtonText('Course');
     }
-    else{
+    else if(isStudentRoute){
       setButtonText('Student')
+    }
+    else if(isProf){
+      setButtonText('Professor');
     }
   }
 
