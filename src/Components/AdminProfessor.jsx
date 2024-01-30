@@ -8,12 +8,7 @@ const AdminProfessor = () => {
   const { professors, updateProfessor, deleteProfessor } = useContext(ProfContext);
   const [editingRow, setEditingRow] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-
-  const columnName = {
-   
-    name: 'Name',
-    department: 'Department',
-  };
+  console.log(professors)
 
   const handleEdit = (row) => {
     setEditingRow(row);
@@ -58,13 +53,14 @@ const AdminProfessor = () => {
   const renderRow = (professor, index) => {
     const editingRowClass = 'bg-gray-300';
 
-    const professorContent = Object.keys(professor);
+    const professorContent = Object.keys(professor).slice();
+    professorContent.splice(2, 1);
 
     return (
 
       <tr className={`text-center ${editingRow && editingRow._id === professor._id ? editingRowClass : ''}`} key={index}>
         <td className='border p-2'>{index + 1}</td>
-        {professorContent.map((key, ind) => (
+        {professorContent.slice(1,3).map((key, ind) => (
           <td className='border p-2' key={ind}>
             {editingRow && editingRow._id === professor._id ? (
               <input
@@ -79,7 +75,7 @@ const AdminProfessor = () => {
         ))}
         <td className='border p-2'>
           {editingRow && editingRow._id === professor._id ? (
-            <div className='flex'>
+            <div className='flex justify-center'>
               <button
                 className='bg-green-500 text-white px-2 py-1 rounded-md flex items-center mr-1'
                 onClick={() => handleSave(editingRow)}
@@ -94,7 +90,7 @@ const AdminProfessor = () => {
               </button>
             </div>
           ) : (
-            <div className='flex'>
+            <div className='flex justify-center'>
               <button
                 className='bg-blue-500 text-white px-2 py-1 rounded-md flex items-center mr-1'
                 onClick={() => handleEdit(professor)}
@@ -130,9 +126,8 @@ const AdminProfessor = () => {
         <>
           <tr className="bg-[#3dafaa] text-white">
             <th className='border p-2 text-center'>S.No</th>
-            {professorKeys.map((key, index) => (
-              <th className='border p-2 text-center' key={index}>{columnName[key]}</th>
-            ))}
+            <th className='border p-2 text-center'>Email ID</th>
+            <th className='border p-2 text-center'>Name</th>
             <th className='border p-2 text-center'>Action</th>
           </tr>
         </>
@@ -147,7 +142,6 @@ const AdminProfessor = () => {
 
   return (
     <div>
-        <div> hello there </div>
       <div className='flex mt-4 justify-between'>
         <form className="w-[350px]">
           <div className="relative">

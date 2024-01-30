@@ -61,18 +61,20 @@ const AdminJms = () => {
           {department}
         </td>
         <td className="border p-2">
-          <button
-            className="bg-blue-500 text-white px-2 py-1 rounded-md flex items-center mr-1"
-            onClick={() => handleEditDepartment(department)}
-          >
-            <AiOutlineEdit />
-          </button>
-          <button
-            className="bg-red-500 text-white px-2 py-1 rounded-md flex items-center"
-            onClick={() => handleDeleteDepartment(department)}
-          >
-            <AiOutlineDelete />
-          </button>
+          <div className="flex justify-center">
+            <button
+              className="bg-blue-500 text-white px-2 py-1 rounded-md flex items-center mr-1"
+              onClick={() => handleEditDepartment(department)}
+            >
+              <AiOutlineEdit />Edit
+            </button>
+            <button
+              className="bg-red-500 text-white px-2 py-1 rounded-md flex items-center"
+              onClick={() => handleDeleteDepartment(department)}
+            >
+              <AiOutlineDelete /> Delete
+            </button>
+          </div>
         </td>
       </tr>
     );
