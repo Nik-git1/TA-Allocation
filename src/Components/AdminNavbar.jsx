@@ -27,12 +27,8 @@ const AdminNav = () => {
   const isLogs = location.pathname === '/admin/log';
   const isDepartment = location.pathname === '/admin/department';
   const isStudentRoute = location.pathname === '/admin/';
-<<<<<<< HEAD
-  const isProf = location.pathname === '/admin/professor';
-=======
   const isProfessor = location.pathname === '/admin/professors';
   
->>>>>>> Arnav_new
   const [title,setTitle] = useState('Eligible Students of Monsoon 2023');
   const [buttontext, setButtonText] = useState('Student');
 
@@ -43,11 +39,7 @@ const AdminNav = () => {
     else if(isStudentRoute){
       setButtonText('Student')
     }
-<<<<<<< HEAD
-    else if(isProf){
-=======
     else if(isProfessor){
->>>>>>> Arnav_new
       setButtonText('Professor');
     }
   }
