@@ -6,7 +6,7 @@ import axios from 'axios';
 const CourseState = (props) => {
   const initCourses = [];
   const [courses, setCourses] = useState(initCourses);
-  const [ selectedCourse , setSelectedCourse] = useState();
+  const [ selectedCourse , setSelectedCourse] = useState(); //might be redundant
 
   useEffect(() => {
     getCoursesFromBackend();

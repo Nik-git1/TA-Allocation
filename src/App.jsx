@@ -10,10 +10,11 @@ import CourseState from './context/CourseState';
 import DepartmentState from './context/DepartmentState';
 import AuthState from './context/AuthState';
 import ProtectedRoute from './ProtectedRoutes';
-
+import ProfState from './context/ProfState';
 const App = () => {
   return (
     <AuthState>
+      <ProfState>
       <StudentState>
         <CourseState>
           <DepartmentState>
@@ -51,6 +52,7 @@ const App = () => {
           </DepartmentState>
         </CourseState>
       </StudentState>
+      </ProfState>
     </AuthState>
   );
 };
