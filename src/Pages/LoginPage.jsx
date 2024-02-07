@@ -368,7 +368,7 @@ const LoginPage = () => {
                 />
               </div>
               <div className="flex justify-between text-gray-600 py-2">
-                <p>Forgot Password?</p>
+                <a>Forgot Password?</a>
               </div>
               <button
                 type="submit"

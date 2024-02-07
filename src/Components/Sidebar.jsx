@@ -2,6 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const SideBar = () => {
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    window.location.replace("http://localhost:5173");
+  };
   return (
     <div className='bg-[#3dafaa] h-screen text-center max-w-[95%] mt-4'>
       <div className='flex flex-col'>
@@ -17,9 +21,9 @@ const SideBar = () => {
           Courses
         </Link>
         <hr className='border-t-2' />
-        <Link to="/admin/department" className='bg-[#3dafaa] p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold'>
-          Allocate
-        </Link>
+          <Link to="/admin/department" className='bg-[#3dafaa] p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold'>
+            Allocate
+          </Link> 
         <hr className='border-t-2' />
         <Link to="/admin/professors" className='bg-[#3dafaa] p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold'>
           Professors
@@ -33,7 +37,12 @@ const SideBar = () => {
           Logs
         </Link>
         <hr className='border-t-2' /> */}
-
+        <button className='bg-[#3dafaa] p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold'
+        onClick = {handleLogout}
+        >
+          Logout
+        </button>
+        <hr className='border-t-2' />
 
       </div>
     </div>

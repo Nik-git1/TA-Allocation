@@ -20,14 +20,14 @@ const CoursePage = () => {
   const [availableStudents, setAvailableStudents] = useState([]);
   const [allocated, setAllocated] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentRound, setCurrentRound] = useState(null);
 
   useEffect(() => {
-   
     if (!selectedCourse || selectedCourse.name !== courseName) {
       // Redirect to the professor page if conditions are met
       const currentPath = location.pathname;
       const lastIndexOfSlash = currentPath.lastIndexOf('/');
-      console.log(currentPath)
+
   
       if (lastIndexOfSlash !== -1) {
         // Extract the modified path
@@ -50,14 +50,24 @@ const CoursePage = () => {
         student.allocatedTA !== selectedCourse.name
     );
 
+    const fetchCurrentRound = async () => {
+      try {
+        const response = await fetch("http://localhost:5001/api/rd/currentround");
+        const data = await response.json();
+        setCurrentRound(data.currentRound); 
+      } catch (error) {
+        console.error("Error fetching round status:", error);
+      }
+    };
+
+    fetchCurrentRound();
+
     setAllocatedToThisCourse(studentsAllocatedToCourse);
     setAvailableStudents(studentsAvailableForAllocation);
   }, [selectedCourse, students]);
 
   const handleAllocate = (studentId) => {
     // Make a POST request to allocate the student
-    console.log(user.id)
-    console.log(user.role)
     axios
       .post("http://localhost:5001/api/al/allocation", {
         studentId,
@@ -67,7 +77,6 @@ const CoursePage = () => {
       })
       .then((response) => {
         // Allocation was successful
-        console.log("Student allocated successfully");
 
         // Move the student from available to allocated
         const studentToAllocate = availableStudents.find(
@@ -97,15 +106,14 @@ const CoursePage = () => {
     // Make a POST request to deallocate the student
     axios
       .post("http://localhost:5001/api/al/deallocation", {
-        studentId,
+        studentId: studentId,
         deallocatedByID : user.id,
         deallocatedBy: user.role
 
       })
       .then((response) => {
         // Deallocation was successful
-        console.log("Student deallocated successfully");
-
+        console.log(response)
         // Move the student from allocated to available
         const studentToDeallocate = allocatedToThisCourse.find(
           (student) => student._id === studentId
@@ -167,6 +175,110 @@ const CoursePage = () => {
     allocated ? allocatedToThisCourse : availableStudents
   );
 
+  const renderAllocatedRow = (student) => {
+    let pref = 'NA';
+    let count = 1;
+    for(const i of student.departmentPreferences){
+      if(i.course === selectedCourse.name){
+        pref = 'Department Preference';
+        break;
+      }
+    }
+    for(const i of student.nonDepartmentPreferences){
+      if(pref !== 'NA'){
+        break;
+      }
+      if(i.course === selectedCourse.name){
+        pref = `Preference ${count}`;
+        break;
+      }
+      count++;
+    }
+    return (
+      <tr className="text-center">
+        <td className="border p-2">{student.name}</td>
+        <td className="border p-2">{student.emailId}</td>
+        {currentRound  === 1 ? (null) : (
+          <>
+          <td className="border p-2">{student.cgpa}</td>
+          <td className="border p-2">Grade</td>
+          <td className="border p-2">{pref}</td>
+          </>
+        )}
+        <td className="border p-2">
+          <button
+            className="bg-red-500 text-white px-4 py-2 rounded cursor-pointer font-bold"
+            onClick={() => handleDeallocate(student._id)}
+          >
+            Deallocate
+          </button>
+        </td>
+      </tr>
+    );
+  };
+
+  const renderAvailableRow = (student) => {
+    let department = student.department === selectedCourse.department;
+    let pref = 'NA';
+    let count = 1;
+    for(const i of student.departmentPreferences){
+      if(i.course === selectedCourse.name){
+        pref = 'Department Preference';
+        break;
+      }
+    }
+    for(const i of student.nonDepartmentPreferences){
+      if(pref !== 'NA'){
+        break;
+      }
+      if(i.course === selectedCourse.name){
+        pref = `Preference ${count}`;
+        break;
+      }
+      count++;
+    }
+    return (
+      <>
+      {pref !== 'NA' || department ? (
+        <tr className="text-center">
+          <td className="border p-2">{student.name}</td>
+          <td className="border p-2">{student.emailId}</td>
+          {currentRound  === 1 ? (null) : (
+            <>
+            <td className="border p-2">{student.cgpa}</td>
+            <td className="border p-2">Grade</td>
+            <td className="border p-2">{pref}</td>
+            </>
+          )}
+          <td className="border p-2">
+            <button
+              className={`${
+                student.allocationStatus === 1 &&
+                student.allocatedTA !== selectedCourse.name
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-[#3dafaa] cursor-pointer"
+              } text-white px-4 py-2 rounded font-bold`}
+              onClick={() => handleAllocate(student._id)}
+              disabled={
+                student.allocationStatus === 1 &&
+                student.allocatedTA !== selectedCourse.name
+              }
+            >
+              Allocate
+            </button>
+          </td>
+          <td className="border p-2">
+            {student.allocationStatus === 1 &&
+              student.allocatedTA !== selectedCourse.name
+                ? `${student.allocatedTA}`
+                : "NA"}
+          </td>
+        </tr>
+      ) : (null)}
+      </>
+    );
+  }
+
   return (
     <div>
 
@@ -219,23 +331,23 @@ const CoursePage = () => {
                 <tr className="bg-gray-200 text-gray-700">
                   <th className="border p-2">Name</th>
                   <th className="border p-2">Email</th>
+                  {
+                    currentRound === 1 ? (
+                      null
+                    ) : (
+                      <>
+                      <th className="border p-2">CGPA</th>
+                      <th className="border p-2">Grade</th>
+                      <th className="border p-2">Preference</th>
+                      </>
+                    )
+                  }
                   <th className="border p-2">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredStudents.map((student) => (
-                  <tr key={student._id} className="text-center">
-                    <td className="border p-2">{student.name}</td>
-                    <td className="border p-2">{student.emailId}</td>
-                    <td className="border p-2">
-                      <button
-                        className="bg-red-500 text-white px-4 py-2 rounded cursor-pointer font-bold"
-                        onClick={() => handleDeallocate(student._id)}
-                      >
-                        Deallocate
-                      </button>
-                    </td>
-                  </tr>
+                  renderAllocatedRow(student)
                 ))}
               </tbody>
             </table>
@@ -250,39 +362,24 @@ const CoursePage = () => {
                 <tr className="bg-gray-200 text-gray-700">
                   <th className="border p-2">Name</th>
                   <th className="border p-2">Email</th>
+                  {
+                    currentRound === 1 ? (
+                      null
+                    ) : (
+                      <>
+                      <th className="border p-2">CGPA</th>
+                      <th className="border p-2">Grade</th>
+                      <th className="border p-2">Preference</th>
+                      </>
+                    )
+                  }
                   <th className="border p-2">Action</th>
                   <th className="border p-2">Allocated To</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredStudents.map((student) => (
-                  <tr key={student._id} className="text-center">
-                    <td className="border p-2">{student.name}</td>
-                    <td className="border p-2">{student.emailId}</td>
-                    <td className="border p-2">
-                      <button
-                        className={`${
-                          student.allocationStatus === 1 &&
-                          student.allocatedTA !== selectedCourse.name
-                            ? "bg-gray-400 cursor-not-allowed"
-                            : "bg-[#3dafaa] cursor-pointer"
-                        } text-white px-4 py-2 rounded font-bold`}
-                        onClick={() => handleAllocate(student._id)}
-                        disabled={
-                          student.allocationStatus === 1 &&
-                          student.allocatedTA !== selectedCourse.name
-                        }
-                      >
-                        Allocate
-                      </button>
-                    </td>
-                    <td className="border p-2">
-                      {student.allocationStatus === 1 &&
-                        student.allocatedTA !== selectedCourse.name
-                          ? `${student.allocatedTA}`
-                          : "NA"}
-                    </td>
-                  </tr>
+                  renderAvailableRow(student)
                 ))}
               </tbody>
             </table>
