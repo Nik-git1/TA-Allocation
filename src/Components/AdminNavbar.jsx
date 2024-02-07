@@ -44,7 +44,7 @@ const AdminNav = () => {
     }
   }
 
-  const updateTilte = () => {
+  const updateTitle = () => {
     if(isDepartment || isCourseRoute){
       setTitle("Available Courses");
     }
@@ -54,7 +54,7 @@ const AdminNav = () => {
   }
 
   useEffect(() => {
-    updateTilte();
+    updateTitle();
     updateButton();
   }, [isAllocate,isCourseRoute]);
 

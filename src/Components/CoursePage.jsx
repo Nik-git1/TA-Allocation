@@ -239,7 +239,7 @@ const CoursePage = () => {
     }
     return (
       <>
-      {pref !== 'NA' || department ? (
+      {pref !== 'NA' || department || currentRound !== 2 ? (
         <tr className="text-center">
           <td className="border p-2">{student.name}</td>
           <td className="border p-2">{student.emailId}</td>

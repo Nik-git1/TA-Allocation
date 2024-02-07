@@ -21,9 +21,9 @@ const SideBar = () => {
           Courses
         </Link>
         <hr className='border-t-2' />
-          <Link to="/admin/department" className='bg-[#3dafaa] p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold'>
-            Allocate
-          </Link> 
+        <Link to="/admin/department" className='bg-[#3dafaa] p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold'>
+          Allocate
+        </Link> 
         <hr className='border-t-2' />
         <Link to="/admin/professors" className='bg-[#3dafaa] p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold'>
           Professors
