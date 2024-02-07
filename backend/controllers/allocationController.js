@@ -257,6 +257,7 @@ const deallocate = asyncHandler( async ( req, res ) =>
 
     if ( !student )
     {
+      console.log("Student not found")
       session.abortTransaction();
       // session.endSession();
       return res.status( 404 ).json( { message: "Student not found" } );
@@ -265,6 +266,7 @@ const deallocate = asyncHandler( async ( req, res ) =>
     // Check if the student is allocated
     if ( student.allocationStatus === 0 )
     {
+      console.log("Student not alllocated")
       session.abortTransaction();
       // session.endSession();
       return res.status( 400 ).json( { message: "Student is not allocated" } );
@@ -285,7 +287,7 @@ const deallocate = asyncHandler( async ( req, res ) =>
     student.allocatedTA = null;
     student.allocationStatus = 0;
     await student.save();
-
+    console.log("Deallocated")
     // sendDeallocationDetails(student.emailId, adminEmail, department.emailId, professor.emailId,deallocatedBy );
 
 
@@ -299,6 +301,7 @@ const deallocate = asyncHandler( async ( req, res ) =>
   {
     await session.abortTransaction();
     // session.endSession();
+    console.log("Failed")
     return res
       .status( 500 )
       .json( { message: "Internal server error", error: error.message } );
