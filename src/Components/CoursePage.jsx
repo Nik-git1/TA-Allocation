@@ -18,7 +18,7 @@ const CoursePage = () => {
   const location = useLocation();
   const [allocatedToThisCourse, setAllocatedToThisCourse] = useState([]);
   const [availableStudents, setAvailableStudents] = useState([]);
-  const [allocated, setAllocated] = useState(true);
+  const [allocated, setAllocated] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentRound, setCurrentRound] = useState(null);
 
@@ -142,11 +142,15 @@ const CoursePage = () => {
   }
 
   const handleRenderAllocatedTable = async() => {
-    setAllocated(true);
+    setAllocated(1);
   }
 
   const handleRenderAvailableStudentTable = async() => {
-    setAllocated(false);
+    setAllocated(0);
+  }
+
+  const handleRenderAllocatedToOthersTable = async() => {
+    setAllocated(2);
   }
 
   const handleDownload = () => {
@@ -172,7 +176,7 @@ const CoursePage = () => {
   };
 
   const filteredStudents = filterStudents(
-    allocated ? allocatedToThisCourse : availableStudents
+    allocated === 1 ? allocatedToThisCourse : availableStudents
   );
 
   const renderAllocatedRow = (student) => {
@@ -240,6 +244,7 @@ const CoursePage = () => {
     return (
       <>
       {pref !== 'NA' || department || currentRound !== 2 ? (
+        student.allocationStatus === 0 ? (
         <tr className="text-center">
           <td className="border p-2">{student.name}</td>
           <td className="border p-2">{student.emailId}</td>
@@ -267,128 +272,195 @@ const CoursePage = () => {
               Allocate
             </button>
           </td>
-          <td className="border p-2">
-            {student.allocationStatus === 1 &&
-              student.allocatedTA !== selectedCourse.name
-                ? `${student.allocatedTA}`
-                : "NA"}
-          </td>
         </tr>
-      ) : (null)}
+      ) : (null)) : (null)}
+      </>
+    );
+  }
+
+  const renderAllocatedToOthers = (student) => {
+    
+    let department = student.department === selectedCourse.department;
+    let pref = 'NA';
+    let count = 1;
+    for(const i of student.departmentPreferences){
+      if(i.course === selectedCourse.name){
+        pref = 'Department Preference';
+        break;
+      }
+    }
+    for(const i of student.nonDepartmentPreferences){
+      if(pref !== 'NA'){
+        break;
+      }
+      if(i.course === selectedCourse.name){
+        pref = `Preference ${count}`;
+        break;
+      }
+      count++;
+    }
+    return (
+      <>
+      {
+        student.allocationStatus === 1 && student.allocatedTA !== selectedCourse.name ? (
+          <tr className="text-center">
+          <td className="border p-2">{student.name}</td>
+          <td className="border p-2">{student.emailId}</td>
+          {currentRound  === 1 ? (null) : (
+            <>
+            <td className="border p-2">{student.cgpa}</td>
+            <td className="border p-2">Grade</td>
+            <td className="border p-2">{pref}</td>
+            </>
+          )}
+          <td className="border p-2">
+            {student.allocatedTA}    
+          </td>
+        </tr>          
+        ) : (null)    
+      }
       </>
     );
   }
 
   return (
     <div>
-
       <h1 className="text-3xl font-bold m-5">{selectedCourse.name}</h1>
       <div className="flex justify-between">
         <div className="flex">
           <button
             type="button"
-              className = {`px-4 py-1 rounded-full cursor-pointer border border-[#3dafaa] ${allocated ? 'bg-[#3dafaa] text-white' : 'text-[#3dafaa]'} hover:bg-[#3dafaa] hover:text-white mr-2`}
-              onClick={handleRenderAllocatedTable}
-            >
-              Allocated Student
+            className={`px-4 py-1 rounded-full cursor-pointer border border-[#3dafaa] ${
+              allocated === 0 ? 'bg-[#3dafaa] text-white' : 'text-[#3dafaa]'
+            } hover:bg-[#3dafaa] hover:text-white mr-4`}
+            onClick={handleRenderAvailableStudentTable}
+          >
+            Available Student
           </button>
           <button
             type="button"
-            className = {`px-4 py-1 rounded-full cursor-pointer border border-[#3dafaa] ${!allocated ? 'bg-[#3dafaa] text-white' : 'text-[#3dafaa]'} hover:bg-[#3dafaa] hover:text-white mr-4`}
-              onClick={handleRenderAvailableStudentTable}
-            >
-              Available Student
-          </button>
-          <form className="w-[350px]">
-          <div className="relative mr-2">
-            <input
-              type="search"
-              placeholder='Search Student...'
-              className="w-full p-4 rounded-full h-10 border border-[#3dafaa] outline-none focus:border-[#3dafaa]"
-              value={searchQuery}
-              onChange={handleSearch}
-            />
-            <button className="absolute right-0 top-1/2 -translate-y-1/2 p-3 bg-[#3dafaa] rounded-full search-button">
-              <AiOutlineSearch />
-            </button>
-          </div>
-        </form>
-        </div>
-        <button className="bg-[#3dafaa] text-white px-4 py-2 rounded cursor-pointer font-bold mr-6"
-          onClick={handleDownload}
+            className={`px-4 py-1 rounded-full cursor-pointer border border-[#3dafaa] ${
+              allocated === 1 ? 'bg-[#3dafaa] text-white' : 'text-[#3dafaa]'
+            } hover:bg-[#3dafaa] hover:text-white mr-2`}
+            onClick={handleRenderAllocatedTable}
           >
-            Download
+            Student Allocated to {selectedCourse.acronym}
+          </button>
+          <button
+            type="button"
+            className={`px-4 py-1 rounded-full cursor-pointer border border-[#3dafaa] ${
+              allocated === 2 ? 'bg-[#3dafaa] text-white' : 'text-[#3dafaa]'
+            } hover:bg-[#3dafaa] hover:text-white mr-2`}
+            onClick={handleRenderAllocatedToOthersTable}
+          >
+            Student Allocated to others
+          </button>
+  
+          <form className="w-[350px]">
+            <div className="relative mr-2">
+              <input
+                type="search"
+                placeholder="Search Student..."
+                className="w-full p-4 rounded-full h-10 border border-[#3dafaa] outline-none focus:border-[#3dafaa]"
+                value={searchQuery}
+                onChange={handleSearch}
+              />
+              <button className="absolute right-0 top-1/2 -translate-y-1/2 p-3 bg-[#3dafaa] rounded-full search-button">
+                <AiOutlineSearch />
+              </button>
+            </div>
+          </form>
+        </div>
+        <button
+          className="bg-[#3dafaa] text-white px-4 py-2 rounded cursor-pointer font-bold mr-6"
+          onClick={handleDownload}
+        >
+          Download
         </button>
       </div>
-      {allocated ? (
+  
+      {allocated === 1 && (
         <div className="m-5">
-          <h2 className="text-2xl font-bold mb-2">
-            Allocated Students to This Course
-          </h2>
-          <div  className="overflow-auto max-h-[65vh]">
+          <h2 className="text-2xl font-bold mb-2">Allocated Students to {courseName}</h2>
+          <div className="overflow-auto max-h-[65vh]">
             <table className="w-full border-collapse border">
               <thead>
                 <tr className="bg-gray-200 text-gray-700">
                   <th className="border p-2">Name</th>
                   <th className="border p-2">Email</th>
-                  {
-                    currentRound === 1 ? (
-                      null
-                    ) : (
-                      <>
+                  {currentRound !== 1 && (
+                    <>
                       <th className="border p-2">CGPA</th>
                       <th className="border p-2">Grade</th>
                       <th className="border p-2">Preference</th>
-                      </>
-                    )
-                  }
+                    </>
+                  )}
                   <th className="border p-2">Action</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredStudents.map((student) => (
-                  renderAllocatedRow(student)
-                ))}
+                {filteredStudents.map((student) => renderAllocatedRow(student))}
               </tbody>
             </table>
           </div>
         </div>
-      ) : (
+      )}
+  
+      {allocated === 0 && (
         <div className="m-5">
           <h2 className="text-2xl font-bold mb-2">Available Students</h2>
-          <div  className="overflow-auto max-h-[65vh]">
+          <div className="overflow-auto max-h-[65vh]">
             <table className="w-full border-collapse border">
-              <thead className='sticky top-0'>
+              <thead className="sticky top-0">
                 <tr className="bg-gray-200 text-gray-700">
                   <th className="border p-2">Name</th>
                   <th className="border p-2">Email</th>
-                  {
-                    currentRound === 1 ? (
-                      null
-                    ) : (
-                      <>
+                  {currentRound !== 1 && (
+                    <>
                       <th className="border p-2">CGPA</th>
                       <th className="border p-2">Grade</th>
                       <th className="border p-2">Preference</th>
-                      </>
-                    )
-                  }
+                    </>
+                  )}
                   <th className="border p-2">Action</th>
-                  <th className="border p-2">Allocated To</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredStudents.map((student) => (
-                  renderAvailableRow(student)
-                ))}
+                {filteredStudents.map((student) => renderAvailableRow(student))}
               </tbody>
             </table>
           </div>
         </div>
       )}
 
+      {allocated === 2 && (
+        <div className="m-5">
+          <h2 className="text-2xl font-bold mb-2">Allocated to others courses</h2>
+          <div className="overflow-auto max-h-[65vh]">
+            <table className="w-full border-collapse border">
+              <thead className="sticky top-0">
+                <tr className="bg-gray-200 text-gray-700">
+                  <th className="border p-2">Name</th>
+                  <th className="border p-2">Email</th>
+                  {currentRound !== 1 && (
+                    <>
+                      <th className="border p-2">CGPA</th>
+                      <th className="border p-2">Grade</th>
+                      <th className="border p-2">Preference</th>
+                    </>
+                  )}
+                  <th className="border p-2">Allocated To</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredStudents.map((student) => renderAllocatedToOthers(student))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
-  );
+  );  
 };
 
 export default CoursePage;
