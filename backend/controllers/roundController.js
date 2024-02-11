@@ -19,7 +19,6 @@ const resetRounds = asyncHandler(async (req, res) => {
 // @access public
 const getCurrentRound = asyncHandler(async (req, res) => {
     
-    console.log("get req")
     try {
       // Find an ongoing round with no endDate
       const ongoingRound = await Round.findOne({

@@ -23,7 +23,7 @@ const Dashboard = () => {
       .then((response) => response.json())
       .then((data) => {
         setCurrentRound(data.currentRound);
-
+        console.log("Round: ",currentRound)
       })
       .catch((error) => console.error("Error fetching round status: " + error));
   };
@@ -31,27 +31,53 @@ const Dashboard = () => {
   const startNewRound = () => {
     // Send a POST request to start a new round
     fetch("http://localhost:5001/api/rd/startround", { method: "POST" })
-      .then((response) => response.json())
+      .then((response) => {
+        if (response.status === 201) {
+          return response.json();
+        } if (response.status === 400) {
+          alert('An ongoing round already exists.')
+          return response.json();
+        }
+        else{
+          alert('Internal server error')
+          return response.json();
+        }
+      })
       .then((data) => {
         // Update the current round status with the new round number
         setCurrentRound(data.currentRound);
         getRound();
       })
-      .catch((error) => console.error("Error starting a new round: " + error));
-  };
+      .catch((error) => { 
+        console.error("Error starting a new round: " + error);
+      });
+};
 
   const endCurrentRound = () => {
     // Send a POST request to end the current round
     fetch("http://localhost:5001/api/rd/endround", { method: "POST" })
-      .then((response) => response.json())
+      .then((response) => {
+        if (response.status === 200){
+          return response.json()
+        }
+        if (response.status === 400){
+          alert('No ongoing round found')
+          return response.json()
+        }
+        else {
+          alert('Internal server error')
+          return
+        }
+      })
       .then(() => {
         // Update the current round status to indicate no ongoing round
         setCurrentRound(null);
         getRound();
       })
-      .catch((error) =>
+      .catch((error) => {
+        alert(error.message);
         console.error("Error ending the current round: " + error)
-      );
+      });
   };
 
   const resetRounds = () => {
@@ -135,6 +161,26 @@ const Dashboard = () => {
         <div className="font-bold text-2xl">
           {formOpened ? "Form is opened" : "Form is closed"}
         </div>
+      </div>
+
+      <div className="flex">
+        <p className="font-bold text-2xl">Ongoing Round:</p>
+        <p className="text-2xl ml-2">{currentRound === null ? 'No Round is going on' : currentRound}</p>
+      </div>
+
+      <div className="flex mt-3">
+        <button
+          onClick={endCurrentRound}
+          className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2"
+        >
+          End Current Round
+        </button>
+        <button
+          onClick={startNewRound}
+          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+        >
+          Start new Round
+        </button>
       </div>
 
       {/* Include your DashboardCardList component here */}
