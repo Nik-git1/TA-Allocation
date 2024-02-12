@@ -108,7 +108,8 @@ const CoursePage = () => {
       .post("http://localhost:5001/api/al/deallocation", {
         studentId: studentId,
         deallocatedByID : user.id,
-        deallocatedBy: user.role
+        deallocatedBy: user.role,
+        courseId: selectedCourse._id,
 
       })
       .then((response) => {

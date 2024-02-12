@@ -5,7 +5,6 @@ const AdminLog = () => {
   const { log } = useContext(StudentContext);
   const [logData, setLogData] = useState(log); // Store log data in local state
 
-  // Update local state when log data changes
   useEffect(() => {
     setLogData(log);
   }, [log]);
