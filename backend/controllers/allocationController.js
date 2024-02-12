@@ -177,7 +177,7 @@ const allocate = asyncHandler(async (req, res) => {
           student: studentId,
           userEmailId: allocatedByID,
           userRole: allocatedBy, // Assuming admin for now, change this accordingly
-          action: 'allocated',
+          action: 'Allocated',
           course: courseId,
       });
 
@@ -255,7 +255,7 @@ const deallocate = asyncHandler( async ( req, res ) =>
       student: studentId,
       userEmailId: deallocatedByID,
       userRole: deallocatedBy, // Assuming admin for now, change this accordingly
-      action: 'deallocated',
+      action: 'Deallocated',
       course: courseId,
   });
 
@@ -328,4 +328,13 @@ const freezeAllocation = asyncHandler( async ( req, res ) =>
   }
 } );
 
-module.exports = { allocate, deallocate, freezeAllocation };
+const getLogs = asyncHandler(async (req, res) => {
+  try {
+    const logs = await LogEntry.find().populate('student').populate('course').exec();
+    res.status(200).json(logs);
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+});
+
+module.exports = { allocate, deallocate, freezeAllocation, getLogs };

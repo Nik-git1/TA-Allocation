@@ -6,7 +6,7 @@ import axios from 'axios';
 const StudentState = (props) => {
   const initStudents = [];
   const [students, setStudents] = useState(initStudents);
-
+  const [logs, setLogs] = useState([]);
   const updateStudent = async (studentId, updatedData) => {
     try {
       const response = await axios.put(`http://localhost:5001/api/student/${studentId}`, updatedData);
@@ -90,13 +90,27 @@ const StudentState = (props) => {
     }
   };
 
+  const getLogsFromBackend = () => {
+    axios
+      .get('http://localhost:5001/api/al/logs') // Replace with your actual API endpoint for logs
+      .then((response) => {
+        const logsFromBackend = response.data;
+        setLogs(logsFromBackend);
+      })
+      .catch((error) => {
+        console.error('Error fetching logs from the backend:', error);
+      });
+  };
+
   useEffect(() => {
     getStudentsFromBackend();
+    getLogsFromBackend(); // Fetch logs when the component mounts
   }, []);
+
 
   return (
     <StudentContext.Provider
-      value={{ students, getStudentsFromFile, updateStudent,deleteStudent,getStudentsFromBackend  }}
+      value={{ students,logs, getStudentsFromFile, updateStudent,deleteStudent,getStudentsFromBackend  }}
     >
       {props.children}
     </StudentContext.Provider>
