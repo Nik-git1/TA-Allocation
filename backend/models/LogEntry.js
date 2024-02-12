@@ -16,7 +16,7 @@ const logEntrySchema = new mongoose.Schema({
     },
     action: {
         type: String,
-        enum: ['allocated', 'deallocated'],
+        enum: ['Allocated', 'Deallocated'],
         required: true,
     },
     timestamp: {
