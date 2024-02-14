@@ -49,32 +49,37 @@ const StudentForm = () => {
     department: studentExistDepartment,
     taType: studentExistData.taType,
     cgpa: studentExistData.cgpa,
-    departmentPreferences: studentExistData.departmentPreferences.length === 0
-      ? [
-          { course: "", grade: "" },
-          { course: "", grade: "" },
-        ]
-      : studentExistData.departmentPreferences,
-    nonDepartmentPreferences: studentExistData.nonDepartmentPreferences.length === 0
-    ? [
-      { course: "", grade: "" },
-      { course: "", grade: "" },
-      { course: "", grade: "" },
-      { course: "", grade: "" },
-      { course: "", grade: "" },
-      { course: "", grade: "" },
-      { course: "", grade: "" },
-      { course: "", grade: "" },
-    ]
-    : studentExistData.nonDepartmentPreferences,
-    nonPreferences: studentExistData.nonPreferences.length === 0
-    ? ["", "", ""]
-    : studentExistData.nonPreferences,
+    departmentPreferences:
+      studentExistData.departmentPreferences.length === 0
+        ? [
+            { course: "", grade: "" },
+            { course: "", grade: "" },
+          ]
+        : studentExistData.departmentPreferences,
+    nonDepartmentPreferences:
+      studentExistData.nonDepartmentPreferences.length === 0
+        ? [
+            { course: "", grade: "" },
+            { course: "", grade: "" },
+            { course: "", grade: "" },
+            { course: "", grade: "" },
+            { course: "", grade: "" },
+            { course: "", grade: "" },
+            { course: "", grade: "" },
+            { course: "", grade: "" },
+          ]
+        : studentExistData.nonDepartmentPreferences,
+    nonPreferences:
+      studentExistData.nonPreferences.length === 0
+        ? ["", "", ""]
+        : studentExistData.nonPreferences,
   });
 
   const [courses, setCourses] = useState([]);
   const [selectedCourses, setSelectedCourses] = useState([]);
-  const [selectedDepartment, setSelectedDepartment] = useState(formData.department);
+  const [selectedDepartment, setSelectedDepartment] = useState(
+    formData.department
+  );
 
   useEffect(() => {
     // Fetch course data from the backend API
@@ -87,7 +92,7 @@ const StudentForm = () => {
         console.error("Error fetching courses:", error);
       });
 
-      axios
+    axios
       .get("http://localhost:5001/api/form")
       .then((response) => {
         setFormOpened(response.data.state);
@@ -140,22 +145,24 @@ const StudentForm = () => {
 
     // Additional validation for Roll No length and pattern
     if (
-      (formData.rollNo.length > 8 || formData.rollNo.length < 7) // Check length
-       // Check pattern
+      formData.rollNo.length > 8 ||
+      formData.rollNo.length < 7 // Check length
+      // Check pattern
     ) {
       alert("Invalid roll number");
       return;
     }
 
-    if (!/^(PhD|MT\d|\d{3})/.test(formData.rollNo) && !/^(phd|mt\d|\d{3})/.test(formData.rollNo)){
+    if (
+      !/^(PhD|MT\d|\d{3})/.test(formData.rollNo) &&
+      !/^(phd|mt\d|\d{3})/.test(formData.rollNo)
+    ) {
       alert("Roll number should start with either phd, mt or with numeric");
       return;
     }
 
     if (email === "your email id") {
-      alert(
-        "please visit login page and generate valid otp for your email Id"
-      );
+      alert("please visit login page and generate valid otp for your email Id");
       return;
     }
 
@@ -169,18 +176,18 @@ const StudentForm = () => {
       return;
     }
 
-    if(!formOpened){
+    if (!formOpened) {
       alert("Form Closed");
       return;
     }
 
-    if (formData.cgpa > 10){
+    if (formData.cgpa > 10) {
       alert("Invalid CGPA");
       return;
     }
 
-    if(!formData.program.startsWith('B.Tech')){
-      formData.taType = 'Paid';
+    if (!formData.program.startsWith("B.Tech")) {
+      formData.taType = "Paid";
     }
 
     // Create a JSON object from your form data
@@ -200,7 +207,7 @@ const StudentForm = () => {
     const allValuesNotEmpty = Object.values(studentData).every((value) => {
       if (Array.isArray(value)) {
         console.log("Array");
-        if(value.length === 3){
+        if (value.length === 3) {
           return value.every((pref) => pref !== "");
         }
         // If the property is an array, check each element in the array
@@ -229,7 +236,11 @@ const StudentForm = () => {
           .post("http://localhost:5001/api/student", studentData)
           .then((response) => {
             setLoading(false);
-            Swal.fire("Submitted!", "Form Submitted Successfully", "success").then((result) => {
+            Swal.fire(
+              "Submitted!",
+              "Form Submitted Successfully",
+              "success"
+            ).then((result) => {
               if (result.isConfirmed) {
               }
             });
@@ -249,7 +260,11 @@ const StudentForm = () => {
           )
           .then((response) => {
             setLoading(false);
-            Swal.fire("Submitted!", "Form Submitted Successfully", "success").then((result) => {
+            Swal.fire(
+              "Submitted!",
+              "Form Submitted Successfully",
+              "success"
+            ).then((result) => {
               if (result.isConfirmed) {
               }
             });
@@ -273,8 +288,7 @@ const StudentForm = () => {
 
   return (
     <>
-    {
-      loading ? (
+      {loading ? (
         <div className="flex justify-center items-center">
           <ClipLoader
             color={"#3dafaa"}
@@ -284,347 +298,379 @@ const StudentForm = () => {
             data-testid="loader"
           />
         </div>
-      )
-      : (
-        formOpened ? (  
-          <div className="flex justify-center items-center relative">
-            <img
-              src="./images/iiitdrndblock2.jpeg"
-              className="h-full w-auto object-contain filter blur-sm absolute inset-0"
-              alt="Sample image"
-            />
-            <div className=" mx-auto z-10 bg-white px-4 pb-4 border-4 mt-4 border-[#3dafaa] shadow-xl max-h-[97vh] overflow-auto">
-              <div className="flex justify-center sticky top-0 bg-white">
-                <h2 className="text-3xl font-bold mb-2  text-[#3dafaa]">TA Form</h2>
+      ) : formOpened ? (
+        <div className="flex justify-center items-center relative">
+          <img
+            src="./images/iiitdrndblock2.jpeg"
+            className="h-full w-auto object-contain filter blur-sm absolute inset-0"
+            alt="Sample image"
+          />
+          <div className=" mx-auto z-10 bg-white px-4 pb-4 border-4 mt-4 border-[#3dafaa] shadow-xl max-h-[97vh] overflow-auto">
+            <div className="flex justify-center sticky top-0 bg-white">
+              <h2 className="text-3xl font-bold mb-2  text-[#3dafaa]">
+                TA Form
+              </h2>
+            </div>
+            <h2 className="text-2xl font-bold mb-2 mt-4">
+              Student Information
+            </h2>
+            <form onSubmit={handleSubmit}>
+              {/* Email Id */}
+              <div className="mb-4">
+                <label
+                  htmlFor="emailId"
+                  className="block text-gray-700 font-bold"
+                >
+                  Email Id:
+                </label>
+                <input
+                  type="email"
+                  id="emailId"
+                  name="emailId"
+                  value={email}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded"
+                  disabled // Make the input disabled
+                />
               </div>
-              <h2 className="text-2xl font-bold mb-2 mt-4">Student Information</h2>
-              <form onSubmit={handleSubmit}>
-                {/* Email Id */}
-                <div className="mb-4">
-                  <label htmlFor="emailId" className="block text-gray-700 font-bold">
-                    Email Id:
-                  </label>
-                  <input
-                    type="email"
-                    id="emailId"
-                    name="emailId"
-                    value={email}
-                    onChange={handleChange}
-                    className="w-full p-2 border rounded"
-                    disabled // Make the input disabled
-                  />
-                </div>
-      
-                {/* Name */}
-                <div className="mb-4">
-                  <label htmlFor="name" className="block text-gray-700 font-bold">
-                    Name:
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="w-full p-2 border rounded"
-                  />
-                </div>
-      
-                {/* Roll No */}
-                <div className="mb-4">
-                  <label htmlFor="rollNo" className="block text-gray-700 font-bold">
-                    Roll No:
-                  </label>
-                  <input
-                    type="text"
-                    id="rollNo"
-                    name="rollNo"
-                    value={formData.rollNo}
-                    onChange={handleChange}
-                    className="w-full p-2 border rounded"
-                  />
-                </div>
-      
-                {/* Program */}
-                <div className="mb-4">
-                  <label htmlFor="program" className="block text-gray-700 font-bold">
-                    Program:
-                  </label>
-                  <select
-                    id="program"
-                    name="program"
-                    value={formData.program}
-                    onChange={handleChange}
-                    className="w-full p-2 border rounded"
-                  >
-                    <option value="">Select Program</option>
-                    <option value="B.Tech 3rd Year">B.Tech 3rd Year</option>
-                    <option value="B.Tech 4th Year">B.Tech 4th Year</option>
-                    <option value="M.Tech 1st Year">M.Tech 1st Year</option>
-                    <option value="M.Tech 2nd Year">M.Tech 2nd Year</option>
-                    <option value="PhD">PhD</option>
-                  </select>
-                </div>
-      
-                {/* Department */}
-                <div className="mb-4">
-                  <label
-                    htmlFor="department"
-                    className="block text-gray-700 font-bold"
-                  >
-                    Department:
-                  </label>
-                  <select
-                    id="department"
-                    name="department"
-                    value={formData.department}
-                    onChange={(e) => {
-                      handleChange(e); // Call the general handleChange function
-                      handleDepartmentChange(e); // Call the specific handleDepartmentChange function
-                    }}
-                    className="w-full p-2 border rounded"
-                  >
-                    <option value="">Select Department</option>
-                    <option value="MATHS">Maths</option>
-                    <option value="CSE">CSE</option>
-                    <option value="ECE">ECE</option>
-                    <option value="HCD">HCD</option>
-                    <option value="CB">CB</option>
-                    <option value="SSH">SSH</option>
-                    {/* Add more department options here */}
-                  </select>
-                </div>
-      
-                {/* TA Type */}
-                <div className="mb-4">
-                  <label htmlFor="taType" className="block text-gray-700 font-bold">
-                    TA Type:
-                  </label>
-                  <select
-                    id="taType"
-                    name="taType"
-                    value={formData.taType}
-                    onChange={handleChange}
-                    className="w-full p-2 border rounded"
-                    disabled={!formData.program.startsWith('B.Tech')}
-                  >
-                    {/* Rendering options based on condition */}
-                    {formData.program.startsWith('B.Tech') ? (
-                      <>
-                        <option value="">Select TA Type</option>
-                        <option value="Credit">Credit</option>
-                        <option value="Paid">Paid</option>
-                        <option value="Voluntary">Voluntary</option>
-                      </>
-                    ) : (
-                      <>
-                        <option value="Paid">Paid</option>
-                      </>
-                    )}
-                  </select>
-                </div>
-      
-                {/* CGPA */}
-                <div className="mb-4">
-                  <label htmlFor="cgpa" className="block text-gray-700 font-bold">
-                    CGPA: (Must have two digits before and after decimal eg: XX.XX)
-                  </label>
-                  <input
-                    type="text"
-                    pattern="^\d{2}\.\d{2}$"
-                    inputMode="numeric"
-                    id="cgpa"
-                    name="cgpa"
-                    value={formData.cgpa}
-                    onChange={handleChange}
-                    onKeyPress={(e) => {
-                      const allowedChars = /^[0-9.]$/;
-                      if (!allowedChars.test(e.key)) {
-                        e.preventDefault();
-                      }
-                    }}
-                    className="w-full p-2 border rounded"
-                  />
-                </div>
 
-                {/* Department Preferences */}
-                <div className="mb-4">
-                  <h3 className="text-xl font-bold mb-2">Department Preferences</h3>
-                  {formData.departmentPreferences.map((pref, index) => (
-                    <div key={index} className="mb-4">
-                      <label
-                        htmlFor="course"
-                        className="block text-gray-700 font-bold"
-                      >
-                        Preference {index + 1}:
-                      </label>
-                      <select
-                        id={`deptCourse-${index}`}
-                        name="course"
-                        value={pref.course}
-                        onChange={(e) =>
-                          handleChange(e, index, "departmentPreferences")
-                        }
-                        className="w-full p-2 border rounded"
-                      >
-                        <option key="default" value="">
-                          Select Department Course
-                        </option>
-                        {/* Filter courses based on the selected department */}
-                        {courses
-                          .filter(
-                            (course) => course.department === selectedDepartment
-                          )
-                          .map((filteredCourse) => (
-                            <option
-                              key={filteredCourse._id}
-                              value={filteredCourse._id}
-                              disabled={selectedCourses.includes(filteredCourse._id)}
-                            >
-                              {`${filteredCourse.code} \u00a0\u00a0${filteredCourse.name}-(${filteredCourse.acronym}) \u00a0\u00a0\u00a0\u00a0${filteredCourse.professor}`}
-                            </option>
-                          ))}
-                      </select>
-                      <label
-                        htmlFor={`deptGrade-${index}`}
-                        className="block text-gray-700 font-bold mt-2"
-                      >
-                        Grade:
-                      </label>
-                      <select
-                        id={`deptGrade-${index}`}
-                        value={pref.grade}
-                        name="grade"
-                        onChange={(e) =>
-                          handleChange(e, index, "departmentPreferences")
-                        }
-                        className="w-full p-2 border rounded"
-                      >
-                        <option value="">Select Grade</option>
-                        <option value="A+(10)">A+(10)</option>
-                        <option value="A(10)">A(10)</option>
-                        <option value="A-(9)">A-(9)</option>
-                        <option value="B(8)">B(8)</option>
-                        <option value="B-(7)">B-(7)</option>
-                        <option value="C(6)">C(6)</option>
-                        <option value="C-(5)">C-(5)</option>
-                        <option value="D(4)">D(4)</option>
-                        <option valie="Course Not Done"> Course Not Done </option>
-                      </select>
-                    </div>
-                  ))}
-                </div>
-      
-                {/* Non-Department Preferences */}
-                <div className="mb-4">
-                  <h3 className="text-xl font-bold mb-2">
-                    Other Preferences
-                  </h3>
-                  {formData.nonDepartmentPreferences.map((pref, index) => (
-                    <div key={index} className="mb-4">
-                      <label
-                        htmlFor="course"
-                        className="block text-gray-700 font-bold"
-                      >
-                        Preference {index + 1}:
-                      </label>
-                      <select
-                        id={`nonDeptCourse-${index}`}
-                        value={pref.course}
-                        name="course"
-                        onChange={(e) =>
-                          handleChange(e, index, "nonDepartmentPreferences")
-                        }
-                        className="w-full p-2 border rounded"
-                      >
-                        <option value="">Select Preferred Course</option>
-                        {/* Filter courses based on the selected department */}
-                        {courses.map((filteredCourse) => (
-                            <option
-                              key={filteredCourse._id}
-                              value={filteredCourse._id}
-                              disabled={selectedCourses.includes(filteredCourse._id)}
-                              // className="font-bold"
-                            >
-                              {`${filteredCourse.code} \u00a0\u00a0${filteredCourse.name}-(${filteredCourse.acronym}) \u00a0\u00a0\u00a0\u00a0${filteredCourse.professor}`}
-                            </option>
-                          ))}
-                      </select>
-                      <label
-                        htmlFor={`nonDeptGrade-${index}`}
-                        className="block text-gray-700 font-bold mt-2"
-                      >
-                        Grade:
-                      </label>
-                      <select
-                        id={`nonDeptGrade-${index}`}
-                        value={pref.grade}
-                        name="grade"
-                        onChange={(e) =>
-                          handleChange(e, index, "nonDepartmentPreferences")
-                        }
-                        className="w-full p-2 border rounded"
-                      >
-                        <option value="">Select Grade</option>
-                        <option value="A+(10)">A+(10)</option>
-                        <option value="A(10)">A(10)</option>
-                        <option value="A-(9)">A-(9)</option>
-                        <option value="B(8)">B(8)</option>
-                        <option value="B-(7)">B-(7)</option>
-                        <option value="C(6)">C(6)</option>
-                        <option value="C-(5)">C-(5)</option>
-                        <option value="D(4)">D(4)</option>
-                        <option valie="Course Not Done"> Course Not Done </option>
-                        {/* Add more grade options here */}
-                      </select>
-                    </div>
-                  ))}
-                </div>
-      
-                {/* Non-Preferences */}
-                <div>
+              {/* Name */}
+              <div className="mb-4">
+                <label htmlFor="name" className="block text-gray-700 font-bold">
+                  Name:
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+
+              {/* Roll No */}
+              <div className="mb-4">
+                <label
+                  htmlFor="rollNo"
+                  className="block text-gray-700 font-bold"
+                >
+                  Roll No:
+                </label>
+                <input
+                  type="text"
+                  id="rollNo"
+                  name="rollNo"
+                  value={formData.rollNo}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+
+              {/* Program */}
+              <div className="mb-4">
+                <label
+                  htmlFor="program"
+                  className="block text-gray-700 font-bold"
+                >
+                  Program:
+                </label>
+                <select
+                  id="program"
+                  name="program"
+                  value={formData.program}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded"
+                >
+                  <option value="">Select Program</option>
+                  <option value="B.Tech 3rd Year">B.Tech 3rd Year</option>
+                  <option value="B.Tech 4th Year">B.Tech 4th Year</option>
+                  <option value="M.Tech 1st Year">M.Tech 1st Year</option>
+                  <option value="M.Tech 2nd Year">M.Tech 2nd Year</option>
+                  <option value="PhD">PhD</option>
+                </select>
+              </div>
+
+              {/* Department */}
+              <div className="mb-4">
+                <label
+                  htmlFor="department"
+                  className="block text-gray-700 font-bold"
+                >
+                  Department:
+                </label>
+                <select
+                  id="department"
+                  name="department"
+                  value={formData.department}
+                  onChange={(e) => {
+                    handleChange(e); // Call the general handleChange function
+                    handleDepartmentChange(e); // Call the specific handleDepartmentChange function
+                  }}
+                  className="w-full p-2 border rounded"
+                >
+                  <option value="">Select Department</option>
+                  <option value="MATHS">Maths</option>
+                  <option value="CSE">CSE</option>
+                  <option value="ECE">ECE</option>
+                  <option value="HCD">HCD</option>
+                  <option value="CB">CB</option>
+                  <option value="SSH">SSH</option>
+                  {/* Add more department options here */}
+                </select>
+              </div>
+
+              {/* TA Type */}
+              <div className="mb-4">
+                <label
+                  htmlFor="taType"
+                  className="block text-gray-700 font-bold"
+                >
+                  TA Type:
+                </label>
+                <select
+                  id="taType"
+                  name="taType"
+                  value={formData.taType}
+                  onChange={handleChange}
+                  className="w-full p-2 border rounded"
+                  disabled={!formData.program.startsWith("B.Tech")}
+                >
+                  {/* Rendering options based on condition */}
+                  {formData.program.startsWith("B.Tech") ? (
+                    <>
+                      <option value="">Select TA Type</option>
+                      <option value="Credit">Credit</option>
+                      <option value="Paid">Paid</option>
+                      <option value="Voluntary">Voluntary</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="Paid">Paid</option>
+                    </>
+                  )}
+                </select>
+              </div>
+
+              {/* CGPA */}
+              <div className="mb-4">
+                <label htmlFor="cgpa" className="block text-gray-700 font-bold">
+                  CGPA: (Must have two digits before and after decimal eg:
+                  XX.XX)
+                </label>
+                <input
+                  type="text"
+                  pattern="^\d{2}\.\d{2}$"
+                  inputMode="numeric"
+                  id="cgpa"
+                  name="cgpa"
+                  value={formData.cgpa}
+                  onChange={handleChange}
+                  onKeyPress={(e) => {
+                    const allowedChars = /^[0-9.]$/;
+                    if (!allowedChars.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+
+              {/* Department Preferences */}
+
+              {/* Department Preferences */}
+              <div className="mb-4">
                 <h3 className="text-xl font-bold mb-2">
-                    Non-Preferences
-                  </h3>
-                  {formData.nonPreferences.map((course, index) => (
-                    <div key={index}>
-                      <select
-                        value={course}
-                        onChange={(e) => handleChange(e, index, "nonPreferences")}
-                        className="p-2 border rounded-md mb-2"
-                      >
-                        <option value="">Select Non-Preference Course</option>
-                        {courses.map((filteredCourse) => (
+                  Department Preferences
+                </h3>
+                {formData.departmentPreferences.map((pref, index) => (
+                  <div key={index} className="mb-4">
+                    <label
+                      htmlFor="course"
+                      className="block text-gray-700 font-bold"
+                    >
+                      Preference {index + 1}:
+                    </label>
+                    <select
+                      id={`deptCourse-${index}`}
+                      name="course"
+                      value={pref.course}
+                      onChange={(e) =>
+                        handleChange(e, index, "departmentPreferences")
+                      }
+                      className="w-full p-2 border rounded"
+                    >
+                      <option key="default" value="">
+                        Select Department Course
+                      </option>
+                      {/* Render the "Any Course" option */}
+                      <option value="any">
+                        Any Course
+                      </option>
+                      {/* Filter courses based on the selected department */}
+                      {courses
+                        .filter(
+                          (course) =>
+                            course.department === selectedDepartment &&
+                            course.code !== "CSE100" // Exclude "Any Course" from the list
+                        )
+                        .sort((a, b) => a.acronym.localeCompare(b.acronym)) // Sort courses by acronym
+                        .map((filteredCourse) => (
                           <option
                             key={filteredCourse._id}
                             value={filteredCourse._id}
-                            disabled={selectedCourses.includes(filteredCourse._id)}
+                            disabled={selectedCourses.includes(
+                              filteredCourse._id
+                            )}
                           >
                             {`${filteredCourse.code} \u00a0\u00a0${filteredCourse.name}-(${filteredCourse.acronym}) \u00a0\u00a0\u00a0\u00a0${filteredCourse.professor}`}
                           </option>
                         ))}
-                      </select>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex justify-end">
-                  <button
-                    type="submit"
-                    className="bg-[#3dafaa] text-white p-2 rounded"
-                  >
-                    Submit
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        ) : (
-          <div className="flex justify-center items-center">
-                <h2 className="text-8xl font-bold mb-2  text-[#3dafaa]">Form Closed</h2>
+                    </select>
+                    <label
+                      htmlFor={`deptGrade-${index}`}
+                      className="block text-gray-700 font-bold mt-2"
+                    >
+                      Grade:
+                    </label>
+                    <select
+                      id={`deptGrade-${index}`}
+                      value={pref.grade}
+                      name="grade"
+                      onChange={(e) =>
+                        handleChange(e, index, "departmentPreferences")
+                      }
+                      className="w-full p-2 border rounded"
+                    >
+                      <option value="">Select Grade</option>
+                      <option value="A+(10)">A+(10)</option>
+                      <option value="A(10)">A(10)</option>
+                      <option value="A-(9)">A-(9)</option>
+                      <option value="B(8)">B(8)</option>
+                      <option value="B-(7)">B-(7)</option>
+                      <option value="C(6)">C(6)</option>
+                      <option value="C-(5)">C-(5)</option>
+                      <option value="D(4)">D(4)</option>
+                      <option valie="Course Not Done"> Course Not Done </option>
+                    </select>
+                  </div>
+                ))}
               </div>
-        )
-      )
-    }
+
+              {/* Non-Department Preferences */}
+              <div className="mb-4">
+                <h3 className="text-xl font-bold mb-2">Other Preferences</h3>
+                {formData.nonDepartmentPreferences.map((pref, index) => (
+                  <div key={index} className="mb-4">
+                    <label
+                      htmlFor="course"
+                      className="block text-gray-700 font-bold"
+                    >
+                      Preference {index + 1}:
+                    </label>
+                   
+                    <select
+                      id={`nonDeptCourse-${index}`}
+                      value={pref.course}
+                      name="course"
+                      onChange={(e) =>
+                        handleChange(e, index, "nonDepartmentPreferences")
+                      }
+                      className="w-full p-2 border rounded"
+                    >
+                      <option value="">Select Preferred Course</option>
+                      <option value="any">
+                        Any Course
+                      </option>
+                      {/* Filter courses based on the selected department */}
+                      {courses.map((filteredCourse) => (
+                        <option
+                          key={filteredCourse._id}
+                          value={filteredCourse._id}
+                          disabled={selectedCourses.includes(
+                            filteredCourse._id
+                          )}
+                          // className="font-bold"
+                        >
+                          {`${filteredCourse.code} \u00a0\u00a0${filteredCourse.name}-(${filteredCourse.acronym}) \u00a0\u00a0\u00a0\u00a0${filteredCourse.professor}`}
+                        </option>
+                      ))}
+                    </select>
+                    <label
+                      htmlFor={`nonDeptGrade-${index}`}
+                      className="block text-gray-700 font-bold mt-2"
+                    >
+                      Grade:
+                    </label>
+                    <select
+                      id={`nonDeptGrade-${index}`}
+                      value={pref.grade}
+                      name="grade"
+                      onChange={(e) =>
+                        handleChange(e, index, "nonDepartmentPreferences")
+                      }
+                      className="w-full p-2 border rounded"
+                    >
+                      <option value="">Select Grade</option>
+                      <option value="A+(10)">A+(10)</option>
+                      <option value="A(10)">A(10)</option>
+                      <option value="A-(9)">A-(9)</option>
+                      <option value="B(8)">B(8)</option>
+                      <option value="B-(7)">B-(7)</option>
+                      <option value="C(6)">C(6)</option>
+                      <option value="C-(5)">C-(5)</option>
+                      <option value="D(4)">D(4)</option>
+                      <option valie="Course Not Done"> Course Not Done </option>
+                      {/* Add more grade options here */}
+                    </select>
+                  </div>
+                ))}
+              </div>
+
+              {/* Non-Preferences */}
+              <div>
+                <h3 className="text-xl font-bold mb-2">Non-Preferences</h3>
+                {formData.nonPreferences.map((course, index) => (
+                  <div key={index}>
+                    <select
+                      value={course}
+                      onChange={(e) => handleChange(e, index, "nonPreferences")}
+                      className="p-2 border rounded-md mb-2"
+                    >
+                      <option value="">Select Non-Preference Course</option>
+                      {courses.map((filteredCourse) => (
+                        <option
+                          key={filteredCourse._id}
+                          value={filteredCourse._id}
+                          disabled={selectedCourses.includes(
+                            filteredCourse._id
+                          )}
+                        >
+                          {`${filteredCourse.code} \u00a0\u00a0${filteredCourse.name}-(${filteredCourse.acronym}) \u00a0\u00a0\u00a0\u00a0${filteredCourse.professor}`}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  className="bg-[#3dafaa] text-white p-2 rounded"
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : (
+        <div className="flex justify-center items-center">
+          <h2 className="text-8xl font-bold mb-2  text-[#3dafaa]">
+            Form Closed
+          </h2>
+        </div>
+      )}
     </>
   );
 };

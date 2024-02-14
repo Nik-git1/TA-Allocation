@@ -332,6 +332,8 @@ const addStudent = asyncHandler( async ( req, res ) =>
 {
   var newStudents = req.body;
 
+  console.log(newStudents)
+
   // Check if the request body is an array
   if ( !Array.isArray( newStudents ) )
   {
