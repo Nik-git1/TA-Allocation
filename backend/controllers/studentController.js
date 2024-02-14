@@ -548,6 +548,16 @@ const addStudent = asyncHandler( async ( req, res ) =>
       }
     }
 
+    for (const student of validStudents) {
+      for (const courseId of student.nonPreferences) {
+        console.log(courseId)
+        await Course.findOneAndUpdate(
+          { _id: courseId },
+          { $inc: { antiPref: 1 } }
+        );
+      }
+    }
+    
     // Insert valid students into the database
     await Student.insertMany( validStudents );
     for ( const student of validStudents )

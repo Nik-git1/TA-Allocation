@@ -642,9 +642,7 @@ const StudentForm = () => {
                         <option
                           key={filteredCourse._id}
                           value={filteredCourse._id}
-                          disabled={selectedCourses.includes(
-                            filteredCourse._id
-                          )}
+                          disabled={filteredCourse.antiPref > 0 || selectedCourses.includes(filteredCourse._id)}
                         >
                           {`${filteredCourse.code} \u00a0\u00a0${filteredCourse.name}-(${filteredCourse.acronym}) \u00a0\u00a0\u00a0\u00a0${filteredCourse.professor}`}
                         </option>
