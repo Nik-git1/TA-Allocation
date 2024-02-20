@@ -470,12 +470,14 @@ const StudentForm = () => {
                         <option key="default" value="">
                           Select Department Course
                         </option>
+                        <option value="any">Any Course</option>
                         {/* Filter courses based on the selected department */}
                         {courses
                           .filter(
                             (course) => course.department === selectedDepartment
                           )
                           .map((filteredCourse) => (
+                            
                             <option
                               key={filteredCourse._id}
                               value={filteredCourse._id}

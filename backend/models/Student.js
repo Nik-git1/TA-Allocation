@@ -54,6 +54,11 @@ const studentSchema = new mongoose.Schema( {
             course: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'Course',
+                required: function() {
+                    // Only required if a specific course is selected
+                    return this.course !== 'any';
+                },
+
             },
             grade: {
                 type: String,
@@ -69,17 +74,27 @@ const studentSchema = new mongoose.Schema( {
                 message: 'Enter atmost 2 departmental course preferences',
             },
             {
-                validator: async function ( prefs )
-                {
-                    // Validate that the department of the student matches the department of all courses
+                validator: async function (prefs) {
+                
                     const student = this;
-                    const departmentsMatch = await Promise.all( prefs.map( async ( pref ) =>
-                    {
-                        const course = await mongoose.model( 'Course' ).findById( pref.course );
-                        return course && course.department.equals( student.department );
-                    } ) );
-                    return departmentsMatch.every( ( match ) => match === true );
+                    const departmentsMatch = await Promise.all(prefs.map(async (pref) => {
+                        // Check if the course field is present
+                       
+                        if (!pref.course) {
+                            const dummyObjectId = new mongoose.Types.ObjectId();
+                            pref.course = dummyObjectId
+                            console.log(pref)
+                            // If course is not assigned (e.g., "any" is selected), skip the validation for this preference
+                            return true;
+                        }else{
+                            console.log(pref)
+                        const course = await mongoose.model('Course').findById(pref.course);
+                        return course && course.department.equals(student.department);}
+                    }));
+                    console.log(departmentsMatch)
+                    return departmentsMatch.every((match) => match === true);
                 },
+                
                 message: 'Course department must match student department for all courses in department preferences',
             },
         ],

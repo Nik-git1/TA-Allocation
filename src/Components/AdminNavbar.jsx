@@ -33,13 +33,14 @@ const AdminNav = () => {
   const [buttontext, setButtonText] = useState('Student');
 
   const updateButton = () => {
+    console.log("IN")
     if(isCourseRoute){
       setButtonText('Course');
     }
     else if(isStudentRoute){
       setButtonText('Student')
     }
-    else if(isProfessor){
+    else if (isProfessor){
       setButtonText('Professor');
     }
   }
@@ -56,7 +57,7 @@ const AdminNav = () => {
   useEffect(() => {
     updateTitle();
     updateButton();
-  }, [isAllocate,isCourseRoute]);
+  }, [isAllocate,isCourseRoute,isProfessor]);
 
   const renderSearchBarAndUploadButton = () => {
     if (!isCourseRoute && !isStudentRoute && !isProfessor) {

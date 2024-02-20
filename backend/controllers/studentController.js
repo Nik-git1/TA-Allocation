@@ -15,18 +15,26 @@ const transporter = nodemailer.createTransport( {
 
 const sendForm = asyncHandler( async ( email, studentData ) =>
 {
-
+  console.log("data in email " + studentData)
   const department = await JM.findById( studentData.department, { department: 1 } ).lean();
   const departmentPreferences = await Promise.all(
     studentData.departmentPreferences.map( async pref =>
     {
+      if (pref.course === 'any') {
+        return {
+            name: 'Any',
+            code: '',
+            acronym: '',
+            grade: pref.grade,
+        };
+      }else{
       const cdata = await Course.findById( pref.course, { name: 1, code: 1, acronym: 1, _id: 0 } ).lean();
       return {
         name: cdata.name,
         code: cdata.code,
         acronym: cdata.acronym,
         grade: pref.grade,
-      };
+      };}
     } )
   );
   const nonDepartmentPreferences = await Promise.all(
@@ -331,6 +339,7 @@ async function getCourseIdByName ( courseName )
 const addStudent = asyncHandler( async ( req, res ) =>
 {
   var newStudents = req.body;
+  console.log(newStudents)
 
   // Check if the request body is an array
   if ( !Array.isArray( newStudents ) )
@@ -482,6 +491,8 @@ const addStudent = asyncHandler( async ( req, res ) =>
               } );
               continue; // Skip this student and move to the next one
             }
+
+           
             // Check for valid grade values
             // const validGrades = [ 'A+(10)', 'A(10)', 'A-(9)', 'B(8)', 'B-(7)', 'C(6)', 'C-(5)', 'D(4)', 'Course Not Done' ]
 
@@ -518,17 +529,23 @@ const addStudent = asyncHandler( async ( req, res ) =>
             // }
 
             // Check if all courses in departmentPreferences are from the same department as the student
-
+            
             const departmentMatch = await Promise.all(
               newStudent.departmentPreferences.map( async ( pref ) =>
               {
+                console.log(pref.course)
+                if (pref.course === 'any') {
+                  return true;
+                } else{
+                  console.log("still checked")
                 const course = await mongoose
                   .model( "Course" )
                   .findById( pref.course );
-                return course && course.department.equals( jmDepartment._id );
+                return course && course.department.equals( jmDepartment._id );}
               } )
             );
 
+           
             if ( departmentMatch.includes( false ) )
             {
               invalidStudents.push( {
@@ -539,12 +556,16 @@ const addStudent = asyncHandler( async ( req, res ) =>
               continue; // Skip this student and move to the next one
             }
           }
+          console.log("okay till here")
+
           // Add the validated student to the validStudents list
           newStudent.department = jmDepartment._id;
           validStudents.push( newStudent );
         }
       }
     }
+
+    
 
     // Insert valid students into the database
     await Student.insertMany( validStudents );
