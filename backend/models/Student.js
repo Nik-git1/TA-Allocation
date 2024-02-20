@@ -98,9 +98,9 @@ const studentSchema = new mongoose.Schema( {
         validate: {
             validator: function ( prefs )
             {
-                return prefs.length <= 8;
+                return prefs.length <= 5;
             },
-            message: 'Enter atmost 8 other course preferences',
+            message: 'Enter atmost 5 other course preferences',
         },
     },
     nonPreferences: {

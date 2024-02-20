@@ -332,7 +332,7 @@ const addStudent = asyncHandler( async ( req, res ) =>
 {
   var newStudents = req.body;
 
-  console.log(newStudents)
+  console.log( newStudents )
 
   // Check if the request body is an array
   if ( !Array.isArray( newStudents ) )
@@ -466,7 +466,7 @@ const addStudent = asyncHandler( async ( req, res ) =>
             }
 
             // Validate nonDepartmentPreferences
-            if ( newStudent.nonDepartmentPreferences.length > 8 )
+            if ( newStudent.nonDepartmentPreferences.length > 5 )
             {
               invalidStudents.push( {
                 student: newStudent,
@@ -548,16 +548,18 @@ const addStudent = asyncHandler( async ( req, res ) =>
       }
     }
 
-    for (const student of validStudents) {
-      for (const courseId of student.nonPreferences) {
-        console.log(courseId)
+    for ( const student of validStudents )
+    {
+      for ( const courseId of student.nonPreferences )
+      {
+        console.log( courseId )
         await Course.findOneAndUpdate(
           { _id: courseId },
           { $inc: { antiPref: 1 } }
         );
       }
     }
-    
+
     // Insert valid students into the database
     await Student.insertMany( validStudents );
     for ( const student of validStudents )
@@ -694,11 +696,11 @@ const updateStudent = asyncHandler( async ( req, res ) =>
       "nonDepartmentPreferences" in updates
     )
     {
-      if ( updates.nonDepartmentPreferences.length > 8 )
+      if ( updates.nonDepartmentPreferences.length > 5 )
       {
         return res
           .status( 400 )
-          .json( { message: "Atmost 8 other preferences allowed" } );
+          .json( { message: "Atmost 5 other preferences allowed" } );
       }
 
       // const othergrade = await Promise.all(
