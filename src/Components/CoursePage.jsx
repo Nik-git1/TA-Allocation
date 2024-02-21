@@ -43,9 +43,10 @@ const CoursePage = () => {
         student.allocationStatus === 1 &&
         student.allocatedTA === selectedCourse.name
     );
+    console.log(students)
 
     const studentsAvailableForAllocation = students.filter(
-      (student) =>
+      (student)=>
         student.allocationStatus !== 1 ||
         student.allocatedTA !== selectedCourse.name
     );

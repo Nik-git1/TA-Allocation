@@ -22,7 +22,7 @@ const sendForm = asyncHandler( async ( email, studentData ) =>
     {
       if (pref.course === 'any') {
         return {
-            name: 'Any',
+            name: 'Any Departmental',
             code: '',
             acronym: '',
             grade: pref.grade,
@@ -40,13 +40,21 @@ const sendForm = asyncHandler( async ( email, studentData ) =>
   const nonDepartmentPreferences = await Promise.all(
     studentData.nonDepartmentPreferences.map( async pref =>
     {
+      if (pref.course === 'any') {
+        return {
+            name: 'Any Non-Departmental',
+            code: '',
+            acronym: '',
+            grade: pref.grade,
+        };
+      }else{
       const cdata = await Course.findById( pref.course, { name: 1, code: 1, acronym: 1, _id: 0 } ).lean();
       return {
         name: cdata.name,
         code: cdata.code,
         acronym: cdata.acronym,
         grade: pref.grade,
-      };
+      };}
     } )
   );
   const nonPreferences = await Promise.all(
@@ -537,7 +545,7 @@ const addStudent = asyncHandler( async ( req, res ) =>
                 if (pref.course === 'any') {
                   return true;
                 } else{
-                  console.log("still checked")
+            
                 const course = await mongoose
                   .model( "Course" )
                   .findById( pref.course );
@@ -598,44 +606,35 @@ const addStudent = asyncHandler( async ( req, res ) =>
 //@desc Update student data
 //@route PUT /api/student/:id
 //@access public
-const updateStudent = asyncHandler( async ( req, res ) =>
-{
+const updateStudent = asyncHandler(async (req, res) => {
   const studentId = req.params.id;
   let updates = req.body;
-  try
-  {
+
+  console.log(updates)
+  try {
     // Step 1: Validate that the student exists
-    const student = await Student.findById( studentId );
-    if ( !student )
-    {
-      return res.status( 404 ).json( { message: "Student not found" } );
+    console.log("in update")
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
     }
 
     // Step 2: Check and restrict updates to allocationStatus and allocatedTA
-    if ( "allocationStatus" in updates )
-    {
+    if ("allocationStatus" in updates) {
       delete updates.allocationStatus;
     }
-    if ( "allocatedTA" in updates )
-    {
+    if ("allocatedTA" in updates) {
       delete updates.allocatedTA;
     }
 
-    if ( "taType" in updates )
-    {
-      const validTypes = [
-        "Credit",
-        "Paid",
-        "Voluntary"
-      ]
-      if ( !validTypes.includes( updates.taType ) )
-      {
-        return res.status( 400 ).json( { message: "Invalid TA Type selected" } );
+    if ("taType" in updates) {
+      const validTypes = ["Credit", "Paid", "Voluntary"]
+      if (!validTypes.includes(updates.taType)) {
+        return res.status(400).json({ message: "Invalid TA Type selected" });
       }
     }
 
-    if ( "program" in updates )
-    {
+    if ("program" in updates) {
       const validPrograms = [
         "B.Tech 3rd Year",
         "B.Tech 4th Year",
@@ -643,142 +642,68 @@ const updateStudent = asyncHandler( async ( req, res ) =>
         "M.Tech 2nd Year",
         "PhD",
       ];
-      if ( !validPrograms.includes( updates.program ) )
-      {
-        return res.status( 400 ).json( { message: "Invalid Program Selected" } );
+      if (!validPrograms.includes(updates.program)) {
+        return res.status(400).json({ message: "Invalid Program Selected" });
       }
     }
 
     // Step 3: Update the department reference based on the department name
-    if ( "department" in updates )
-    {
-      const jmDepartment = await JM.findOne( { department: updates.department } );
-      if ( jmDepartment )
-      {
+    if ("department" in updates) {
+      const jmDepartment = await JM.findOne({ department: updates.department });
+      if (jmDepartment) {
         updates.department = jmDepartment._id;
-      } else
-      {
-        return res.status( 400 ).json( { message: "Invalid department name" } );
+      } else {
+        return res.status(400).json({ message: "Invalid department name" });
       }
     }
 
-    if ( "cgpa" in updates )
-    {
+    if ("cgpa" in updates) {
       // Check cgpa range
-      if ( updates.cgpa < 0 || updates.cgpa > 10 )
-      {
-        return res.status( 400 ).json( { message: "Invalid CGPA value" } );
+      if (updates.cgpa < 0 || updates.cgpa > 10) {
+        return res.status(400).json({ message: "Invalid CGPA value" });
       }
     }
 
-    // Check for valid grade values
-    // const validGrades = [ 'A+(10)', 'A(10)', 'A-(9)', 'B(8)', 'B-(7)', 'C(6)', 'C-(5)', 'D(4)', 'Course Not Done' ]
-
-    if (
-      "departmentPreferences" in updates
-    )
-    {
-      if (
-        updates.departmentPreferences.length > 2
-      )
-      {
-        return res
-          .status( 400 )
-          .json( { message: "Atmost 2 departmental preferences allowed" } );
-      }
-
-      // const deptgrade = await Promise.all(
-      //   updates.departmentPreference.map( async ( pref ) =>
-      //   {
-      //     return validGrades.includes( pref.grade );
-      //   } )
-      // )
-
-      // if ( deptgrade.includes( false ) )
-      // {
-      //   return res.status( 400 ).json( { message: "Invalid Grade Value in departmental preferences" } );
-      // }
+    // Step 4: Assign dummy IDs to courses with name 'any'
+    if ("nonDepartmentPreferences" in updates) {
+      updates.nonDepartmentPreferences.forEach(pref => {
+        if (pref.course === 'any') {
+          const dummyObjectId = new mongoose.Types.ObjectId();
+          pref.course = dummyObjectId;
+        }
+      });
     }
-    if (
-      "nonDepartmentPreferences" in updates
-    )
-    {
-      if ( updates.nonDepartmentPreferences.length > 8 )
-      {
-        return res
-          .status( 400 )
-          .json( { message: "Atmost 8 other preferences allowed" } );
-      }
-
-      // const othergrade = await Promise.all(
-      //   updates.nonDepartmentPreference.map( async ( pref ) =>
-      //   {
-      //     return validGrades.includes( pref.grade );
-      //   } )
-      // )
-
-
-      // if ( othergrade.includes( false ) )
-      // {
-      //   return res.status( 400 ).json( { message: "Invalid Grade Value in other preferences" } )
-      // }
-    }
-    if ( "nonPreferences" in updates && updates.nonPreferences.length > 3 )
-    {
-      return res
-        .status( 400 )
-        .json( { message: "Atmost 3 non-preferences allowed" } );
+    if ("departmentPreferences" in updates) {
+      updates.nonDepartmentPreferences.forEach(pref => {
+        if (pref.course === 'any') {
+          const dummyObjectId = new mongoose.Types.ObjectId();
+          pref.course = dummyObjectId;
+        }
+      });
     }
 
-    // Step 4: Check if the courses in updated departmentPreferences are of the same department
-    if ( "departmentPreferences" in updates )
-    {
-      const newDepartmentPrefs = updates.departmentPreferences;
-      const departmentMatch = await Promise.all(
-        newDepartmentPrefs.map( async ( pref ) =>
-        {
-          const course = await Course.findById( pref.course );
-          return course && course.department.equals( updates.department ? updates.department : student.department );
-        } )
-      );
-
-      if ( departmentMatch.includes( false ) )
-      {
-        return res
-          .status( 400 )
-          .json( {
-            message:
-              "Course department must match student department for all courses in department preferences",
-          } );
-      }
-    }
-
-    // Step 5: Update the student with validated values
-    const updatedStudent = await Student.findByIdAndUpdate( studentId, updates, {
+    console.log(updates)
+   
+    // Step 5: Perform the update operation
+    const updatedStudent = await Student.findByIdAndUpdate(studentId, updates, {
       new: true,
-    } );
-
-    try
-    {
-      await sendForm( updatedStudent.emailId, updatedStudent );
-    } catch ( error )
-    {
-      console.error( 'Error sending student data via email:', error );
+    });
+    
+    try {
+      await sendForm(updatedStudent.emailId, updatedStudent);
+    } catch (error) {
+      console.error('Error sending student data via email:', error);
     }
 
-    return res
-      .status( 200 )
-      .json( {
-        message: "Student updated successfully",
-        student: updatedStudent,
-      } );
-  } catch ( error )
-  {
-    return res
-      .status( 500 )
-      .json( { message: "Internal server error", error: error.message } );
+    return res.status(200).json({
+      message: "Student updated successfully",
+      student: updatedStudent,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error", error: error.message });
   }
-} );
+});
+
 
 //@desc Delete student by id
 //@route DELETE /api/student/:id

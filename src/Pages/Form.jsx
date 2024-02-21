@@ -540,6 +540,7 @@ const StudentForm = () => {
                         className="w-full p-2 border rounded"
                       >
                         <option value="">Select Preferred Course</option>
+                        <option value="any">Any Course</option>
                         {/* Filter courses based on the selected department */}
                         {courses.map((filteredCourse) => (
                             <option

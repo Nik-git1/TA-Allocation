@@ -36,17 +36,36 @@ const StudentState = (props) => {
   const getStudentsFromBackend = () => {
     axios
       .get('http://localhost:5001/api/student') // Replace with your actual API endpoint
-      
       .then((response) => {
         let studentsFromBackend = response.data;
+        
+        // Iterate through each student
+        studentsFromBackend.forEach((student) => {
+          // Check and set departmental preferences
+          student.departmentPreferences.forEach((pref) => {
+            if (!pref.course) {
+              // If departmental course is null, set it to any departmental course
+              pref.course = "Any departmental course"; // Replace with actual logic to set any departmental course
+            }
+          });
+          
+          // Check and set non-departmental preferences
+          student.nonDepartmentPreferences.forEach((pref) => {
+            if (!pref.course) {
+              // If non-departmental course is null, set it to any non-departmental course
+              pref.course = "Any non-departmental course"; // Replace with actual logic to set any non-departmental course
+            }
+          });
+        });
+        
+        // Now you can proceed to use or set the students data, for example:
         setStudents(studentsFromBackend);
       })
       .catch((error) => {
         console.error('Error fetching data from the backend:', error);
       });
-
-     
   };
+  
 
   const getStudentsFromFile = (event) => {
     const file = event.target.files[0];
