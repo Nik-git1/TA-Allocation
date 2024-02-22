@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 import { useLocation } from "react-router-dom";
 import CryptoJS from "crypto-js";
 import ClipLoader from "react-spinners/ClipLoader";
+import { AiOutlineSearch } from 'react-icons/ai';
 
 const StudentForm = () => {
   const [formOpened, setFormOpened] = useState(true);
@@ -28,12 +29,10 @@ const StudentForm = () => {
       { course: "", grade: "" },
       { course: "", grade: "" },
       { course: "", grade: "" },
-      { course: "", grade: "" },
-      { course: "", grade: "" },
-      { course: "", grade: "" },
     ],
     nonPreferences: ["", "", ""],
   };
+  const [searchTerm, setSearchTerm] = useState('');
 
   const secretKey = "your-secret-key"; // Use the same secret key used for encryption
   const decryptedEmail = CryptoJS.AES.decrypt(
@@ -59,9 +58,6 @@ const StudentForm = () => {
     nonDepartmentPreferences:
       studentExistData.nonDepartmentPreferences.length === 0
         ? [
-            { course: "", grade: "" },
-            { course: "", grade: "" },
-            { course: "", grade: "" },
             { course: "", grade: "" },
             { course: "", grade: "" },
             { course: "", grade: "" },
@@ -281,10 +277,19 @@ const StudentForm = () => {
     }
   };
 
+  const handleInputChange = (e, key) => {
+    setSearchTerm(e.target.value);
+  };
+
   const handleDepartmentChange = (event) => {
     const { value } = event.target;
     setSelectedDepartment(value);
   };
+
+  const filteredCourses = courses.filter((course) => {
+    const values = Object.values(course).join(' ').toLowerCase();
+    return values.includes(searchTerm.toLowerCase());
+  });
 
   return (
     <>
@@ -491,6 +496,15 @@ const StudentForm = () => {
                     >
                       Preference {index + 1}:
                     </label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border rounded mt-2"
+                      placeholder="Search Course..."
+                      value={pref.otherCourse}
+                      onChange={(e) =>
+                        handleInputChange(e, "Search")
+                      }
+                    />
                     <select
                       id={`deptCourse-${index}`}
                       name="course"
@@ -507,8 +521,10 @@ const StudentForm = () => {
                       <option value="any">
                         Any Course
                       </option>
+                      <option value="">
+                      </option>
                       {/* Filter courses based on the selected department */}
-                      {courses
+                      {filteredCourses
                         .filter(
                           (course) =>
                             course.department === selectedDepartment &&
@@ -523,10 +539,12 @@ const StudentForm = () => {
                               filteredCourse._id
                             )}
                           >
+                            {/* here \u00a0 refers to space while rendering following data */}
                             {`${filteredCourse.code} \u00a0\u00a0${filteredCourse.name}-(${filteredCourse.acronym}) \u00a0\u00a0\u00a0\u00a0${filteredCourse.professor}`}
                           </option>
                         ))}
                     </select>
+                    
                     <label
                       htmlFor={`deptGrade-${index}`}
                       className="block text-gray-700 font-bold mt-2"
