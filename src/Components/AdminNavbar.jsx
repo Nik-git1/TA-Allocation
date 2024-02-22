@@ -56,7 +56,7 @@ const AdminNav = () => {
   useEffect(() => {
     updateTitle();
     updateButton();
-  }, [isAllocate,isCourseRoute]);
+  }, [isAllocate,isCourseRoute,isProfessor]);
 
   const renderSearchBarAndUploadButton = () => {
     if (!isCourseRoute && !isStudentRoute && !isProfessor) {

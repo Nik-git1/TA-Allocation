@@ -28,6 +28,16 @@ const Dashboard = () => {
       .catch((error) => console.error("Error fetching round status: " + error));
   };
 
+  const toggleRound = () => {
+    if (currentRound !== null) {
+      // If a round is ongoing, end it
+      endCurrentRound();
+    } else {
+      // If no round is ongoing, start a new round
+      startNewRound();
+    }
+  };
+
   const startNewRound = () => {
     // Send a POST request to start a new round
     fetch("http://localhost:5001/api/rd/startround", { method: "POST" })
@@ -97,6 +107,23 @@ const Dashboard = () => {
       });
   };
 
+  const startNewSemester = () => {
+    // Send a DELETE request to start a new semester
+    fetch("http://localhost:5001/api/rd/semester", { method: "DELETE" })
+      .then((response) => response.json())
+      .then(() => {
+        // Handle success (e.g., show a success message)
+        console.log("New semester started.");
+        setCurrentRound(null); // Reset current round information
+
+        getRound();
+      })
+      .catch((error) => {
+        // Handle errors (e.g., show an error message)
+        console.error("Error starting a new semester: " + error);
+      });
+  };
+
   const openForm = async () => {
     const response = await fetch(`http://localhost:5001/api/form/changeState`, { method: 'POST',
         headers: {
@@ -120,31 +147,6 @@ const Dashboard = () => {
 
   return (
     <div>
-      {/* <h2 className="text-xl font-semibold mb-4">
-        Current Round:{" "}
-        {currentRound !== null ? currentRound : "No round is ongoing"}
-      </h2>
-      <div className="mb-4 space-x-4">
-        <button
-          onClick={startNewRound}
-          className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-        >
-          Start Round
-        </button>
-        <button
-          onClick={endCurrentRound}
-          className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-        >
-          End Round
-        </button>
-        <button
-          onClick={resetRounds}
-          className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-        >
-          Reset Rounds
-        </button>
-      </div> */}
-
       <div className="mb-4 space-x-4 flex">
         <button
           onClick={openForm}
@@ -170,16 +172,23 @@ const Dashboard = () => {
 
       <div className="flex mt-3">
         <button
-          onClick={endCurrentRound}
-          className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2"
+          onClick={toggleRound}
+          className={currentRound === null ? "bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 mr-4 rounded focus:outline-none focus:shadow-outline" : "bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"}
         >
-          End Current Round
+          {currentRound === null ? "Start Round" : "End Round"}
         </button>
         <button
-          onClick={startNewRound}
-          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          onClick={resetRounds}
+          className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 mr-3 rounded focus:outline-none focus:shadow-outline"
         >
-          Start new Round
+          Reset Rounds
+        </button>
+        <button
+          onClick={startNewSemester}
+          disabled
+          className="bg-black text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-4"
+        >
+          New Semester
         </button>
       </div>
 
