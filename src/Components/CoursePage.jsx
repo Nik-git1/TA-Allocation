@@ -21,6 +21,8 @@ const CoursePage = () => {
   const [allocated, setAllocated] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentRound, setCurrentRound] = useState(null);
+  const [prefFilter, setPrefFilter] = useState('All');
+  const [sortConfig, setSortConfig] = useState(null);
 
   useEffect(() => {
     if (!selectedCourse || selectedCourse.name !== courseName) {
@@ -102,6 +104,22 @@ const CoursePage = () => {
       });
   };
 
+  const handleSort = (key) => {
+    const direction = key === sortConfig.key && sortConfig.direction === 'ascending' ? 'descending' : 'ascending';
+    const sortedStudents = [...filteredStudents].sort((a, b) => {
+      if (a[key] < b[key]) {
+        return direction === 'ascending' ? -1 : 1;
+      }
+      if (a[key] > b[key]) {
+        return direction === 'ascending' ? 1 : -1;
+      }
+      return 0;
+    });
+    setSortConfig({ key, direction });
+    setFilteredStudents(sortedStudents);
+  };
+  
+
   const handleDeallocate = (studentId) => {
     // Make a POST request to deallocate the student
     axios
@@ -166,11 +184,40 @@ const CoursePage = () => {
   };
   
   const filterStudents = (studentsList) => {
-    return studentsList.filter((student) =>
-      student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      student.emailId.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  };
+    if (prefFilter === 'All') {
+      return studentsList.filter((student) =>
+        student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        student.emailId.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    } else {
+      const filteredStudents = []; // Initialize an empty array to collect matching students
+      for (const student of studentsList) {
+        let pref = 'Not Any';
+        let count = 1;
+        for (const i of student.departmentPreferences) {
+          if (i.course === selectedCourse.name) {
+            pref = `Dept Preference ${count}`;
+            break;
+          }
+          count++;
+        }
+        for (const i of student.nonDepartmentPreferences) {
+          if (pref !== 'Not Any') {
+            break;
+          }
+          if (i.course === selectedCourse.name) {
+            pref = `Other Preference ${count}`;
+            break;
+          }
+          count++;
+        }
+        if (pref === prefFilter) {
+          filteredStudents.push(student); // Add matching student to the array
+        }
+      }
+      return filteredStudents; // Return the array of matching students
+    }
+  };  
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
@@ -181,7 +228,7 @@ const CoursePage = () => {
   );
 
   const renderAllocatedRow = (student) => {
-    let pref = 'NA';
+    let pref = 'Not Any';
     let count = 1;
     for(const i of student.departmentPreferences){
       if(i.course === selectedCourse.name){
@@ -190,7 +237,7 @@ const CoursePage = () => {
       }
     }
     for(const i of student.nonDepartmentPreferences){
-      if(pref !== 'NA'){
+      if(pref !== 'Not Any'){
         break;
       }
       if(i.course === selectedCourse.name){
@@ -224,27 +271,28 @@ const CoursePage = () => {
 
   const renderAvailableRow = (student) => {
     let department = student.department === selectedCourse.department;
-    let pref = 'NA';
+    let pref = 'Not Any';
     let count = 1;
     for(const i of student.departmentPreferences){
       if(i.course === selectedCourse.name){
-        pref = 'Department Preference';
+        pref = `Department Preference ${count}`;
         break;
       }
+      count++;
     }
     for(const i of student.nonDepartmentPreferences){
-      if(pref !== 'NA'){
+      if(pref !== 'Not Any'){
         break;
       }
       if(i.course === selectedCourse.name){
-        pref = `Preference ${count}`;
+        pref = `Other Preference ${count}`;
         break;
       }
       count++;
     }
     return (
       <>
-      {pref !== 'NA' || department || currentRound !== 2 ? (
+      {pref !== 'Not Any' || department || currentRound !== 2 ? (
         student.allocationStatus === 0 ? (
         <tr className="text-center">
           <td className="border p-2">{student.name}</td>
@@ -282,20 +330,21 @@ const CoursePage = () => {
   const renderAllocatedToOthers = (student) => {
     
     let department = student.department === selectedCourse.department;
-    let pref = 'NA';
+    let pref = 'Not Any';
     let count = 1;
     for(const i of student.departmentPreferences){
       if(i.course === selectedCourse.name){
-        pref = 'Department Preference';
+        pref = `Department Preference ${count}`;
         break;
       }
+      count++;
     }
     for(const i of student.nonDepartmentPreferences){
-      if(pref !== 'NA'){
+      if(pref !== 'Not Any'){
         break;
       }
       if(i.course === selectedCourse.name){
-        pref = `Preference ${count}`;
+        pref = `Other Preference ${count}`;
         break;
       }
       count++;
@@ -322,6 +371,10 @@ const CoursePage = () => {
       }
       </>
     );
+  }
+
+  const handlePrefFilter = (event) => {
+    setPrefFilter(event.target.value);
   }
 
   return (
@@ -354,7 +407,7 @@ const CoursePage = () => {
             } hover:bg-[#3dafaa] hover:text-white mr-2`}
             onClick={handleRenderAllocatedToOthersTable}
           >
-            Student Allocated to others
+            Student Allocated to others courses
           </button>
   
           <form className="w-[350px]">
@@ -382,12 +435,35 @@ const CoursePage = () => {
   
       {allocated === 1 && (
         <div className="m-5">
-          <h2 className="text-2xl font-bold mb-2">Allocated Students to {courseName}</h2>
-          <div className="overflow-auto max-h-[65vh]">
+          <div className="flex">
+            <h2 className="text-2xl font-bold mb-2 mr-2">Allocated Students to {courseName}</h2>
+            {currentRound !== 1 ? (
+              <div className="flex mb-1">
+                <h2 className="mt-2 mr-2">Prefference:</h2>
+                <select name="" id="" className="px-2 py-2 border border-[#3dafaa] rounded"
+                  onChange={handlePrefFilter}
+                >
+                  <option value="All">All</option>
+                  <option value="Dept Preference 1">Dept Preference 1</option>
+                  <option value="Dept Preference 2">Dept Preference 2</option>
+                  <option value="Other Preference 1">Other Preference 1</option>
+                  <option value="Other Preference 2">Other Preference 2</option>
+                  <option value="Other Preference 3">Other Preference 3</option>
+                  <option value="Other Preference 4">Other Preference 4</option>
+                  <option value="Other Preference 5">Other Preference 5</option>
+                  <option value="Not Any">Not Any</option>
+                </select>
+              </div>
+            ) : (null)}
+          </div>
+          <div className="overflow-auto max-h-[64vh]">
             <table className="w-full border-collapse border">
               <thead>
                 <tr className="bg-gray-200 text-gray-700">
-                  <th className="border p-2">Name</th>
+                <th className="border p-2" onClick={() => handleSort('name')}>
+  Name
+</th>
+
                   <th className="border p-2">Email</th>
                   {currentRound !== 1 && (
                     <>
@@ -409,7 +485,27 @@ const CoursePage = () => {
   
       {allocated === 0 && (
         <div className="m-5">
-          <h2 className="text-2xl font-bold mb-2">Available Students</h2>
+          <div className="flex">
+            <h2 className="text-2xl font-bold mb-2 mr-2">Available Students</h2>
+            {currentRound !== 1 ? (
+              <div className="flex mb-1">
+                <h2 className="mt-2 mr-2">Prefference:</h2>
+                <select name="" id="" className="px-2 py-2 border border-[#3dafaa] rounded"
+                  onChange={handlePrefFilter}
+                >
+                  <option value="All">All</option>
+                  <option value="Dept Preference 1">Dept Preference 1</option>
+                  <option value="Dept Preference 2">Dept Preference 2</option>
+                  <option value="Other Preference 1">Other Preference 1</option>
+                  <option value="Other Preference 2">Other Preference 2</option>
+                  <option value="Other Preference 3">Other Preference 3</option>
+                  <option value="Other Preference 4">Other Preference 4</option>
+                  <option value="Other Preference 5">Other Preference 5</option>
+                  <option value="Not Any">Not Any</option>
+                </select>
+              </div>
+            ) : (null)}
+          </div>
           <div className="overflow-auto max-h-[65vh]">
             <table className="w-full border-collapse border">
               <thead className="sticky top-0">
@@ -436,7 +532,27 @@ const CoursePage = () => {
 
       {allocated === 2 && (
         <div className="m-5">
-          <h2 className="text-2xl font-bold mb-2">Allocated to others courses</h2>
+          <div className="flex">
+            <h2 className="text-2xl font-bold mb-2 mr-2">Allocated Students to other courses</h2>
+            {currentRound !== 1 ? (
+              <div className="flex mb-1">
+                <h2 className="mt-2 mr-2">Prefference:</h2>
+                <select name="" id="" className="px-2 py-2 border border-[#3dafaa] rounded"
+                  onChange={handlePrefFilter}
+                >
+                  <option value="All">All</option>
+                  <option value="Dept Preference 1">Dept Preference 1</option>
+                  <option value="Dept Preference 2">Dept Preference 2</option>
+                  <option value="Other Preference 1">Other Preference 1</option>
+                  <option value="Other Preference 2">Other Preference 2</option>
+                  <option value="Other Preference 3">Other Preference 3</option>
+                  <option value="Other Preference 4">Other Preference 4</option>
+                  <option value="Other Preference 5">Other Preference 5</option>
+                  <option value="Not Any">Not Any</option>
+                </select>
+              </div>
+            ) : (null)}
+          </div>
           <div className="overflow-auto max-h-[65vh]">
             <table className="w-full border-collapse border">
               <thead className="sticky top-0">
