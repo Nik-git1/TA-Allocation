@@ -8,7 +8,7 @@ const argon2 = require( 'argon2' );
 const getAdmin = asyncHandler( async ( req, res ) =>
 {
     const adminId = req.params.id;
-    const admin = await Admin.findById( adminId );
+    const admin = await Admin.findById( adminId, { password: 0 } );
     if ( !admin )
     {
         return res.status( 404 ).json( { message: 'Admin not found' } );
@@ -25,7 +25,7 @@ const getAdmins = asyncHandler( async ( req, res ) =>
     const filter = {};
     if ( emailId ) filter.emailId = emailId;
 
-    const admins = await Admin.find( filter );
+    const admins = await Admin.find( filter, { password: 0 } );
     return res.status( 200 ).json( admins );
 } );
 

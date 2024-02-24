@@ -9,7 +9,7 @@ const argon2 = require( 'argon2' );
 //@access public
 const getProfessor = asyncHandler( async ( req, res ) =>
 {
-    const professor = await Professor.findById( req.params.id );
+    const professor = await Professor.findById( req.params.id, { password: 0 } );
 
     if ( !professor || professor.length === 0 )
     {
@@ -32,7 +32,7 @@ const getProfessors = asyncHandler( async ( req, res ) =>
         if ( name ) filter.name = new RegExp( name, 'i' );
         if ( emailId ) filter.emailId = new RegExp( emailId, 'i' );
 
-        const filteredProfessors = await Professor.find( filter );
+        const filteredProfessors = await Professor.find( filter, { password: 0 } );
         res.status( 200 ).json( filteredProfessors );
 
     } catch ( error )

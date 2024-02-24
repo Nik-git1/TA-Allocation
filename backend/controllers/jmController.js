@@ -10,8 +10,8 @@ const argon2 = require( 'argon2' );
 //@access public
 const getJM = asyncHandler( async ( req, res ) =>
 {
-    
-    const jm = await JM.findById( req.params.id );
+
+    const jm = await JM.findById( req.params.id, { password: 0 } );
 
     if ( !jm || jm.length === 0 )
     {
@@ -35,7 +35,7 @@ const getJMs = asyncHandler( async ( req, res ) =>
         if ( department ) filter.department = new RegExp( department, 'i' );
         if ( emailId ) filter.emailId = new RegExp( emailId, 'i' );
 
-        const filteredJMs = await JM.find( filter );
+        const filteredJMs = await JM.find( filter, { password: 0 } );
         res.status( 200 ).json( filteredJMs );
 
     } catch ( error )
