@@ -40,7 +40,7 @@ const AdminNav = () => {
       setButtonText('Student')
     }
     else if(isProfessor){
-      setButtonText('Professor');
+      setButtonText('Faculty');
     }
   }
 

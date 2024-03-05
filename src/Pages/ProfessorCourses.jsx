@@ -5,7 +5,7 @@ import AuthContext from '../context/AuthContext';
 import CourseContext from '../context/CourseContext';
 const ProfessorCourses = ( ) => {
   const location = useLocation();
-  const profName = location.state?.name || "Professor";
+  const profName = location.state?.name || "Faculty";
   const [departmentCourses, setDepartmentCourses] = useState([]);
   const navigate = useNavigate();
   const {setSelectedCourse} = useContext(CourseContext)

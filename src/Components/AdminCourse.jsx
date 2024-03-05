@@ -15,7 +15,7 @@ const CourseTable = () => {
     acronym: 'Acronym',
     department: 'Department',
     credits: 'Credits',
-    professor: 'Professor',
+    professor: 'Faculty',
     totalStudents: 'Total Students',
     taStudentRatio: 'Ta Student Ratio',
     taRequired: 'Ta Required'

@@ -236,7 +236,7 @@ const LoginPage = () => {
           handleTAForm();
           break;
         default:
-          alert("Please select an option: Admin, Department, Professor.");
+          alert("Please select an option: Admin, Department, Faculty.");
           break;
       }
     }
@@ -308,7 +308,7 @@ const LoginPage = () => {
                   } outline-none focus:border-[#3dafaa]`}
                   onClick={() => handleLoginOptionClick("professor")}
                 >
-                  Professor
+                  Faculty
                 </button>
               </div>
             </>

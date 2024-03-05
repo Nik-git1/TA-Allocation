@@ -146,7 +146,7 @@ const AdminProfessor = () => {
           <div className="relative">
             <input
               type="search"
-              placeholder='Search Professor...'
+              placeholder='Search Faculty...'
               value={searchTerm}
               onChange={(e) => handleInputChange(e, 'search')}
               className="w-full p-4 rounded-full h-10 border border-[#3dafaa] outline-none focus:border-[#3dafaa]"

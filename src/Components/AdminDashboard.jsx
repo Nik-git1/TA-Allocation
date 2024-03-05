@@ -173,20 +173,20 @@ const Dashboard = () => {
       <div className="flex mt-3">
         <button
           onClick={toggleRound}
-          className={currentRound === null ? "bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 mr-4 rounded focus:outline-none focus:shadow-outline" : "bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"}
+          className={currentRound === null ? "bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 mr-4 rounded focus:outline-none focus:shadow-outline w-32" : "w-32 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 mr-4 rounded focus:outline-none focus:shadow-outline"}
         >
           {currentRound === null ? "Start Round" : "End Round"}
         </button>
         <button
           onClick={resetRounds}
-          className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 mr-3 rounded focus:outline-none focus:shadow-outline"
+          className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 mr-4 rounded focus:outline-none focus:shadow-outline"
         >
           Reset Rounds
         </button>
         <button
           onClick={startNewSemester}
           disabled
-          className="bg-black text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-4"
+          className="bg-black text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
         >
           New Semester
         </button>
