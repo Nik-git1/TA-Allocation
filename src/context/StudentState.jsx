@@ -40,6 +40,7 @@ const StudentState = (props) => {
       .then((response) => {
         let studentsFromBackend = response.data;
         setStudents(studentsFromBackend);
+        console.log('Students updated')
       })
       .catch((error) => {
         console.error('Error fetching data from the backend:', error);

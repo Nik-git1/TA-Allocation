@@ -10,7 +10,7 @@ import { AiOutlineSearch } from 'react-icons/ai';
 
 const CoursePage = () => {
   const { selectedCourse } = useContext(CourseContext);
-  const { students } = useContext(StudentContext);
+  const { students, getStudentsFromBackend } = useContext(StudentContext);
   const [button, setbutton] = useState(false);
   const {user} = useContext(AuthContext)
   const { courseName } = useParams();
@@ -39,6 +39,7 @@ const CoursePage = () => {
         navigate(modifiedPath);
       }
     }
+
     // When the component mounts, sort students into allocated and available lists
     const studentsAllocatedToCourse = students.filter(
       (student) =>
@@ -66,7 +67,7 @@ const CoursePage = () => {
 
     setAllocatedToThisCourse(studentsAllocatedToCourse);
     setAvailableStudents(studentsAvailableForAllocation);
-  }, [selectedCourse, students]);
+  }, [selectedCourse, allocated, students]);
 
   const handleAllocate = (studentId) => {
     // Make a POST request to allocate the student
@@ -92,6 +93,8 @@ const CoursePage = () => {
         setAvailableStudents((prevAvailable) =>
           prevAvailable.filter((student) => student._id !== studentId)
         );
+
+        getStudentsFromBackend()
 
         // Toggle the button state to trigger recalculation
         setbutton((prevState) => !prevState);
@@ -145,6 +148,8 @@ const CoursePage = () => {
         setAllocatedToThisCourse((prevAllocated) =>
           prevAllocated.filter((student) => student._id !== studentId)
         );
+
+        getStudentsFromBackend()
 
         // Toggle the button state to trigger recalculation
         setbutton((prevState) => !prevState);
