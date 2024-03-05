@@ -109,19 +109,53 @@ const CoursePage = () => {
       });
   };
 
+  const prefRank = (student) => {
+    let rank = 9;
+    let count = 0;
+    for (const i of student.departmentPreferences) {
+      count++;
+      if (i.course === selectedCourse.name) {
+        rank = count;
+        break;
+      }
+    }
+    for (const i of student.nonDepartmentPreferences) {
+      count++;
+      if (rank < 9) {
+        break;
+      }
+      if (i.course === selectedCourse.name) {
+        rank = count;
+        break;
+      }
+    }
+    return rank;
+  }
+
   const handleSort = (key) => {
     const direction = key === sortConfig.key && sortConfig.direction === 'ascending' ? 'descending' : 'ascending';
     let student = allocated === 1 ? allocatedToThisCourse : availableStudents;
     const sortedStudents = [...student].sort((a, b) => {
-      if (a[key].toLowerCase() < b[key].toLowerCase()) {
-        return direction === 'ascending' ? -1 : 1;
+      if(key === 'preference'){
+        let x = prefRank(a); let y = prefRank(b);
+        if (x < y) {
+          return direction === 'ascending' ? -1 : 1;
+        }
+        if (x > y) {
+          return direction === 'ascending' ? 1 : -1;
+        }
+        return 0;
       }
-      if (a[key].toLowerCase() > b[key].toLowerCase()) {
-        return direction === 'ascending' ? 1 : -1;
+      else{
+        if (a[key].toString().toLowerCase() < b[key].toString().toLowerCase()) {
+          return direction === 'ascending' ? -1 : 1;
+        }
+        if (a[key].toString().toLowerCase() > b[key].toString().toLowerCase()) {
+          return direction === 'ascending' ? 1 : -1;
+        }
+        return 0;
       }
-      return 0;
     });
-    console.log(allocated,":",student)
     setSortConfig({ key, direction });
     setSorted(sortedStudents);
   };
@@ -139,7 +173,7 @@ const CoursePage = () => {
       })
       .then((response) => {
         // Deallocation was successful
-        console.log(response)
+
         // Move the student from allocated to available
         const studentToDeallocate = allocatedToThisCourse.find(
           (student) => student._id === studentId
@@ -474,21 +508,42 @@ const CoursePage = () => {
             <table className="w-full border-collapse border">
               <thead>
                 <tr className="bg-gray-200 text-gray-700">
-                <th className="border p-2 flex justify-center">
-                  <button
-                    onClick={() => handleSort('name')}
-                    className="flex"
-                  >
-                    Name {sortConfig.key === 'name' ? (sortConfig.direction === 'ascending' ? <AiOutlineSortAscending/> : <AiOutlineSortDescending/>) : null}
-                  </button>
-                </th>
+                  <th className="border p-2 flex justify-center">
+                    <button
+                      onClick={() => handleSort('name')}
+                      className="flex"
+                    >
+                      Name {sortConfig.key === 'name' ? (sortConfig.direction === 'ascending' ? <AiOutlineSortAscending/> : <AiOutlineSortDescending/>) : null}
+                    </button>
+                  </th>
 
-                  <th className="border p-2">Email</th>
+                  <th className="border p-2 justiy-center">
+                    <button
+                      onClick={() => handleSort('emailId')}
+                      // className="flex"
+                    >
+                      Email {sortConfig.key === 'emailId' ? (sortConfig.direction === 'ascending' ? <AiOutlineSortAscending/> : <AiOutlineSortDescending/>) : null}
+                    </button>
+                  </th>
                   {currentRound !== 1 && (
                     <>
-                      <th className="border p-2">CGPA</th>
+                      <th className="border p-2 flex justify-center">
+                        <button
+                          onClick={() => handleSort('cgpa')}
+                          className="flex"
+                        >
+                          CGPA {sortConfig.key === 'cgpa' ? (sortConfig.direction === 'ascending' ? <AiOutlineSortAscending/> : <AiOutlineSortDescending/>) : null}
+                        </button>
+                      </th>
                       <th className="border p-2">Grade</th>
-                      <th className="border p-2">Preference</th>
+                      <th className="border p-2 flex justify-center">
+                        <button
+                          onClick={() => handleSort('preference')}
+                          className="flex"
+                        >
+                          Preference {sortConfig.key === 'preference' ? (sortConfig.direction === 'ascending' ? <AiOutlineSortAscending/> : <AiOutlineSortDescending/>) : null}
+                        </button>
+                      </th>
                     </>
                   )}
                   <th className="border p-2">Action</th>
@@ -537,12 +592,33 @@ const CoursePage = () => {
                     Name {sortConfig.key === 'name' ? (sortConfig.direction === 'ascending' ? <AiOutlineSortAscending/> : <AiOutlineSortDescending/>) : null}
                   </button>
                 </th>
-                  <th className="border p-2">Email</th>
+                <th className="border p-2 justiy-center">
+                  <button
+                    onClick={() => handleSort('emailId')}
+                    // className="flex"
+                  >
+                    Email {sortConfig.key === 'emailId' ? (sortConfig.direction === 'ascending' ? <AiOutlineSortAscending/> : <AiOutlineSortDescending/>) : null}
+                  </button>
+                </th>
                   {currentRound !== 1 && (
                     <>
-                      <th className="border p-2">CGPA</th>
+                      <th className="border p-2 flex justify-center">
+                        <button
+                          onClick={() => handleSort('cgpa')}
+                          className="flex"
+                        >
+                          CGPA {sortConfig.key === 'cgpa' ? (sortConfig.direction === 'ascending' ? <AiOutlineSortAscending/> : <AiOutlineSortDescending/>) : null}
+                        </button>
+                      </th>
                       <th className="border p-2">Grade</th>
-                      <th className="border p-2">Preference</th>
+                      <th className="border p-2 flex justify-center">
+                        <button
+                          onClick={() => handleSort('preference')}
+                          className="flex"
+                        >
+                          Preference {sortConfig.key === 'preference' ? (sortConfig.direction === 'ascending' ? <AiOutlineSortAscending/> : <AiOutlineSortDescending/>) : null}
+                        </button>
+                      </th>
                     </>
                   )}
                   <th className="border p-2">Action</th>
@@ -591,12 +667,33 @@ const CoursePage = () => {
                     Name {sortConfig.key === 'name' ? (sortConfig.direction === 'ascending' ? <AiOutlineSortAscending/> : <AiOutlineSortDescending/>) : null}
                   </button>
                 </th>
-                  <th className="border p-2">Email</th>
+                <th className="border p-2 justiy-center">
+                    <button
+                      onClick={() => handleSort('emailId')}
+                      // className="flex"
+                    >
+                      Email {sortConfig.key === 'emailId' ? (sortConfig.direction === 'ascending' ? <AiOutlineSortAscending/> : <AiOutlineSortDescending/>) : null}
+                    </button>
+                  </th>
                   {currentRound !== 1 && (
                     <>
-                      <th className="border p-2">CGPA</th>
+                      <th className="border p-2 flex justify-center">
+                        <button
+                          onClick={() => handleSort('cgpa')}
+                          className="flex"
+                        >
+                          CGPA {sortConfig.key === 'cgpa' ? (sortConfig.direction === 'ascending' ? <AiOutlineSortAscending/> : <AiOutlineSortDescending/>) : null}
+                        </button>
+                      </th>
                       <th className="border p-2">Grade</th>
-                      <th className="border p-2">Preference</th>
+                      <th className="border p-2 flex justify-center">
+                        <button
+                          onClick={() => handleSort('preference')}
+                          className="flex"
+                        >
+                          Preference {sortConfig.key === 'preference' ? (sortConfig.direction === 'ascending' ? <AiOutlineSortAscending/> : <AiOutlineSortDescending/>) : null}
+                        </button>
+                      </th>
                     </>
                   )}
                   <th className="border p-2">Allocated To</th>
