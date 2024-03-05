@@ -7,10 +7,12 @@ import axios from "axios";
 import AuthContext from "../context/AuthContext";
 import * as XLSX from 'xlsx';
 import { AiOutlineSearch } from 'react-icons/ai';
+import { AiOutlineSortAscending } from "react-icons/ai";
+import { AiOutlineSortDescending } from "react-icons/ai";
 
 const CoursePage = () => {
   const { selectedCourse } = useContext(CourseContext);
-  const { students, getStudentsFromBackend } = useContext(StudentContext);
+  const { students } = useContext(StudentContext);
   const [button, setbutton] = useState(false);
   const {user} = useContext(AuthContext)
   const { courseName } = useParams();
@@ -22,7 +24,8 @@ const CoursePage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentRound, setCurrentRound] = useState(null);
   const [prefFilter, setPrefFilter] = useState('All');
-  const [sortConfig, setSortConfig] = useState(null);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
+  const [sorted, setSorted] = useState([]);
 
   useEffect(() => {
     if (!selectedCourse || selectedCourse.name !== courseName) {
@@ -39,7 +42,6 @@ const CoursePage = () => {
         navigate(modifiedPath);
       }
     }
-
     // When the component mounts, sort students into allocated and available lists
     const studentsAllocatedToCourse = students.filter(
       (student) =>
@@ -67,7 +69,7 @@ const CoursePage = () => {
 
     setAllocatedToThisCourse(studentsAllocatedToCourse);
     setAvailableStudents(studentsAvailableForAllocation);
-  }, [selectedCourse, allocated, students]);
+  }, [selectedCourse, students]);
 
   const handleAllocate = (studentId) => {
     // Make a POST request to allocate the student
@@ -94,8 +96,6 @@ const CoursePage = () => {
           prevAvailable.filter((student) => student._id !== studentId)
         );
 
-        getStudentsFromBackend()
-
         // Toggle the button state to trigger recalculation
         setbutton((prevState) => !prevState);
       })
@@ -109,17 +109,19 @@ const CoursePage = () => {
 
   const handleSort = (key) => {
     const direction = key === sortConfig.key && sortConfig.direction === 'ascending' ? 'descending' : 'ascending';
-    const sortedStudents = [...filteredStudents].sort((a, b) => {
-      if (a[key] < b[key]) {
+    let student = allocated === 1 ? allocatedToThisCourse : availableStudents;
+    const sortedStudents = [...student].sort((a, b) => {
+      if (a[key].toLowerCase() < b[key].toLowerCase()) {
         return direction === 'ascending' ? -1 : 1;
       }
-      if (a[key] > b[key]) {
+      if (a[key].toLowerCase() > b[key].toLowerCase()) {
         return direction === 'ascending' ? 1 : -1;
       }
       return 0;
     });
+    console.log(allocated,":",student)
     setSortConfig({ key, direction });
-    setFilteredStudents(sortedStudents);
+    setSorted(sortedStudents);
   };
   
 
@@ -149,8 +151,6 @@ const CoursePage = () => {
           prevAllocated.filter((student) => student._id !== studentId)
         );
 
-        getStudentsFromBackend()
-
         // Toggle the button state to trigger recalculation
         setbutton((prevState) => !prevState);
       })
@@ -167,14 +167,17 @@ const CoursePage = () => {
 
   const handleRenderAllocatedTable = async() => {
     setAllocated(1);
+    setSortConfig({ key: null, direction: 'ascending' });
   }
 
   const handleRenderAvailableStudentTable = async() => {
     setAllocated(0);
+    setSortConfig({ key: null, direction: 'ascending' });
   }
 
   const handleRenderAllocatedToOthersTable = async() => {
     setAllocated(2);
+    setSortConfig({ key: null, direction: 'ascending' });
   }
 
   const handleDownload = () => {
@@ -229,7 +232,9 @@ const CoursePage = () => {
   };
 
   const filteredStudents = filterStudents(
-    allocated === 1 ? allocatedToThisCourse : availableStudents
+    sortConfig.key === null ? 
+        (allocated === 1 ? allocatedToThisCourse : availableStudents) :
+        sorted
   );
 
   const renderAllocatedRow = (student) => {
@@ -465,9 +470,14 @@ const CoursePage = () => {
             <table className="w-full border-collapse border">
               <thead>
                 <tr className="bg-gray-200 text-gray-700">
-                <th className="border p-2" onClick={() => handleSort('name')}>
-  Name
-</th>
+                <th className="border p-2 flex justify-center">
+                  <button
+                    onClick={() => handleSort('name')}
+                    className="flex"
+                  >
+                    Name {sortConfig.key === 'name' ? (sortConfig.direction === 'ascending' ? <AiOutlineSortAscending/> : <AiOutlineSortDescending/>) : null}
+                  </button>
+                </th>
 
                   <th className="border p-2">Email</th>
                   {currentRound !== 1 && (
@@ -515,7 +525,14 @@ const CoursePage = () => {
             <table className="w-full border-collapse border">
               <thead className="sticky top-0">
                 <tr className="bg-gray-200 text-gray-700">
-                  <th className="border p-2">Name</th>
+                <th className="border p-2 flex justify-center">
+                  <button
+                    onClick={() => handleSort('name')}
+                    className="flex"
+                  >
+                    Name {sortConfig.key === 'name' ? (sortConfig.direction === 'ascending' ? <AiOutlineSortAscending/> : <AiOutlineSortDescending/>) : null}
+                  </button>
+                </th>
                   <th className="border p-2">Email</th>
                   {currentRound !== 1 && (
                     <>
@@ -562,7 +579,14 @@ const CoursePage = () => {
             <table className="w-full border-collapse border">
               <thead className="sticky top-0">
                 <tr className="bg-gray-200 text-gray-700">
-                  <th className="border p-2">Name</th>
+                <th className="border p-2 flex justify-center">
+                  <button
+                    onClick={() => handleSort('name')}
+                    className="flex"
+                  >
+                    Name {sortConfig.key === 'name' ? (sortConfig.direction === 'ascending' ? <AiOutlineSortAscending/> : <AiOutlineSortDescending/>) : null}
+                  </button>
+                </th>
                   <th className="border p-2">Email</th>
                   {currentRound !== 1 && (
                     <>
