@@ -19,7 +19,7 @@ const Department = () => {
   }, []);
 
   const allocateCourse = (course) => {
-    var courseName = course.name;
+    let courseName = course.name;
     setSelectedCourse(course); //dont delete
 
     navigate(`${courseName}`);
@@ -88,7 +88,7 @@ const Department = () => {
               <tr className="text-center" key={index}>
                 {Object.values(row).map((data, ind) =>
                   ind !== 0 && ind !== 10 ? (
-                    <td className="border p-2" key={ind}>
+                    <td className={`border p-2 ${row.taAllocated.length > row.taRequired ? 'text-red-500' : 'text-black'}`} key={ind}>
                       {data}
                     </td>
                   ) : null
