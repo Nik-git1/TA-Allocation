@@ -5,9 +5,11 @@ import axios from "axios";
 const Dashboard = () => {
   const [currentRound, setCurrentRound] = useState(null);
   const [formOpened, setFormOpened] = useState(true);
+  const [feedbackForm, setFeedbackForm] = useState(false)
   useEffect(() => {
     // Fetch the current round status from your backend when the component mounts
     getRound();
+    getFeedbackFormStatus();
     axios
       .get("http://localhost:5001/api/form")
       .then((response) => {
@@ -61,7 +63,7 @@ const Dashboard = () => {
       .catch((error) => { 
         console.error("Error starting a new round: " + error);
       });
-};
+  };
 
   const endCurrentRound = () => {
     // Send a POST request to end the current round
@@ -135,7 +137,6 @@ const Dashboard = () => {
   }
 
   const closeForm = async () => {
-    
     const response = await fetch(`http://localhost:5001/api/form/changeState`, { method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -145,31 +146,80 @@ const Dashboard = () => {
         window.location.reload();
   }
 
+  const startFeedback = () => {
+    fetch("http://localhost:5001/api/feedback/start", { method: "GET" })
+      .then((response) => {
+        if (response.status === 200) {
+          console.log("Feedback generation initiated successfully");
+          // Perform any necessary actions after successful feedback generation
+          getFeedbackFormStatus(); // Update feedback form status after starting feedback
+        } else {
+          console.error("Failed to initiate feedback generation");
+        }
+      })
+      .catch((error) => {
+        console.error("Error initiating feedback generation:", error);
+      });
+  };
+  
+  const getFeedbackFormStatus = () => {
+    axios
+      .get("http://localhost:5001/api/feedback/status")
+      .then((response) => {
+        setFeedbackForm(response.data.active);
+        // Log the updated feedback form status
+      })
+      .catch((error) => {
+        console.error("Error fetching feedback form status:", error);
+      });
+  };
+  
+  const closeFeedbackForm = () => {
+    axios
+      .post("http://localhost:5001/api/feedback/end")
+      .then((response) => {
+        if (response.status === 200) {
+          console.log("Feedback form closed successfully");
+          getFeedbackFormStatus();
+          // Perform any necessary actions after successful closing of feedback form
+        } else {
+          console.error("Failed to close feedback form");
+        }
+      })
+      .catch((error) => {
+        console.error("Error closing feedback form:", error);
+      });
+  };
+  
+
   return (
     <div>
       <div className="mb-4 space-x-4 flex">
-        <button
-          onClick={openForm}
-          className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-        >
-          Open TA Form
-        </button>
-        <button
-          onClick={closeForm}
-          className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-        >
-          Close TA Form
-        </button>
+        {formOpened ? (
+          <button
+            onClick={closeForm}
+            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          >
+            Close TA Form
+          </button>
+        ) : (
+          <button
+            onClick={openForm}
+            className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          >
+            Open TA Form
+          </button>
+        )}
         <div className="font-bold text-2xl">
           {formOpened ? "Form is opened" : "Form is closed"}
         </div>
       </div>
-
+  
       <div className="flex">
         <p className="font-bold text-2xl">Ongoing Round:</p>
         <p className="text-2xl ml-2">{currentRound === null ? 'No Round is going on' : currentRound}</p>
       </div>
-
+  
       <div className="flex mt-3">
         <button
           onClick={toggleRound}
@@ -190,12 +240,29 @@ const Dashboard = () => {
         >
           New Semester
         </button>
+        {feedbackForm ? (
+          <button
+            onClick={closeFeedbackForm}
+            className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-4"
+          >
+            End Feedback Form
+          </button>
+        ) : (
+          <button
+            onClick={startFeedback}
+            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-4"
+          >
+            Start Feedback Form
+          </button>
+        )}
       </div>
-
+  
       {/* Include your DashboardCardList component here */}
       <DashboardCardList />
     </div>
   );
+  
+  
 };
 
 export default Dashboard;

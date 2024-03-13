@@ -7,7 +7,7 @@ const Professor = require( "../models/Professor" )
 const JM = require( "../models/JM" )
 const LogEntry = require( "../models/LogEntry" )
 const nodemailer = require( 'nodemailer' );
-
+const Feedback = require('../models/Feedback');
 
 
 const transporter = nodemailer.createTransport( {
@@ -352,5 +352,8 @@ const getLogs = asyncHandler( async ( req, res ) =>
     res.status( 500 ).json( { message: "Internal server error", error: error.message } );
   }
 } );
+
+
+
 
 module.exports = { allocate, deallocate, freezeAllocation, getLogs };
