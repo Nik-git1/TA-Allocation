@@ -10,6 +10,7 @@ import AdminDashboard from '../Components/AdminDashboard';
 import AdminLog from '../Components/AdminLog';
 import AdminProfessor from '../Components/AdminProfessor';
 import AdminJms from '../Components/AdminJms';
+import FeedbackList from '../Components/FeedbackList';
 
 const AdminPage = () => {
   return (
@@ -29,6 +30,7 @@ const AdminPage = () => {
             <Route element={<AdminLog />} path="/logs" />
             <Route element={<AdminProfessor/>} path="/professors" />
             <Route element={<AdminJms/>} path="/jms" />
+            <Route element={<FeedbackList/>} path="/feedback" />
           </Routes>
         </div>
       </div>

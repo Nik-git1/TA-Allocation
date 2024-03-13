@@ -37,6 +37,10 @@ const SideBar = () => {
           Logs
         </Link>
         <hr className='border-t-2' />
+        <Link to="/admin/feedback" className='bg-[#3dafaa] p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold'>
+          Feedback
+        </Link>
+        <hr className='border-t-2' />
         <button className='bg-[#3dafaa] p-2 h-16 hover:bg-[rgb(50,140,135)] focus:bg-[rgb(50,140,135)] text-white font-bold'
         onClick = {handleLogout}
         >

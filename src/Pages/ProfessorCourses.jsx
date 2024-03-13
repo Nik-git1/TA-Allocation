@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
-
+import FeedbackList from '../Components/FeedbackList';
 import CourseContext from '../context/CourseContext';
+import axios from "axios";
+
 const ProfessorCourses = ( ) => {
   const location = useLocation();
   const profName = location.state?.name || "Faculty";
   const [departmentCourses, setDepartmentCourses] = useState([]);
+  const [feedbackForm, setFeedbackForm] = useState(false)
   const navigate = useNavigate();
   const {setSelectedCourse} = useContext(CourseContext)
   
@@ -33,8 +36,21 @@ const ProfessorCourses = ( ) => {
     };
   
     fetchCourses();
+    getFeedbackFormStatus();
   }, [user]); // Include user in the dependency array to avoid missing dependency warning
+
   
+  const getFeedbackFormStatus = () => {
+    axios
+      .get("http://localhost:5001/api/feedback/status")
+      .then((response) => {
+        setFeedbackForm(response.data.active);
+        // Log the updated feedback form status
+      })
+      .catch((error) => {
+        console.error("Error fetching feedback form status:", error);
+      });
+  };
       
   const allocateCourse = (course) => {
     var courseName = course.name;
@@ -95,6 +111,7 @@ const ProfessorCourses = ( ) => {
         </tbody>
       </table>
     </div>
+  {feedbackForm&& <FeedbackList/>}  
     </div>
   );
 };

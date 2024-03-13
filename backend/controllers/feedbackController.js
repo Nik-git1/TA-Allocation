@@ -99,7 +99,11 @@ const getFeedbacksByProfessorId = asyncHandler(async (req, res) => {
     try {
         const { professorId } = req.params;
 
-        const feedbacks = await Feedback.find({ professor: professorId });
+        const feedbacks = await Feedback.find({ professor: professorId })
+            .populate('course') // Populate course details
+            .populate('student') // Populate student details
+            .populate('professor'); // Populate professor details
+        
         res.json({ feedbacks });
     } catch (error) {
         console.error("Error fetching feedbacks by professor ID:", error);
@@ -107,16 +111,22 @@ const getFeedbacksByProfessorId = asyncHandler(async (req, res) => {
     }
 });
 
+
 // Get all feedbacks
 const getAllFeedbacks = asyncHandler(async (req, res) => {
     try {
-        const feedbacks = await Feedback.find();
+        const feedbacks = await Feedback.find()
+            .populate('course') // Populates the 'course' field with the 'name' property
+            .populate('student') // Populates the 'student' field with the 'name' property
+            .populate('professor'); // Populates the 'professor' field with the 'name' property
+        console.log(feedbacks);
         res.json({ feedbacks });
     } catch (error) {
         console.error("Error fetching all feedbacks:", error);
         res.status(500).json({ message: "Internal server error", error: error.message });
     }
 });
+
 
 // Close the feedback form
 const closeFeedback = asyncHandler(async (req, res) => {
