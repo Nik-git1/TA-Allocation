@@ -201,6 +201,39 @@ const JMLogin = asyncHandler( async ( req, res ) =>
   res.json( { success, authtoken } );
 } );
 
+const JMotp = asyncHandler( async ( req, res ) =>
+{
+  const { email_id, enteredOTP } = req.body;
+
+  const storedOTP = otpStorage.get( email_id );
+
+
+  if ( !storedOTP || storedOTP.toString() !== enteredOTP.toString() )
+  {
+    return res.status( 400 ).json( { success: false, message: 'Invalid OTP' } );
+  }
+  let user = await JM.findOne( { emailId: email_id } );
+  if ( !user )
+  {
+    return res.status( 400 ).json( { error: "Please enter valid credentials" } );
+  }
+
+  // Find if the professor teaches any courses
+  // const coursesTaught = await Course.find( { professor: professorId } );
+
+  const data = {
+    user: {
+      id: user.id,
+      department: user.department,
+      role: "jm" // Include the department in the token
+    },
+  };
+
+  const authtoken = jwt.sign( data, JWT_SECRET );
+  const success = true;
+
+  res.json( { success, authtoken , message: 'OTP verified successfully'} );
+} );
 
 const ProfessorLogin = asyncHandler( async ( req, res ) =>
 {
@@ -234,4 +267,39 @@ const ProfessorLogin = asyncHandler( async ( req, res ) =>
 } );
 
 
-module.exports = { adminLogin, ProfessorLogin, JMLogin, sendOtp, verifyOtp, addAdmin };
+const Professorotp = asyncHandler( async ( req, res ) =>
+{
+  const { email_id, enteredOTP } = req.body;
+
+  const storedOTP = otpStorage.get( email_id );
+
+  if ( !storedOTP || storedOTP.toString() !== enteredOTP.toString() )
+  {
+    return res.status( 400 ).json( { success: false, message: 'Invalid OTP' } );
+  }
+
+  let user = await Professor.findOne( { emailId: email_id } );
+  if ( !user )
+  {
+    return res.status( 400 ).json( { error: "Please enter valid credentials" } );
+  }
+
+  console.log(user)
+
+  // Find if the professor teaches any courses
+  const data = {
+    user: {
+      id: user.id,
+      department: user.department,
+      role: 'professor'
+    },
+  };
+  const authtoken = jwt.sign( data, JWT_SECRET );
+  const success = true;
+
+
+  res.json( { success, authtoken, name: user.name, message: 'OTP verified successfully' } );
+} );
+
+
+module.exports = { Professorotp,JMotp, adminLogin, ProfessorLogin, JMLogin, sendOtp, verifyOtp, addAdmin };

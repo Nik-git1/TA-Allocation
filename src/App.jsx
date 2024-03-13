@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, Routes, Route } from 'react-router-dom';
-import LoginPage from './Pages/LoginPage';
+// import LoginPage from './Pages/LoginPage';
 import AdminPage from './Pages/AdminPage';
 import Department from './Pages/DepartmentPage';
 import Professor from './Pages/ProfessorPage';
@@ -11,6 +11,7 @@ import DepartmentState from './context/DepartmentState';
 import AuthState from './context/AuthState';
 import ProtectedRoute from './ProtectedRoutes';
 import ProfState from './context/ProfState';
+import LoginPage from './Pages/LoginPageAdv';
 const App = () => {
   return (
     <AuthState>
