@@ -3,16 +3,22 @@ import axios from 'axios';
 import StudentContext from '../context/StudentContext';
 const AdminLog = () => {
   const { logs } = useContext(StudentContext);
+  const headers = ['Student ID', 'Student Name', 'Action', 'User', 'Timestamp', 'Course']
 
   const renderHeaderRow = () => {
     return (
       <tr className="bg-[#3dafaa] text-white">
-        <th className="border p-2 text-center">Student ID</th>
+        {
+          headers.map((header, index) => (
+            <th className="border p-2 text-center" key={index}>{header}</th>
+          ))
+        }
+        {/* <th className="border p-2 text-center">Student ID</th>
         <th className="border p-2 text-center">Student Name</th>
         <th className="border p-2 text-center">Action</th>
         <th className="border p-2 text-center">User</th>
         <th className="border p-2 text-center">Timestamp</th>
-        <th className="border p-2 text-center">Course</th>
+        <th className="border p-2 text-center">Course</th> */}
       </tr>
     );
   };
@@ -35,6 +41,7 @@ const AdminLog = () => {
       <table className="w-full border-collapse border">
         <thead className="sticky top-0">{renderHeaderRow()}</thead>
         <tbody>
+          {console.log(logs)}
           {logs.map((logEntry, index) =>
             renderLogRow(logEntry, index)
           )}

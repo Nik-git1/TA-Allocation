@@ -22,10 +22,10 @@ const AdminPage = () => {
         </div>
         <div className="flex-1">
           <Routes>
-            <Route element={<AdminStudent />} path="/" />
+            <Route element={<AdminStudent />} path="/student" />
             <Route element={<AdminCourse />} path="/course" />
             <Route element={<Department />} path="/department" />
-            <Route element={<AdminDashboard />} path="/dashboard" />
+            <Route element={<AdminDashboard />} path="/" />
             <Route element={<CoursePage />} path="/department/:courseName" />
             <Route element={<AdminLog />} path="/logs" />
             <Route element={<AdminProfessor/>} path="/professors" />
