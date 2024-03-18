@@ -16,7 +16,7 @@ const startFeedback = asyncHandler(async (req, res) => {
         }
         await feedbackStatus.save();
 
-        // Check if any feedback records exist
+     
         const feedbackCount = await Feedback.countDocuments();
 
         // If feedback records exist, return without generating new feedback
@@ -37,9 +37,20 @@ const startFeedback = asyncHandler(async (req, res) => {
                 // If there are no TAs allocated for this course, continue to the next course
                 continue;
             }
-
+        
             // Iterate through allocated TAs
             for (const ta of course.taAllocated) {
+                // Check if the student already has feedback for this course
+                const existingFeedback = await Feedback.findOne({
+                    course: course._id,
+                    student: ta._id
+                });
+        
+                // If feedback already exists, skip generating a new one
+                if (existingFeedback) {
+                    continue;
+                }
+        
                 // Create new feedback object
                 const feedback = new Feedback({
                     course: course._id,
@@ -48,11 +59,12 @@ const startFeedback = asyncHandler(async (req, res) => {
                     rating: 5, // Default rating
                     description: '', // Optional description
                 });
-
+        
                 // Save the feedback object
                 await feedback.save();
             }
         }
+        
 
         console.log('Dummy feedback objects generated successfully');
         res.json({ message: 'Dummy feedback generated successfully' });
@@ -68,12 +80,18 @@ const editFeedbackById = asyncHandler(async (req, res) => {
     try {
         // Check if feedback form is open
         const feedbackStatus = await FeedbackStatus.findOne();
+
+        console.log(feedbackStatus)
         if (!feedbackStatus || !feedbackStatus.active) {
             return res.status(403).json({ message: "Feedback form is closed. Cannot edit feedback." });
         }
 
         const { id } = req.params;
         const { rating, description } = req.body;
+
+        console.log(rating)
+        console.log(id)
+        console.log(description)
 
         const feedback = await Feedback.findById(id);
         if (!feedback) {
