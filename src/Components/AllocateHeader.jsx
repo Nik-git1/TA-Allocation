@@ -11,35 +11,63 @@ const AllocateHeader = () => {
   const { user } = useContext(AuthContext);
   const { departments, selectedDepartment, setSelectedDepartment } =
     useContext(DepartmentContext);
+  const [currentRound, setCurrentRound] = useState(null);
 
   const handleDepartmentChange = (event) => {
     setSelectedDepartment(event.target.value);
   };
 
+  useEffect(() => {
+    const fetchCurrentRound = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:5001/api/rd/currentround"
+        );
+        const data = await response.json();
+        setCurrentRound(data.currentRound);
+      } catch (error) {
+        console.error("Error fetching round status:", error);
+      }
+    };
+    fetchCurrentRound();
+  });
+
   return (
-    <div className="mb-2">
-      <div className="flex items-center mb-2">
-        <h1 className="text-[#3dafaa] text-3xl font-bold mr-4">
-          {selectedDepartment} DEPARTMENT
-        </h1>
-        <div className="mt-2">
-          <select
-            className="px-4 py-2 border border-[#3dafaa] rounded"
-            value={user.role === "admin" ? selectedDepartment : user.department}
-            onChange={handleDepartmentChange}
-            disabled={user.role !== "admin"}
-          >
-            <option value="All">All</option>
-            {departments.map((department) => (
-              <option key={department} value={department}>
-                {department}
-              </option>
-            ))}
-          </select>
+    <div className="mb-2 flex">
+      <div>
+        <div className="flex items-center mb-2 mr-4">
+          <h1 className="text-[#3dafaa] text-3xl font-bold mr-4">
+            {selectedDepartment} DEPARTMENT
+          </h1>
+          <div className="mt-2">
+            <select
+              className="px-4 py-2 border border-[#3dafaa] rounded"
+              value={user.role === "admin" ? selectedDepartment : user.department}
+              onChange={handleDepartmentChange}
+              disabled={user.role !== "admin"}
+            >
+              <option value="All">All</option>
+              {departments.map((department) => (
+                <option key={department} value={department}>
+                  {department}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
-      
+      <div className="flex items-center">
+        <p className="text-[#3dafaa] text-2xl font-bold mr-2">
+          Ongoing Round:
+        </p>
+        <p className=" text-2xl flex mr-1">
+          Round
+        </p>
+        <p className=" text-2xl flex">
+          {currentRound}
+        </p>
+      </div>
     </div>
   );
 };

@@ -26,7 +26,7 @@ const AdminNav = () => {
   const isDashboard = location.pathname === '/admin/dashboard';
   const isLogs = location.pathname === '/admin/log';
   const isDepartment = location.pathname === '/admin/department';
-  const isStudentRoute = location.pathname === '/admin/';
+  const isStudentRoute = location.pathname === '/admin/student';
   const isProfessor = location.pathname === '/admin/professors';
   
   const [title,setTitle] = useState('Eligible Students of Monsoon 2023');
@@ -48,8 +48,14 @@ const AdminNav = () => {
     if(isDepartment || isCourseRoute){
       setTitle("Available Courses");
     }
-    else{
-      setTitle("Eligible Students of Winter 2024");
+    else if (isStudentRoute){
+      setTitle("Eligible Students for TAship");
+    }
+    else if(isProfessor){
+      setTitle("Faculties For Current Semester");
+    }
+    else {
+      setTitle("TA Allocation Portal")
     }
   }
 

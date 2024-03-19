@@ -491,7 +491,20 @@ const CoursePage = () => {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold m-5">{selectedCourse.name}</h1>
+      <div className="flex">
+        <h1 className="text-3xl font-bold m-5">{selectedCourse.name},</h1>
+        <div className="flex items-center">
+        <p className="text-2xl font-bold mr-2">
+          Ongoing Round:
+        </p>
+        <p className=" text-2xl flex mr-1">
+          Round
+        </p>
+        <p className=" text-2xl flex">
+          {currentRound}
+        </p>
+      </div>
+      </div>
       <div className="flex justify-between">
         <div className="flex">
           <button
@@ -537,12 +550,15 @@ const CoursePage = () => {
             </div>
           </form>
         </div>
-        <button
-          className="bg-[#3dafaa] text-white px-4 py-2 rounded cursor-pointer font-bold mr-6"
-          onClick={handleDownload}
-        >
-          Download
-        </button>
+          {allocated == 1 ? (
+            <button
+              className="bg-[#3dafaa] text-white px-4 py-2 rounded cursor-pointer font-bold mr-6"
+                onClick={handleDownload}
+              >
+                Download
+            </button>
+          ) : null}
+        
       </div>
 
 
