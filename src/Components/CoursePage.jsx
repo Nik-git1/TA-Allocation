@@ -306,21 +306,25 @@ const CoursePage = () => {
   // Function to check if a course is in the student's preferences
 
   const findCourseInPreferences = (student, courseName) => {
+    let count = 1;
     for (const preference of student.departmentPreferences) {
       if (preference.course === courseName) {
         return {
-          preferenceType: "Department Preference",
+          preferenceType: "Department Preference "+count,
           grade: preference.grade,
         };
       }
+      count++;
     }
+    count = 1;
     for (const preference of student.nonDepartmentPreferences) {
       if (preference.course === courseName) {
         return {
-          preferenceType: "Non-Department Preference",
+          preferenceType: "Non-Department Preference "+count,
           grade: preference.grade,
         };
       }
+      count++;
     }
     return null; // Course not found in preferences
   };
@@ -344,6 +348,8 @@ const CoursePage = () => {
         <td className="border p-2">{student.emailId}</td>
         {currentRound === 1 ? null : (
           <>
+            <td className="border p-2">{student.program}</td>
+            <td className="border p-2">{student.department}</td>
             <td className="border p-2">{student.cgpa}</td>
             <td className="border p-2">{grade}</td> {/* Display grade */}
             <td className="border p-2">{pref}</td>
@@ -384,6 +390,8 @@ const CoursePage = () => {
               <td className="border p-2">{student.emailId}</td>
               {currentRound === 1 ? null : (
                 <>
+                  <td className="border p-2">{student.program}</td>
+                  <td className="border p-2">{student.department}</td>
                   <td className="border p-2">{student.cgpa}</td>
                   <td className="border p-2">{grade}</td> {/* Display grade */}
                   <td className="border p-2">{pref}</td>
@@ -434,6 +442,8 @@ const CoursePage = () => {
             <td className="border p-2">{student.emailId}</td>
             {currentRound === 1 ? null : (
               <>
+                <td className="border p-2">{student.program}</td>
+                <td className="border p-2">{student.department}</td>
                 <td className="border p-2">{student.cgpa}</td>
                 <td className="border p-2">{grade}</td> {/* Display grade */}
                 <td className="border p-2">{pref}</td>
@@ -576,6 +586,40 @@ const CoursePage = () => {
                       </button>
                     </div>
                   </th>
+
+                  <th className="border p-2 text-center">
+                    <div className="flex justify-center">
+                      <button
+                        onClick={() => handleSort("program")}
+                        className="flex justify-center"
+                      >
+                        PROGRAM{" "}
+                        {sortConfig.key === "program" &&
+                          (sortConfig.direction === "ascending" ? (
+                            <AiOutlineSortAscending />
+                          ) : (
+                            <AiOutlineSortDescending />
+                          ))}
+                      </button>
+                    </div>
+                  </th>
+
+                  <th className="border p-2 text-center">
+                    <div className="flex justify-center">
+                      <button
+                        onClick={() => handleSort("department")}
+                        className="flex justify-center"
+                      >
+                        DEPARTMENT{" "}
+                        {sortConfig.key === "department" &&
+                          (sortConfig.direction === "ascending" ? (
+                            <AiOutlineSortAscending />
+                          ) : (
+                            <AiOutlineSortDescending />
+                          ))}
+                      </button>
+                    </div>
+                  </th>
                   {currentRound !== 1 && (
                     <>
                       <th className="border p-2 text-center">
@@ -655,6 +699,40 @@ const CoursePage = () => {
                       >
                         Email{" "}
                         {sortConfig.key === "emailId" &&
+                          (sortConfig.direction === "ascending" ? (
+                            <AiOutlineSortAscending />
+                          ) : (
+                            <AiOutlineSortDescending />
+                          ))}
+                      </button>
+                    </div>
+                  </th>
+
+                  <th className="border p-2 text-center">
+                    <div className="flex justify-center">
+                      <button
+                        onClick={() => handleSort("program")}
+                        className="flex justify-center"
+                      >
+                        PROGRAM{" "}
+                        {sortConfig.key === "program" &&
+                          (sortConfig.direction === "ascending" ? (
+                            <AiOutlineSortAscending />
+                          ) : (
+                            <AiOutlineSortDescending />
+                          ))}
+                      </button>
+                    </div>
+                  </th>
+
+                  <th className="border p-2 text-center">
+                    <div className="flex justify-center">
+                      <button
+                        onClick={() => handleSort("department")}
+                        className="flex justify-center"
+                      >
+                        DEPARTMENT{" "}
+                        {sortConfig.key === "department" &&
                           (sortConfig.direction === "ascending" ? (
                             <AiOutlineSortAscending />
                           ) : (
@@ -765,6 +843,40 @@ const CoursePage = () => {
                       >
                         Email{" "}
                         {sortConfig.key === "emailId" &&
+                          (sortConfig.direction === "ascending" ? (
+                            <AiOutlineSortAscending />
+                          ) : (
+                            <AiOutlineSortDescending />
+                          ))}
+                      </button>
+                    </div>
+                  </th>
+
+                  <th className="border p-2 text-center">
+                    <div className="flex justify-center">
+                      <button
+                        onClick={() => handleSort("program")}
+                        className="flex justify-center"
+                      >
+                        PROGRAM{" "}
+                        {sortConfig.key === "program" &&
+                          (sortConfig.direction === "ascending" ? (
+                            <AiOutlineSortAscending />
+                          ) : (
+                            <AiOutlineSortDescending />
+                          ))}
+                      </button>
+                    </div>
+                  </th>
+
+                  <th className="border p-2 text-center">
+                    <div className="flex justify-center">
+                      <button
+                        onClick={() => handleSort("department")}
+                        className="flex justify-center"
+                      >
+                        DEPARTMENT{" "}
+                        {sortConfig.key === "department" &&
                           (sortConfig.direction === "ascending" ? (
                             <AiOutlineSortAscending />
                           ) : (

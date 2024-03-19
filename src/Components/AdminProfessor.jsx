@@ -53,8 +53,6 @@ const AdminProfessor = () => {
     const editingRowClass = 'bg-gray-300';
 
     const professorContent = Object.keys(professor).slice();
-    professorContent.splice(2, 1);
-
     return (
 
       <tr className={`text-center ${editingRow && editingRow._id === professor._id ? editingRowClass : ''}`} key={index}>

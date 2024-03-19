@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import StudentContext from '../context/StudentContext';
 import test from "./test.json"
 import Swal from 'sweetalert2';
-import { AiOutlineSearch } from 'react-icons/ai';
+import { AiOutlineSearch, AiOutlineSortAscending, AiOutlineSortDescending } from 'react-icons/ai';
 import * as XLSX from 'xlsx';
 import ClipLoader from "react-spinners/ClipLoader";
 
@@ -37,16 +37,15 @@ const Tablestudents = () => {
     'Grade Other Pref 4',
     'Other Pref 5',
     'Grade Other Pref 5',
-    'Other Pref 6',
-    'Grade Other Pref 6',
-    'Other Pref 7',
-    'Grade Other Pref 7',
-    'Other Pref 8',
-    'Grade Other Pref 8',
     'Non-Prefs 1',
     'Non-Prefs 2',
     'Non-Prefs 3',
   ];
+  const [sortConfig, setSortConfig] = useState({
+    key: null,
+    direction: "ascending",
+  });
+  const [sortedStudent, setSortedStudent] = useState([]);
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
@@ -105,9 +104,6 @@ const Tablestudents = () => {
         Swal.fire('Deleted!', 'Student has been deleted', 'success');
       }
     });
-    // if (window.confirm('Are you sure you want to delete this student?')) {
-    //   await deleteStudent(studentId);
-    // }
   };
 
   const handleInputChange = (e, key) => {
@@ -119,6 +115,10 @@ const Tablestudents = () => {
     // This code will run after the state has been updated
     setEditedStudentData({ ...students[editingStudentIndex] });
   }, [editingStudentIndex]);
+
+  useEffect(() => {
+    setSortedStudent(extractedData);
+  },[students]);  
 
   const extractedData = students.map((student) => {
    const formattedData = customLabels.map((label) => {
@@ -170,7 +170,8 @@ const Tablestudents = () => {
     return formattedData;
   });
 
-const filteredStudents = searchQuery === ''? extractedData: extractedData.filter((student) => {
+  
+const filteredStudents = searchQuery === ''? sortedStudent: sortedStudent.filter((student) => {
     const values = Object.values(student).join(' ').toLowerCase();
     return values.includes(searchQuery.toLowerCase());
   });
@@ -181,7 +182,17 @@ const filteredStudents = searchQuery === ''? extractedData: extractedData.filter
         <th className='border p-2 text-center'>S.No</th>
         {customLabels.map((label, index) => (
           <th className='border p-2 text-center' key={index}>
-            {label}
+            <button className='w-full flex justify-center'
+              onClick={() => handleSort(index)}
+            >
+                {label}
+                {sortConfig.key === index &&
+                    (sortConfig.direction === "ascending" ? (
+                      <AiOutlineSortAscending />
+                    ) : (
+                      <AiOutlineSortDescending />
+                  ))}
+            </button>
           </th>
         ))}
         <th className='border p-2 text-center'>Actions</th>
@@ -196,7 +207,7 @@ const filteredStudents = searchQuery === ''? extractedData: extractedData.filter
     return (
       <tr className={`text-center ${isEditing ? editingRowClass : ''}`} key={index}>
         <td className='border p-2'>{index+1}</td>
-        {data.slice(0,30).map((item, itemIndex) => (
+        {data.slice(0,24).map((item, itemIndex) => (
           <td className='border p-2' key={itemIndex}>
             {isEditing ? (
               <input
@@ -223,7 +234,7 @@ const filteredStudents = searchQuery === ''? extractedData: extractedData.filter
             <div className='flex'>
               <button
                 className='bg-green-500 text-white px-2 py-1 rounded-md flex items-center mr-1'
-                onClick={() => handleSave(data[30])}
+                onClick={() => handleSave(data[24])}
               >
                 Save
               </button>
@@ -239,13 +250,13 @@ const filteredStudents = searchQuery === ''? extractedData: extractedData.filter
             <div className='flex'>
               <button
                 className='bg-blue-500 text-white px-2 py-1 rounded-md flex items-center mr-1'
-                onClick={() => handleEdit(index,data[30])}
+                onClick={() => handleEdit(index,data[24])}
               >
                 Edit
               </button>
               <button
                 className='bg-red-500 text-white px-2 py-1 rounded-md flex items-center'
-                onClick={() => handleDelete(data[30])}
+                onClick={() => handleDelete(data[24])}
               >
                 Delete
               </button>
@@ -276,13 +287,6 @@ const filteredStudents = searchQuery === ''? extractedData: extractedData.filter
     'Other Pref 4',
     'Grade Other Pref 4',
     'Other Pref 5',
-    'Grade Other Pref 5',
-    'Other Pref 6',
-    'Grade Other Pref 6',
-    'Other Pref 7',
-    'Grade Other Pref 7',
-    'Other Pref 8',
-    'Grade Other Pref 8',
     'Non-Prefs 1',
     'Non-Prefs 2',
     'Non-Prefs 3',]; // Replace with your custom headers
@@ -293,6 +297,27 @@ const filteredStudents = searchQuery === ''? extractedData: extractedData.filter
     XLSX.writeFile(wb, 'Students_Downloaded.xlsx');
   };
   
+  const handleSort = (key) => {
+    // Toggle the sorting direction if the same key is clicked again
+    const direction = key === sortConfig.key && sortConfig.direction === "ascending"
+        ? "descending"
+        : "ascending";
+    const sorted = [
+      ...sortedStudent
+    ].sort((a, b) => {
+      const valueA = a[key].toString().toLowerCase();
+      const valueB = b[key].toString().toLowerCase();
+      if (valueA < valueB) {
+        return direction === "ascending" ? -1 : 1;
+      }
+      if (valueA > valueB) {
+        return direction === "ascending" ? 1 : -1;
+      }
+      return 0;
+    });
+    setSortConfig({ key, direction });
+    setSortedStudent(sorted)
+  };
 
   return (
     <div>

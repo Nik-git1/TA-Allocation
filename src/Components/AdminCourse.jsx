@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import CourseContext from '../context/CourseContext';
 import Swal from 'sweetalert2';
-import { AiOutlineSearch } from 'react-icons/ai';
+import { AiOutlineSearch, AiOutlineSortAscending, AiOutlineSortDescending } from 'react-icons/ai';
 import * as XLSX from 'xlsx';
 
 const CourseTable = () => {
@@ -20,10 +20,15 @@ const CourseTable = () => {
     taStudentRatio: 'Ta Student Ratio',
     taRequired: 'Ta Required'
   }
+  const [sortConfig, setSortConfig] = useState({
+    key: null,
+    direction: "ascending",
+  });
+  const [sortedCourse, setSortedCourse] = useState(courses);
 
-/*   useEffect(() => {
-    setEditedCourseData({});
-  }, [editingRow]);*/
+  useEffect(() => {
+    setSortedCourse(courses);
+  },[courses]);
 
   const handleEdit = (row) => {
     setEditingRow(row);
@@ -157,7 +162,19 @@ const CourseTable = () => {
           <tr className="bg-[#3dafaa] text-white">
             <th className='border p-2 text-center'>S.No</th>
             {courseKeys.slice(1,10).map((key, index) => (
-              <th className='border p-2 text-center' key={index}>{columnName[key]}</th>
+              <th className='border p-2 text-center' key={index}>
+                <button className='w-full flex justify-center'
+                  onClick={() => handleSort(key)}
+                >
+                  {columnName[key]}
+                  {sortConfig.key === key &&
+                    (sortConfig.direction === "ascending" ? (
+                      <AiOutlineSortAscending />
+                    ) : (
+                      <AiOutlineSortDescending />
+                  ))}
+                </button>
+              </th>
             ))}
             <th className='border p-2 text-center'>Action</th>
           </tr>
@@ -189,10 +206,33 @@ const CourseTable = () => {
   };
   
 
-  const filteredCourses = courses.filter((course) => {
+  const filteredCourses = sortedCourse.filter((course) => {
     const values = Object.values(course).join(' ').toLowerCase();
     return values.includes(searchTerm.toLowerCase());
   });
+
+  const handleSort = (key) => {
+    // Toggle the sorting direction if the same key is clicked again
+    const direction = key === sortConfig.key && sortConfig.direction === "ascending"
+        ? "descending"
+        : "ascending";
+    console.log(key)
+    const sorted = [
+      ...courses
+    ].sort((a, b) => {
+      const valueA = a[key].toString().toLowerCase();
+      const valueB = b[key].toString().toLowerCase();
+      if (valueA < valueB) {
+        return direction === "ascending" ? -1 : 1;
+      }
+      if (valueA > valueB) {
+        return direction === "ascending" ? 1 : -1;
+      }
+      return 0;
+    });
+    setSortConfig({ key, direction });
+    setSortedCourse(sorted)
+  };
 
   return (
     <div>
