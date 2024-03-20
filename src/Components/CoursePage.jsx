@@ -24,6 +24,8 @@ const CoursePage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentRound, setCurrentRound] = useState(null);
   const [prefFilter, setPrefFilter] = useState("All");
+  const [programFilter, setProgramFilter] = useState("All");
+  const [departmentFilter, setDepartmentFilter] = useState("All");
   const [sortConfig, setSortConfig] = useState({
     key: null,
     direction: "ascending",
@@ -255,7 +257,7 @@ const CoursePage = () => {
   };
 
   const filterStudents = (studentsList) => {
-    if (prefFilter === "All") {
+    if (prefFilter === "All" && programFilter === "All" && departmentFilter === "All") {
       return studentsList.filter(
         (student) =>
           student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -263,28 +265,51 @@ const CoursePage = () => {
       );
     } else {
       const filteredStudents = []; // Initialize an empty array to collect matching students
-      for (const student of studentsList) {
-        let pref = "Not Any";
-        let count = 1;
-        for (const i of student.departmentPreferences) {
-          if (i.course === selectedCourse.name) {
-            pref = `Dept Preference ${count}`;
-            break;
+      if (prefFilter !== "All"){
+
+        for (const student of studentsList) {
+          let pref = "Not Any";
+          let count = 1;
+          for (const i of student.departmentPreferences) {
+            if (i.course === selectedCourse.name) {
+              pref = `Dept Preference ${count}`;
+              break;
+            }
+            count++;
           }
-          count++;
+          for (const i of student.nonDepartmentPreferences) {
+            if (pref !== "Not Any") {
+              break;  
+            }
+            if (i.course === selectedCourse.name) {
+              pref = `Other Preference ${count}`;
+              break;
+            }
+            count++;
+          }
+          if (pref === prefFilter && (student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          student.emailId.toLowerCase().includes(searchQuery.toLowerCase()))) {
+            filteredStudents.push(student); // Add matching student to the array
+          }
         }
-        for (const i of student.nonDepartmentPreferences) {
-          if (pref !== "Not Any") {
-            break;
+      }
+
+      else if (programFilter !== "All"){
+
+        for (const student of studentsList) {
+          if (student.program === programFilter && (student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          student.emailId.toLowerCase().includes(searchQuery.toLowerCase()))){
+            filteredStudents.push(student);
           }
-          if (i.course === selectedCourse.name) {
-            pref = `Other Preference ${count}`;
-            break;
-          }
-          count++;
         }
-        if (pref === prefFilter) {
-          filteredStudents.push(student); // Add matching student to the array
+      }
+
+      else if (departmentFilter !== "All"){
+        for (const student of studentsList) {
+          if (student.department === departmentFilter && (student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          student.emailId.toLowerCase().includes(searchQuery.toLowerCase()))){
+            filteredStudents.push(student);
+          }
         }
       }
       return filteredStudents; // Return the array of matching students
@@ -460,12 +485,20 @@ const CoursePage = () => {
     setPrefFilter(event.target.value);
   };
 
+  const handleProgramFilter = (event) => {
+    setProgramFilter(event.target.value);
+  };
+
+  const handleDepartmentFilter = (event) => {
+    setDepartmentFilter(event.target.value);
+  };
+
   const renderCommonHeader = (title, currentRound, handlePrefFilter) => {
     return (
       <div className="flex">
         <h2 className="text-2xl font-bold mb-2 mr-2">{title}</h2>
         {currentRound !== 1 && (
-          <div className="mb-1">
+          <div className="mb-1 mr-2">
             <h2 className="mt-2 mr-2 inline-block">Preference:</h2>
             <select
               name=""
@@ -485,6 +518,40 @@ const CoursePage = () => {
             </select>
           </div>
         )}
+        <div className="mb-1 mr-2">
+          <h2 className="mt-2 mr-2 inline-block">Program:</h2>
+          <select
+            name=""
+            id=""
+            className="px-2 py-2 border border-[#3dafaa] rounded inline-block"
+            onChange={handleProgramFilter}
+          >
+            <option value="All">All</option>
+            <option value="B.Tech 3th Year">B.Tech 3th Year</option>
+            <option value="B.Tech 4th Year">B.Tech 4th Year</option>
+            <option value="M.Tech 1st Year">M.Tech 1th Year</option>
+            <option value="M.Tech 2th Year">M.Tech 2th Year</option>
+            <option value="PhD">PhD</option>
+          </select>
+        </div>
+
+        <div className="mb-1 mr-2">
+          <h2 className="mt-2 mr-2 inline-block">Department:</h2>
+          <select
+            name=""
+            id=""
+            className="px-2 py-2 border border-[#3dafaa] rounded inline-block"
+            onChange={handleDepartmentFilter}
+          >
+            <option value="All">All</option>
+            <option value="CSE">CSE</option>
+            <option value="CB">CB</option>
+            <option value="Maths">Maths</option>
+            <option value="HCD">HCD</option>
+            <option value="ECE">ECE</option>
+            <option value="SSH">SSH</option>
+          </select>
+        </div>
       </div>
     );
   };
@@ -810,7 +877,7 @@ const CoursePage = () => {
               Allocated Students to other courses
             </h2>
             {currentRound !== 1 && (
-              <div className="mb-1">
+              <div className="mb-1 mr-2">
                 <h2 className="mt-2 mr-2 inline-block">Preference:</h2>
                 <select
                   name=""
@@ -830,6 +897,40 @@ const CoursePage = () => {
                 </select>
               </div>
             )}
+            <div className="mb-1 mr-2">
+              <h2 className="mt-2 mr-2 inline-block">Program:</h2>
+              <select
+                name=""
+                id=""
+                className="px-2 py-2 border border-[#3dafaa] rounded inline-block"
+                onChange={handleProgramFilter}
+              >
+                <option value="All">All</option>
+                <option value="B.Tech 3th Year">B.Tech 3th Year</option>
+                <option value="B.Tech 4th Year">B.Tech 4th Year</option>
+                <option value="M.Tech 1th Year">M.Tech 1th Year</option>
+                <option value="M.Tech 2th Year">M.Tech 2th Year</option>
+                <option value="PhD">PhD</option>
+              </select>
+            </div>
+
+            <div className="mb-1 mr-2">
+              <h2 className="mt-2 mr-2 inline-block">Department:</h2>
+              <select
+                name=""
+                id=""
+                className="px-2 py-2 border border-[#3dafaa] rounded inline-block"
+                onChange={handleDepartmentFilter}
+              >
+                <option value="All">All</option>
+                <option value="CSE">CSE</option>
+                <option value="CB">CB</option>
+                <option value="Maths">Maths</option>
+                <option value="HCD">HCD</option>
+                <option value="ECE">ECE</option>
+                <option value="SSH">SSH</option>
+              </select>
+            </div>
           </div>
           <div className="overflow-auto ">
             <table className="w-full border-collapse border">
