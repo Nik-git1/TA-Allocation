@@ -4,6 +4,7 @@ import DepartmentContext from "../context/DepartmentContext";
 import "../App.css";
 import { Link, useNavigate } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
+import { GoDotFill } from "react-icons/go";
 
 const AllocateHeader = () => {
   const [filteredCourses, setfilteredCourses] = useState([]);
@@ -67,6 +68,18 @@ const AllocateHeader = () => {
         <p className=" text-2xl flex">
           {currentRound}
         </p>
+      </div>
+      <p className="flex items-center ml-2 mb-2 text-3xl">|</p>
+      <div className="flex ml-2 items-center">
+        <p className="text-red-500"><GoDotFill/></p>
+        <p className="mr-2">Red courses are overallocated</p>
+        {currentRound >= 2 ? (
+          <>
+          <p className="text-yellow-500"><GoDotFill/></p>
+          <p className="">Yellow courses are underallocated</p>
+          </>
+        ) : null}
+        
       </div>
     </div>
   );

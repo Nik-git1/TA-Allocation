@@ -13,9 +13,25 @@ const Department = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentRound, setCurrentRound] = useState(null);
+  const header = ['Name','Code','Acronym','Department','Credits','Faculty','Total Students', 'TA Required','TA Allocated','Action'];
+
+  const fetchCurrentRound = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:5001/api/rd/currentround"
+      );
+      const data = await response.json();
+      setCurrentRound(data.currentRound);
+      console.log(currentRound)
+    } catch (error) {
+      console.error("Error fetching round status:", error);
+    }
+  };
 
   useEffect(() => {
     console.log(user.department);
+    fetchCurrentRound();
   }, []);
 
   const allocateCourse = (course) => {
@@ -37,15 +53,13 @@ const Department = () => {
     } else {
       return (
         <tr className="bg-[#3dafaa] text-white">
-          {Object.keys(departmentCourses[0]).map((key, index) =>
+          {header.map((key, index) =>
             // Use index to skip rendering the first column
-            index !== 0 && index !== 10 ? (
               <th className="border p-2 text-center" key={key}>
                 {key}
               </th>
-            ) : null
+            
           )}
-          <th className="border p-2 text-center">Actions</th>
         </tr>
       );
     }
@@ -58,7 +72,7 @@ const Department = () => {
   const filteredCourses = departmentCourses.filter(
     (course) =>
       (user.department === 'all' || course.department === user.department) &&
-      course.name.toLowerCase().includes(searchQuery.toLowerCase())
+      (course.name.toLowerCase().includes(searchQuery.toLowerCase()) || course.acronym.toLowerCase().includes(searchQuery.toLowerCase()) || course.code.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   return (
@@ -69,7 +83,7 @@ const Department = () => {
           <div className="relative">
             <input
               type="search"
-              placeholder="Search Course by name..."
+              placeholder="Search Course by Name/Code/Acronym..."
               value={searchQuery}
               onChange={handleSearch}
               className="w-full p-4 rounded-full h-10 border border-[#3dafaa] outline-none focus.border-[#3dafaa]"
@@ -79,6 +93,17 @@ const Department = () => {
             </button>
           </div>
         </form>
+        <div className="flex items-center">
+          <p className="font-bold mr-1">Allocation Status:</p>
+          <select name="" id=""
+              className="px-2 py-2 border border-[#3dafaa] rounded inline-block"
+          >
+            <option value="All">All</option>
+            <option value="Dept Preference 1" className="text-red-500">Over Allocation</option>
+            <option value="Dept Preference 2" className="text-yellow-500">Under Allocation</option>
+            <option value="Other Preference 1">Complete Allocation</option>
+          </select>
+        </div>
       </div>
       <div className="max-w-full max-h-[75vh] overflow-auto">
         <table className="border-collapse border w-full">
@@ -87,9 +112,9 @@ const Department = () => {
             {filteredCourses.map((row, index) => (
               <tr className="text-center" key={index}>
                 {Object.values(row).map((data, ind) =>
-                  ind !== 0 && ind !== 10 ? (
-                    <td className={`border p-2 ${row.taAllocated.length > row.taRequired ? 'text-red-500' : 'text-black'}`} key={ind}>
-                      {data}
+                  ind !== 0 && ind !== 10 && ind !== 8 ? (
+                    <td className={`border p-2 ${row.taAllocated.length > row.taRequired ? 'text-red-500' : (row.taAllocated.length < row.taRequired && currentRound >= 2 ? 'text-yellow-500' : 'text-black')}`} key={ind}>
+                      {ind === 11 ? row.taAllocated.length : data}
                     </td>
                   ) : null
                 )}
