@@ -87,13 +87,16 @@ const AllocateHeader = () => {
           
         </div>
       </div>
-      <div className="flex items-center">
-      <button className='rounded-full bg-[#3dafaa] text-white py-2 px-6 hover:bg-red-500 font-bold mr-2'
-          onClick={handleLogout}
-        >
-          Logout
-        </button>
-      </div>
+      {user.role !== 'admin' ?
+        <div className="flex items-center">
+          <button className='rounded-full bg-[#3dafaa] text-white py-2 px-6 hover:bg-red-500 font-bold mr-2'
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
+        </div>
+        : null
+      }
     </div>
   );
 };
