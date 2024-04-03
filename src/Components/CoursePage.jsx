@@ -84,41 +84,47 @@ const CoursePage = () => {
   }, [selectedCourse, students, allocated]);
 
   const handleAllocate = (studentId) => {
-    // Make a POST request to allocate the student
-    axios
-      .post("http://localhost:5001/api/al/allocation", {
-        studentId,
-        courseId: selectedCourse._id,
-        allocatedByID: user.id,
-        allocatedBy: user.role,
-      })
-      .then((response) => {
-        // Allocation was successful
 
-        // Move the student from available to allocated
-        const studentToAllocate = availableStudents.find(
-          (student) => student._id === studentId
-        );
-
-        setAllocatedToThisCourse((prevAllocated) => [
-          ...prevAllocated,
-          studentToAllocate,
-        ]);
-        setAvailableStudents((prevAvailable) =>
-          prevAvailable.filter((student) => student._id !== studentId)
-        );
-
-        getStudentsFromBackend();
-
-        // Toggle the button state to trigger recalculation
-        setbutton((prevState) => !prevState);
-      })
-      .catch((error) => {
-        if (error.message === "Request failed with status code 400") {
-          Swal.fire("Can't Allocate", "TA limit exceeded.", "error");
-        }
-        console.error("Error allocating student:", error);
-      });
+    if (currentRound == null){
+      Swal.fire("Can't Allocate", "No allocation round is going on", "error");
+    }
+    else{
+      // Make a POST request to allocate the student
+      axios
+        .post("http://localhost:5001/api/al/allocation", {
+          studentId,
+          courseId: selectedCourse._id,
+          allocatedByID: user.id,
+          allocatedBy: user.role,
+        })
+        .then((response) => {
+          // Allocation was successful
+  
+          // Move the student from available to allocated
+          const studentToAllocate = availableStudents.find(
+            (student) => student._id === studentId
+          );
+  
+          setAllocatedToThisCourse((prevAllocated) => [
+            ...prevAllocated,
+            studentToAllocate,
+          ]);
+          setAvailableStudents((prevAvailable) =>
+            prevAvailable.filter((student) => student._id !== studentId)
+          );
+  
+          getStudentsFromBackend();
+  
+          // Toggle the button state to trigger recalculation
+          setbutton((prevState) => !prevState);
+        })
+        .catch((error) => {
+          if (error.message === "Request failed with status code 400") {
+            Swal.fire("Can't Allocate", "TA limit exceeded.", "error");
+          }
+          console.error("Error allocating student:", error);
+        });
+    }
   };
 
   const prefRank = (student) => {
