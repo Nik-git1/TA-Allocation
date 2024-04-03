@@ -7,7 +7,6 @@ const FeedbackStatus = require('../models/FeedbackStatus');
 // Start generating dummy feedback
 const startFeedback = asyncHandler(async (req, res) => {
     try {
-
         let feedbackStatus = await FeedbackStatus.findOne();
         if (!feedbackStatus) {
             feedbackStatus = new FeedbackStatus({ active: true });
@@ -16,18 +15,6 @@ const startFeedback = asyncHandler(async (req, res) => {
         }
         await feedbackStatus.save();
 
-     
-        const feedbackCount = await Feedback.countDocuments();
-
-        // If feedback records exist, return without generating new feedback
-        if (feedbackCount > 0) {
-            console.log('Feedback records already exist. Skipping generation.');
-            return res.json({ message: 'Feedback records already exist' });
-        }
-
-        // Fetch or create the FeedbackStatus document
-      
-        // Fetch all courses with allocated TAs
         const courses = await Course.find().populate('taAllocated');
 
         // Iterate through courses
@@ -56,8 +43,15 @@ const startFeedback = asyncHandler(async (req, res) => {
                     course: course._id,
                     student: ta._id,
                     professor: course.professor,
-                    rating: 5, // Default rating
-                    description: '', // Optional description
+                    overallGrade: 'S', // Default value for overall grade
+                    regularityInMeeting: 'Average', // Default value for regularity in meeting
+                    attendanceInLectures: 'Average', // Default value for attendance in lectures
+                    preparednessForTutorials: 'Average', // Default value for preparedness for tutorials
+                    timelinessOfTasks: 'Average', // Default value for timeliness of tasks
+                    qualityOfWork: 'Average', // Default value for quality of work
+                    attitudeCommitment: 'Average', // Default value for attitude/commitment
+                    nominatedForBestTA: false, // Default value for nominated for best TA
+                    comments: '' // Default value for comments
                 });
         
                 // Save the feedback object
@@ -65,7 +59,6 @@ const startFeedback = asyncHandler(async (req, res) => {
             }
         }
         
-
         console.log('Dummy feedback objects generated successfully');
         res.json({ message: 'Dummy feedback generated successfully' });
     } catch (error) {
@@ -73,6 +66,7 @@ const startFeedback = asyncHandler(async (req, res) => {
         res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 });
+
 
 
 // Edit feedback by ID
@@ -137,7 +131,6 @@ const getAllFeedbacks = asyncHandler(async (req, res) => {
             .populate('course') // Populates the 'course' field with the 'name' property
             .populate('student') // Populates the 'student' field with the 'name' property
             .populate('professor'); // Populates the 'professor' field with the 'name' property
-        console.log(feedbacks);
         res.json({ feedbacks });
     } catch (error) {
         console.error("Error fetching all feedbacks:", error);

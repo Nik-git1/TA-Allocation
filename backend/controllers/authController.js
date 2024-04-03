@@ -89,7 +89,7 @@ const sendOtp = asyncHandler( async ( req, res ) =>
 } );
 
 
-const verifyOtp = asyncHandler( async ( req, res ) =>
+const handleTAlogin = asyncHandler( async ( req, res ) =>
 {
   const { email, enteredOTP } = req.body;
   const storedOTP = otpStorage.get( email );
@@ -99,7 +99,15 @@ const verifyOtp = asyncHandler( async ( req, res ) =>
     return res.status( 400 ).json( { success: false, message: 'Invalid OTP' } );
   }
 
-  res.status( 200 ).json( { success: true, message: 'OTP verified successfully' } );
+  const data = {
+    user: {
+      role: "TA",
+    },
+  };
+
+  const authtoken = jwt.sign( data, JWT_SECRET );
+
+  res.status( 200 ).json( { success: true, message: 'OTP verified successfully' , authtoken } );
 } );
 
 const addAdmin = asyncHandler( async ( req, res ) =>
@@ -285,7 +293,6 @@ const Professorotp = asyncHandler( async ( req, res ) =>
   }
 
   console.log(user)
-
   // Find if the professor teaches any courses
   const data = {
     user: {
@@ -302,4 +309,4 @@ const Professorotp = asyncHandler( async ( req, res ) =>
 } );
 
 
-module.exports = { Professorotp,JMotp, adminLogin, ProfessorLogin, JMLogin, sendOtp, verifyOtp, addAdmin };
+module.exports = { Professorotp,JMotp, adminLogin, ProfessorLogin, JMLogin, sendOtp, handleTAlogin, addAdmin };

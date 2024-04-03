@@ -30,7 +30,22 @@ const CoursePage = () => {
     key: null,
     direction: "ascending",
   });
+
   const [sorted, setSorted] = useState([]);
+
+  const fetchCurrentRound = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:5001/api/rd/currentround"
+      );
+      const data = await response.json();
+      setCurrentRound(data.currentRound);
+      console.log(currentRound)
+    } catch (error) {
+      console.error("Error fetching round status:", error);
+    }
+  };
+
 
   useEffect(() => {
     if (!selectedCourse || selectedCourse.name !== courseName) {
@@ -46,6 +61,7 @@ const CoursePage = () => {
         navigate(modifiedPath);
       }
     }
+
     // When the component mounts, sort students into allocated and available lists
     const studentsAllocatedToCourse = students.filter(
       (student) =>
@@ -59,18 +75,7 @@ const CoursePage = () => {
         student.allocatedTA !== selectedCourse.name
     );
 
-    const fetchCurrentRound = async () => {
-      try {
-        const response = await fetch(
-          "http://localhost:5001/api/rd/currentround"
-        );
-        const data = await response.json();
-        setCurrentRound(data.currentRound);
-      } catch (error) {
-        console.error("Error fetching round status:", error);
-      }
-    };
-
+  
     fetchCurrentRound();
 
     setAllocatedToThisCourse(studentsAllocatedToCourse);
@@ -433,7 +438,8 @@ const CoursePage = () => {
                   onClick={() => handleAllocate(student._id)}
                   disabled={
                     student.allocationStatus === 1 &&
-                    student.allocatedTA !== selectedCourse.name
+                    student.allocatedTA !== selectedCourse.name &&
+                    currentRound === null
                   }
                 >
                   Allocate

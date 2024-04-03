@@ -21,7 +21,15 @@ const App = () => {
           <DepartmentState>
             <Routes>
               <Route element={<LoginPage />} path="/" />
-              <Route element={<Form />} path="/TaForm" />
+              <Route
+                element={
+                  <ProtectedRoute
+                    element={<Form />}
+                    allowedRoles={['TA']}
+                  />
+                }
+                path="/TAForm"
+              />
               <Route
                 element={
                   <ProtectedRoute
