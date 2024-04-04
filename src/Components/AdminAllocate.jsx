@@ -14,6 +14,7 @@ const Department = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [currentRound, setCurrentRound] = useState(null);
+  const [allocationStatus, setAllocationStatus] = useState('All');
   const header = ['Name','Code','Acronym','Department','Credits','Faculty','Total Students', 'TA Required','TA Allocated','Action'];
 
   const fetchCurrentRound = async () => {
@@ -69,11 +70,44 @@ const Department = () => {
     setSearchQuery(e.target.value);
   };
 
-  const filteredCourses = departmentCourses.filter(
+  const filteredCourseByAllocationStatus = (departmentCourses) => {
+    const courseList = [];
+    if (allocationStatus === 'All'){
+      return departmentCourses;
+    }
+    else if (allocationStatus === 'Over Allocation'){
+      for (const course of departmentCourses){
+        if(course.taAllocated.length > course.taRequired){
+          courseList.push(course);
+        }
+      }
+    }
+    else if (allocationStatus === 'Under Allocation'){
+      for (const course of departmentCourses){
+        if(course.taAllocated.length < course.taRequired){
+          courseList.push(course);
+        }
+      }
+    }
+    else if (allocationStatus === 'Complete Allocation'){
+      for (const course of departmentCourses){
+        if(course.taAllocated.length == course.taRequired){
+          courseList.push(course);
+        }
+      }
+    }
+    return courseList;
+  }
+
+  const filteredCourses = filteredCourseByAllocationStatus(departmentCourses).filter(
     (course) =>
       (user.department === 'all' || course.department === user.department) &&
       (course.name.toLowerCase().includes(searchQuery.toLowerCase()) || course.acronym.toLowerCase().includes(searchQuery.toLowerCase()) || course.code.toLowerCase().includes(searchQuery.toLowerCase()))
   );
+
+  const handleAllocationStatus = (event) => {
+    setAllocationStatus(event.target.value);
+  }
 
   return (
     <div>
@@ -97,11 +131,12 @@ const Department = () => {
           <p className="font-bold mr-1">Allocation Status:</p>
           <select name="" id=""
               className="px-2 py-2 border border-[#3dafaa] rounded inline-block"
+              onChange={handleAllocationStatus}
           >
             <option value="All">All</option>
-            <option value="Dept Preference 1" className="text-red-500">Over Allocation</option>
-            <option value="Dept Preference 2" className="text-yellow-500">Under Allocation</option>
-            <option value="Other Preference 1">Complete Allocation</option>
+            <option value="Over Allocation" className="text-red-500">Over Allocation</option>
+            <option value="Under Allocation" className="text-yellow-500">Under Allocation</option>
+            <option value="Complete Allocation">Complete Allocation</option>
           </select>
         </div>
       </div>
