@@ -7,7 +7,7 @@ const Professor = require( "../models/Professor" )
 const JM = require( "../models/JM" )
 const LogEntry = require( "../models/LogEntry" )
 const nodemailer = require( 'nodemailer' );
-const Feedback = require('../models/Feedback');
+const Feedback = require( '../models/Feedback' );
 
 
 const transporter = nodemailer.createTransport( {
@@ -164,16 +164,16 @@ const allocate = asyncHandler( async ( req, res ) =>
       return res.status( 400 ).json( { message: "Student is not available for allocation" } );
     }
 
-    const studentUpdatePromise = Student.findByIdAndUpdate(
+    const studentUpdate = await Student.findByIdAndUpdate(
       studentId,
       {
         allocatedTA: course.id,
         allocationStatus: 1,
       },
-      { session }
+      { new: true, session }
     ).exec();
 
-    const courseUpdatePromise = Course.findByIdAndUpdate(
+    const courseUpdate = await Course.findByIdAndUpdate(
       courseId,
       {
         $push: { taAllocated: studentId },
@@ -181,19 +181,28 @@ const allocate = asyncHandler( async ( req, res ) =>
       { session }
     ).exec();
 
-    await Promise.all( [ studentUpdatePromise, courseUpdatePromise ] );
+    // await Promise.all( [ studentUpdatePromise, courseUpdatePromise ] );
 
+    const flatstudid = studentUpdate.flatStudentByID
+    const flatstud = studentUpdate.flatStudent
     const logEntry = new LogEntry( {
-      student: studentId,
+      student: flatstudid,
       userEmailId: allocatedByID,
       userRole: allocatedBy, // Assuming admin for now, change this accordingly
       action: 'Allocated',
-      course: courseId,
+      course: course,
     } );
 
     await logEntry.save( { session } );
-
     await session.commitTransaction();
+
+    const logToEmit = {
+      ...logEntry.toObject(),
+      student: flatstud,
+    };
+
+    io.emit( 'liveLogs', logToEmit )
+    io.emit( 'studentUpdated', flatstud )
 
     return res.status( 200 ).json( { message: "Student allocated successfully" } );
   } catch ( error )
@@ -224,7 +233,6 @@ const deallocate = asyncHandler( async ( req, res ) =>
     var student = await Student.findById( studentId ).session( session );
     var course = await Course.findById( student.allocatedTA ).session( session );
 
-
     const adminEmail = "nikjr7777@gmail.com";
     const professor = await Professor.findById( course.professor );
     //check for session parameters here
@@ -234,7 +242,6 @@ const deallocate = asyncHandler( async ( req, res ) =>
     {
       console.log( "Student not found" )
       session.abortTransaction();
-      // session.endSession();
       return res.status( 404 ).json( { message: "Student not found" } );
     }
 
@@ -243,7 +250,6 @@ const deallocate = asyncHandler( async ( req, res ) =>
     {
       console.log( "Student not alllocated" )
       session.abortTransaction();
-      // session.endSession();
       return res.status( 400 ).json( { message: "Student is not allocated" } );
     }
 
@@ -259,23 +265,42 @@ const deallocate = asyncHandler( async ( req, res ) =>
     }
 
     // Update student's allocatedTA and allocationStatus
-    student.allocatedTA = null;
-    student.allocationStatus = 0;
-    await student.save();
+    const studentUpdate = await Student.findByIdAndUpdate(
+      studentId,
+      {
+        allocatedTA: null,
+        allocationStatus: 0,
+      },
+      { new: true, session }
+    ).exec();
+
+    const flatstud = studentUpdate.flatStudent;
+    const flatstudid = studentUpdate.flatStudentByID;
+
+    // student.allocatedTA = null;
+    // student.allocationStatus = 0;
+    // await student.save();
+
     console.log( "Deallocated" )
     // sendDeallocationDetails(student.emailId, adminEmail, department.emailId, professor.emailId,deallocatedBy );
     const logEntry = new LogEntry( {
-      student: studentId,
+      student: flatstudid,
       userEmailId: deallocatedByID,
       userRole: deallocatedBy, // Assuming admin for now, change this accordingly
       action: 'Deallocated',
-      course: courseId,
+      course: course,
     } );
 
     await logEntry.save( { session } );
-
     await session.commitTransaction();
-    // session.endSession();
+
+    const logToEmit = {
+      ...logEntry.toObject(),
+      student: flatstud,
+    }
+
+    io.emit( 'liveLogs', logToEmit )
+    io.emit( 'studentUpdated', flatstud )
 
     return res
       .status( 200 )
@@ -283,7 +308,6 @@ const deallocate = asyncHandler( async ( req, res ) =>
   } catch ( error )
   {
     await session.abortTransaction();
-    // session.endSession();
     console.log( "Failed" )
     return res
       .status( 500 )
@@ -309,7 +333,6 @@ const freezeAllocation = asyncHandler( async ( req, res ) =>
     if ( !student )
     {
       session.abortTransaction();
-      // session.endSession();
       return res.status( 404 ).json( { message: "Student not found" } );
     }
 
@@ -317,7 +340,6 @@ const freezeAllocation = asyncHandler( async ( req, res ) =>
     if ( student.allocationStatus !== 1 || !student.allocatedTA )
     {
       session.abortTransaction();
-      // session.endSession();
       return res.status( 400 ).json( { message: "Cannot freeze allocation" } );
     }
 
@@ -326,7 +348,6 @@ const freezeAllocation = asyncHandler( async ( req, res ) =>
     await student.save();
 
     await session.commitTransaction();
-    // session.endSession();
 
     return res
       .status( 200 )
@@ -334,7 +355,6 @@ const freezeAllocation = asyncHandler( async ( req, res ) =>
   } catch ( error )
   {
     await session.abortTransaction();
-    // session.endSession();
     return res
       .status( 500 )
       .json( { message: "Internal server error", error: error.message } );

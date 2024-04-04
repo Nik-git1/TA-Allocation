@@ -4,6 +4,8 @@ const Student = require( "../models/Student" );
 const Course = require( "../models/Course" );
 const JM = require( "../models/JM" );
 const nodemailer = require( 'nodemailer' );
+const LogEntry = require( "../models/LogEntry" );
+const Feedback = require( "../models/Feedback" );
 
 const transporter = nodemailer.createTransport( {
   service: 'Gmail',
@@ -17,6 +19,7 @@ const sendForm = asyncHandler( async ( email, studentData ) =>
 {
 
   const department = await JM.findById( studentData.department, { department: 1 } ).lean();
+
   const departmentPreferences = await Promise.all(
     studentData.departmentPreferences.map( async pref =>
     {
@@ -155,32 +158,12 @@ const sendForm = asyncHandler( async ( email, studentData ) =>
 } );
 
 
-
 //@desc Get student by ID
 //@route GET /api/student/:id
 //@access public
 const getStudent = asyncHandler( async ( req, res ) =>
 {
-  const student = await Student.findById( req.params.id ).populate( {
-    path: 'department',
-    select: 'department -_id'
-  } )
-    .populate( {
-      path: 'allocatedTA',
-      select: 'name -_id'
-    } )
-    .populate( {
-      path: 'departmentPreferences.course',
-      select: 'name -_id'
-    } )
-    .populate( {
-      path: 'nonDepartmentPreferences.course',
-      select: 'name -_id'
-    } )
-    .populate( {
-      path: 'nonPreferences',
-      select: 'name -_id'
-    } );
+  const student = await Student.findById( req.params.id )
 
   if ( !student || student.length === 0 )
   {
@@ -188,30 +171,7 @@ const getStudent = asyncHandler( async ( req, res ) =>
     throw new Error( "No Student Found" );
   }
 
-  const flatStudent = {
-    _id: student._id,
-    name: student.name,
-    emailId: student.emailId,
-    rollNo: student.rollNo,
-    program: student.program,
-    department: student.department ? student.department.department : null,
-    taType: student.taType,
-    allocationStatus: student.allocationStatus,
-    allocatedTA: student.allocatedTA ? student.allocatedTA.name : null,
-    cgpa: student.cgpa,
-    nonPreferences: student.nonPreferences.map( preference => preference ? preference.name : null ),
-    departmentPreferences: student.departmentPreferences.map( preference => ( {
-      course: preference.course ? preference.course.name : null,
-      grade: preference.grade
-    } ) ),
-    nonDepartmentPreferences: student.nonDepartmentPreferences.map( preference => ( {
-      course: preference.course ? preference.course.name : null,
-      grade: preference.grade
-    } ) ),
-    __v: student.__v
-  };
-
-  res.status( 200 ).json( flatStudent );
+  res.status( 200 ).json( student.flatStudent );
 } );
 
 //@desc Get filtered students
@@ -282,33 +242,7 @@ const getStudents = asyncHandler( async ( req, res ) =>
     }
 
     const filteredStudents = await Student.find( filter )
-      .populate( 'department', 'department -_id' )
-      .populate( 'allocatedTA', 'name -_id' )
-      .populate( 'nonPreferences', 'name -_id' )
-      .populate( 'departmentPreferences.course', 'name -_id' )
-      .populate( 'nonDepartmentPreferences.course', 'name -_id' );
-    const flatStudents = filteredStudents.map( student => ( {
-      _id: student._id,
-      name: student.name,
-      emailId: student.emailId,
-      rollNo: student.rollNo,
-      program: student.program,
-      department: student.department ? student.department.department : null,
-      taType: student.taType,
-      allocationStatus: student.allocationStatus,
-      allocatedTA: student.allocatedTA ? student.allocatedTA.name : null,
-      cgpa: student.cgpa,
-      nonPreferences: student.nonPreferences.map( preference => preference ? preference.name : null ),
-      departmentPreferences: student.departmentPreferences.map( preference => ( {
-        course: preference.course ? preference.course.name : null,
-        grade: preference.grade
-      } ) ),
-      nonDepartmentPreferences: student.nonDepartmentPreferences.map( preference => ( {
-        course: preference.course ? preference.course.name : null,
-        grade: preference.grade
-      } ) ),
-      __v: student.__v
-    } ) );
+    const flatStudents = filteredStudents.map( student => student.flatStudent )
 
     res.status( 200 ).json( flatStudents );
   } catch {
@@ -331,8 +265,6 @@ async function getCourseIdByName ( courseName )
 const addStudent = asyncHandler( async ( req, res ) =>
 {
   var newStudents = req.body;
-
-  console.log( newStudents )
 
   // Check if the request body is an array
   if ( !Array.isArray( newStudents ) )
@@ -552,7 +484,6 @@ const addStudent = asyncHandler( async ( req, res ) =>
     {
       for ( const courseId of student.nonPreferences )
       {
-        console.log( courseId )
         await Course.findOneAndUpdate(
           { _id: courseId },
           { $inc: { antiPref: 1 } }
@@ -561,7 +492,7 @@ const addStudent = asyncHandler( async ( req, res ) =>
     }
 
     // Insert valid students into the database
-    await Student.insertMany( validStudents );
+    const returnedStudents = await Student.insertMany( validStudents );
     for ( const student of validStudents )
     {
       try
@@ -573,6 +504,10 @@ const addStudent = asyncHandler( async ( req, res ) =>
         // Handle the error as needed
       }
     }
+
+    const populatedStudents = await Student.find( { _id: { $in: returnedStudents.map( student => student._id ) } } )
+    const flatenedStudents = populatedStudents.map( student => student.flatStudent )
+    io.emit( 'studentsAdded', flatenedStudents );
 
     // Return a response with colliding and invalid students
     return res.status( 201 ).json( {
@@ -599,6 +534,7 @@ const updateStudent = asyncHandler( async ( req, res ) =>
   {
     // Step 1: Validate that the student exists
     const student = await Student.findById( studentId );
+
     if ( !student )
     {
       return res.status( 404 ).json( { message: "Student not found" } );
@@ -747,17 +683,21 @@ const updateStudent = asyncHandler( async ( req, res ) =>
     }
 
     // Step 5: Update the student with validated values
-    const updatedStudent = await Student.findByIdAndUpdate( studentId, updates, {
+    const updateStudent = await Student.findByIdAndUpdate( studentId, updates, {
       new: true,
-    } );
+    } )
+
+    const updatedStudent = updateStudent.flatStudent;
 
     try
     {
-      await sendForm( updatedStudent.emailId, updatedStudent );
+      await sendForm( updateStudent.emailId, updateStudent );
     } catch ( error )
     {
       console.error( 'Error sending student data via email:', error );
     }
+
+    io.emit( 'studentUpdated', updatedStudent )
 
     return res
       .status( 200 )
@@ -783,7 +723,10 @@ const deleteStudent = asyncHandler( async ( req, res ) =>
   try
   {
     // Step 1: Validate that the student exists
-    const student = await Student.findById( studentId );
+    const student = await Student.findById( studentId ).populate( {
+      path: 'allocatedTA',
+      select: false
+    } );
     if ( !student )
     {
       return res.status( 404 ).json( { message: "Student not found" } );
@@ -803,8 +746,13 @@ const deleteStudent = asyncHandler( async ( req, res ) =>
       }
     }
 
+    await LogEntry.deleteMany( { student: studentId } )
+    await Feedback.deleteMany( { student: studentId } )
+
     // Step 3: Delete the student
     await Student.findByIdAndRemove( studentId );
+
+    io.emit( 'studentDeleted', studentId );
 
     return res.status( 200 ).json( { message: "Student deleted successfully" } );
   } catch ( error )

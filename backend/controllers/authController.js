@@ -37,11 +37,12 @@ const sendOtp = asyncHandler( async ( req, res ) =>
 {
   const { email_id } = req.body;
   const findStudent = await Student.findOne( { emailId: email_id } );
+  const flatenedStudents = findStudent?.flatStudent
   let department = "";
-  if ( findStudent )
+  if ( flatenedStudents )
   {
-    department = await JM.findById( findStudent.department, "department" );
-    department = department.department
+    // department = await JM.findById( findStudent.department, "department" );
+    department = flatenedStudents.department
   }
   let otp = otpGenerator.generate( 6, {
     upperCaseAlphabets: false,
@@ -80,11 +81,11 @@ const sendOtp = asyncHandler( async ( req, res ) =>
   {
     console.log( ":", department, ":" )
     await transporter.sendMail( mailOptions );
-    res.status( 200 ).json( { success: true, message: 'OTP sent successfully', studentExist: findStudent, department: department } );
+    res.status( 200 ).json( { success: true, message: 'OTP sent successfully', studentExist: flatenedStudents, department: department } );
   } catch ( error )
   {
     console.error( 'Error sending OTP:', error );
-    res.status( 500 ).json( { success: false, message: 'Failed to send OTP', studentExist: findStudent, department: department } );
+    res.status( 500 ).json( { success: false, message: 'Failed to send OTP', studentExist: flatenedStudents, department: department } );
   }
 } );
 
@@ -232,7 +233,7 @@ const JMotp = asyncHandler( async ( req, res ) =>
   const authtoken = jwt.sign( data, JWT_SECRET );
   const success = true;
 
-  res.json( { success, authtoken , message: 'OTP verified successfully'} );
+  res.json( { success, authtoken, message: 'OTP verified successfully' } );
 } );
 
 const ProfessorLogin = asyncHandler( async ( req, res ) =>
@@ -284,7 +285,7 @@ const Professorotp = asyncHandler( async ( req, res ) =>
     return res.status( 400 ).json( { error: "Please enter valid credentials" } );
   }
 
-  console.log(user)
+  console.log( user )
 
   // Find if the professor teaches any courses
   const data = {
@@ -302,4 +303,4 @@ const Professorotp = asyncHandler( async ( req, res ) =>
 } );
 
 
-module.exports = { Professorotp,JMotp, adminLogin, ProfessorLogin, JMLogin, sendOtp, verifyOtp, addAdmin };
+module.exports = { Professorotp, JMotp, adminLogin, ProfessorLogin, JMLogin, sendOtp, verifyOtp, addAdmin };

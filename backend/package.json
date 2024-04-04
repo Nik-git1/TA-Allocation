@@ -16,6 +16,7 @@
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-async-handler": "^1.2.0",
@@ -23,8 +24,8 @@
     "mongodb": "^6.0.0",
     "mongoose": "^7.5.0",
     "nodemailer": "^6.9.5",
-    "cross-env": "^7.0.3",
-    "otp-generator": "^4.0.1"
+    "otp-generator": "^4.0.1",
+    "socket.io": "^4.7.5"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

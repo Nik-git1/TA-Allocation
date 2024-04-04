@@ -2,6 +2,7 @@ const asyncHandler = require( 'express-async-handler' );
 const Professor = require( "../models/Professor" );
 const Course = require( "../models/Course" );
 const argon2 = require( 'argon2' );
+const Feedback = require( '../models/Feedback' );
 
 
 //@desc Get professor by ID
@@ -179,6 +180,7 @@ const deleteProfessor = asyncHandler( async ( req, res ) =>
 
         // Update related Courses by setting the "professor" field to null
         await Course.updateMany( { professor: professorId }, { professor: null } );
+        await Feedback.updateMany( { professor: professorId }, { professor: null } )
 
         // Delete the professor
         await Professor.findByIdAndRemove( professorId );

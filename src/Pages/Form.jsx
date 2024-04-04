@@ -4,7 +4,7 @@ import Swal from "sweetalert2";
 import { useLocation } from "react-router-dom";
 import CryptoJS from "crypto-js";
 import ClipLoader from "react-spinners/ClipLoader";
-import { AiOutlineSearch } from 'react-icons/ai';
+import { AiOutlineSearch } from "react-icons/ai";
 
 const StudentForm = () => {
   const [formOpened, setFormOpened] = useState(true);
@@ -32,7 +32,7 @@ const StudentForm = () => {
     ],
     nonPreferences: ["", "", ""],
   };
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   const secretKey = "your-secret-key"; // Use the same secret key used for encryption
   const decryptedEmail = CryptoJS.AES.decrypt(
@@ -226,7 +226,7 @@ const StudentForm = () => {
 
     if (allValuesNotEmpty) {
       setLoading(true);
-      if (studentExist === null) {
+      if (studentExist == null) {
         // Send a POST request to the API endpoint
         await axios
           .post("http://localhost:5001/api/student", studentData)
@@ -249,6 +249,7 @@ const StudentForm = () => {
           });
       } else {
         // Send a PUT request to the API endpoint
+
         await axios
           .put(
             `http://localhost:5001/api/student/${studentExist._id}`,
@@ -287,7 +288,7 @@ const StudentForm = () => {
   };
 
   const filteredCourses = courses.filter((course) => {
-    const values = Object.values(course).join(' ').toLowerCase();
+    const values = Object.values(course).join(" ").toLowerCase();
     return values.includes(searchTerm.toLowerCase());
   });
 
@@ -501,9 +502,7 @@ const StudentForm = () => {
                       className="w-full p-2 border rounded mt-2"
                       placeholder="Search Course..."
                       value={pref.otherCourse}
-                      onChange={(e) =>
-                        handleInputChange(e, "Search")
-                      }
+                      onChange={(e) => handleInputChange(e, "Search")}
                     />
                     <select
                       id={`deptCourse-${index}`}
@@ -518,11 +517,8 @@ const StudentForm = () => {
                         Select Department Course
                       </option>
                       {/* Render the "Any Course" option */}
-                      <option value="any">
-                        Any Course
-                      </option>
-                      <option value="">
-                      </option>
+                      <option value="any">Any Course</option>
+                      <option value=""></option>
                       {/* Filter courses based on the selected department */}
                       {filteredCourses
                         .filter(
@@ -544,7 +540,7 @@ const StudentForm = () => {
                           </option>
                         ))}
                     </select>
-                    
+
                     <label
                       htmlFor={`deptGrade-${index}`}
                       className="block text-gray-700 font-bold mt-2"
@@ -586,7 +582,7 @@ const StudentForm = () => {
                     >
                       Preference {index + 1}:
                     </label>
-                   
+
                     <select
                       id={`nonDeptCourse-${index}`}
                       value={pref.course}
@@ -597,9 +593,7 @@ const StudentForm = () => {
                       className="w-full p-2 border rounded"
                     >
                       <option value="">Select Preferred Course</option>
-                      <option value="any">
-                        Any Course
-                      </option>
+                      <option value="any">Any Course</option>
                       {/* Filter courses based on the selected department */}
                       {courses.map((filteredCourse) => (
                         <option
@@ -660,7 +654,10 @@ const StudentForm = () => {
                         <option
                           key={filteredCourse._id}
                           value={filteredCourse._id}
-                          disabled={filteredCourse.antiPref > 0 || selectedCourses.includes(filteredCourse._id)}
+                          disabled={
+                            filteredCourse.antiPref > 0 ||
+                            selectedCourses.includes(filteredCourse._id)
+                          }
                         >
                           {`${filteredCourse.code} \u00a0\u00a0${filteredCourse.name}-(${filteredCourse.acronym}) \u00a0\u00a0\u00a0\u00a0${filteredCourse.professor}`}
                         </option>

@@ -1,20 +1,56 @@
 import React, { useState, useEffect } from "react";
-import * as XLSX from 'xlsx';
+import * as XLSX from "xlsx";
 import StudentContext from "./StudentContext";
-import axios from 'axios';
+import axios from "axios";
+import io from "socket.io-client";
+
+const socket = io("http://localhost:5001");
 
 const StudentState = (props) => {
-  const initStudents = [];
-  const [students, setStudents] = useState(initStudents);
+  // const initStudents = [];
+  const [students, setStudents] = useState([]);
   const [logs, setLogs] = useState([]);
+
+  useEffect(() => {
+    getStudentsFromBackend();
+    getLogsFromBackend();
+
+    socket.on("studentUpdated", (updatedStudent) => {
+      setStudents((prevStudents) =>
+        prevStudents.map((student) =>
+          student._id === updatedStudent._id ? updatedStudent : student
+        )
+      );
+    });
+
+    socket.on("studentsAdded", (newStudents) => {
+      setStudents((prevStudents) => [...prevStudents, ...newStudents]);
+    });
+
+    socket.on("studentDeleted", (deletedStudentId) => {
+      setStudents((prevStudents) =>
+        prevStudents.filter((student) => student._id !== deletedStudentId)
+      );
+    });
+
+    socket.on("liveLogs", (newLog) => {
+      setLogs((prevLogs) => [...prevLogs, newLog]);
+    });
+
+    return () => {
+      socket.off("studentUpdated");
+      socket.off("studentAdded");
+      socket.off("studentDeleted");
+    };
+  }, []);
+
   const updateStudent = async (studentId, updatedData) => {
     try {
-      const response = await axios.put(`http://localhost:5001/api/student/${studentId}`, updatedData);
-      if (response.status === 200) {
-        // Student data updated successfully
-        // You can choose to update the local state if needed
-        getStudentsFromBackend(); // Fetch updated data from the backend
-      } else {
+      const response = await axios.put(
+        `http://localhost:5001/api/student/${studentId}`,
+        updatedData
+      );
+      if (response.status != 200) {
         console.error("Failed to update student data on the backend");
       }
     } catch (error) {
@@ -25,28 +61,21 @@ const StudentState = (props) => {
   const deleteStudent = (studentId) => {
     axios
       .delete(`http://localhost:5001/api/student/${studentId}`)
-      .then((response) => {
-        getStudentsFromBackend(); // Fetch updated student data after deletion
-      })
       .catch((error) => {
-        console.error('Error deleting student:', error);
+        console.error("Error deleting student:", error);
       });
   };
 
   const getStudentsFromBackend = () => {
     axios
-      .get('http://localhost:5001/api/student') // Replace with your actual API endpoint
-      
+      .get("http://localhost:5001/api/student")
       .then((response) => {
         let studentsFromBackend = response.data;
         setStudents(studentsFromBackend);
-        console.log('Students updated')
       })
       .catch((error) => {
-        console.error('Error fetching data from the backend:', error);
+        console.error("Error fetching data from the backend:", error);
       });
-
-     
   };
 
   const getStudentsFromFile = (event) => {
@@ -56,12 +85,12 @@ const StudentState = (props) => {
 
       reader.onload = (e) => {
         const data = e.target.result;
-        const workbook = XLSX.read(data, { type: 'binary' });
+        const workbook = XLSX.read(data, { type: "binary" });
         const sheetName = workbook.SheetNames[0]; // Assuming the data is in the first sheet.
         const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
 
         if (sheetData.length === 0) {
-          console.error('No data found in the XLSX file.');
+          console.error("No data found in the XLSX file.");
           return;
         }
 
@@ -76,16 +105,13 @@ const StudentState = (props) => {
         });
 
         axios
-          .post('http://localhost:5001/api/student',  students )
-          .then((response) => {
-            getStudentsFromBackend();
-          })
+          .post("http://localhost:5001/api/student", students)
           .catch((error) => {
-            console.error('Error sending data to the backend:', error);
+            console.error("Error sending data to the backend:", error);
           });
       };
       reader.onerror = (error) => {
-        console.error('Error reading XLSX:', error);
+        console.error("Error reading XLSX:", error);
       };
       reader.readAsBinaryString(file);
     }
@@ -93,25 +119,26 @@ const StudentState = (props) => {
 
   const getLogsFromBackend = () => {
     axios
-      .get('http://localhost:5001/api/al/logs') // Replace with your actual API endpoint for logs
+      .get("http://localhost:5001/api/al/logs") // Replace with your actual API endpoint for logs
       .then((response) => {
         const logsFromBackend = response.data;
         setLogs(logsFromBackend);
       })
       .catch((error) => {
-        console.error('Error fetching logs from the backend:', error);
+        console.error("Error fetching logs from the backend:", error);
       });
   };
 
-  useEffect(() => {
-    getStudentsFromBackend();
-    getLogsFromBackend(); // Fetch logs when the component mounts
-  }, []);
-
-
   return (
     <StudentContext.Provider
-      value={{ students,logs, getStudentsFromFile, updateStudent,deleteStudent,getStudentsFromBackend  }}
+      value={{
+        students,
+        logs,
+        getStudentsFromFile,
+        updateStudent,
+        deleteStudent,
+        getStudentsFromBackend,
+      }}
     >
       {props.children}
     </StudentContext.Provider>
