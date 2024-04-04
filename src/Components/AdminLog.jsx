@@ -26,17 +26,19 @@ const AdminLog = () => {
   const renderLogRow = (logEntry, index) => (
     <tr className="text-center" key={index}>
       <td className="border p-2">
-        {logEntry.student && logEntry.student.rollNo}
+        {logEntry.student ? logEntry.student.rollNo : "N/A"}
       </td>
       <td className="border p-2">
-        {logEntry.student && logEntry.student.name}
+        {logEntry.student ? logEntry.student.name : "N/A"}
       </td>
       <td className="border p-2">{logEntry.action}</td>
       <td className="border p-2">{logEntry.userRole}</td>
       <td className="border p-2">
         {new Date(logEntry.timestamp).toLocaleString()}
       </td>
-      <td className="border p-2">{logEntry.course && logEntry.course.name}</td>
+      <td className="border p-2">
+        {logEntry.course ? logEntry.course.name : "N/A"}
+      </td>
     </tr>
   );
 

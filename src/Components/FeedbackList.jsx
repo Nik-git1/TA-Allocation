@@ -21,6 +21,7 @@ const FeedbackList = () => {
         response = await axios.get(`http://localhost:5001/api/feedback/all`);
       }
       setFeedbacks(response.data.feedbacks);
+      console.log(feedbacks)
       setLoading(false);
     } catch (error) {
       console.error("Error fetching feedbacks:", error);
@@ -29,7 +30,7 @@ const FeedbackList = () => {
   };
 
   const handleEditClick = (feedback) => {
-    setEditableFeedbackId(feedback.id);
+    setEditableFeedbackId(feedback._id);
   };
 
   const handleSave = async (feedback, rating, description) => {
@@ -45,7 +46,7 @@ const FeedbackList = () => {
       console.log(response.data.message);
       setEditableFeedbackId(null); // Resetting editableFeedbackId after saving
       // Update the feedbacks state to reflect changes
-      setFeedbacks(prevFeedbacks => prevFeedbacks.map(item => item.id === feedback.id ? { ...item, rating, description } : item));
+      setFeedbacks(prevFeedbacks => prevFeedbacks.map(item => item._id === feedback._id ? { ...item, rating, description } : item));
     } catch (error) {
       console.error("Error editing feedback:", error);
     }
@@ -57,15 +58,22 @@ const FeedbackList = () => {
       {loading ? (
         <p>Loading...</p>
       ) : (
-        <div className="overflow-auto max-w-full">
+        <div className="overflow-auto max-w-[80vw] max-h-[82vh]">
           <table className="w-full table-auto border-collapse border">
             <thead>
               <tr className="bg-gray-200">
                 <th className="border p-2">Professor</th>
                 <th className="border p-2">Student ID</th>
-                <th className="border p-2">Student</th>
+                <th className="border p-2">Student Name</th>
                 <th className="border p-2">Course</th>
-                <th className="border p-2">Rating</th>
+                <th className="border p-2">Overall Grade</th>
+                <th className="border p-2">Regularity in Meeting</th>
+                <th className="border p-2">Attendance in Lectures</th>
+                <th className="border p-2">Preparedness for Tutorials</th>
+                <th className="border p-2">Timeliness of Tasks</th>
+                <th className="border p-2">Quality of Work</th>
+                <th className="border p-2">Attitude/Commitment</th>
+                <th className="border p-2">Nominated for Best TA</th>
                 <th className="border p-2">Comments</th>
                 {!user || (user && user.role !== 'admin') && <th className="border p-2">Actions</th>}
               </tr>
@@ -73,42 +81,30 @@ const FeedbackList = () => {
             <tbody>
               {feedbacks.length === 0 ? (
                 <tr>
-                  <td colSpan="4" className="border p-4 text-center">No feedbacks available.</td>
+                  <td colSpan="12" className="border p-4 text-center">No feedbacks available.</td>
                 </tr>
               ) : (
                 feedbacks.map((feedback) => (
-                  <tr key={feedback.id}>
+                  <tr key={feedback._id}>
                     <td className="border p-2">{feedback.professor.name}</td>
                     <td className="border p-2">{feedback.student.rollNo}</td>
                     <td className="border p-2">{feedback.student.name}</td>
                     <td className="border p-2">{feedback.course.name}</td>
-                    <td className="border p-2">
-                      {editableFeedbackId === feedback.id ? (
-                        <input
-                          type="number"
-                          className="w-20 p-1 border rounded"
-                          value={feedback.rating}
-                          onChange={(e) => setFeedbacks(prevFeedbacks => prevFeedbacks.map(item => item.id === feedback.id ? { ...item, rating: e.target.value } : item))}
-                        />
-                      ) : (
-                        feedback.rating
-                      )}
-                    </td>
-                    <td className="border p-2">
-                      {editableFeedbackId === feedback.id ? (
-                        <input
-                          type="text"
-                          className="w-full p-1 border rounded"
-                          value={feedback.description}
-                          onChange={(e) => setFeedbacks(prevFeedbacks => prevFeedbacks.map(item => item.id === feedback.id ? { ...item, description: e.target.value } : item))}
-                        />
-                      ) : (
-                        feedback.description
-                      )}
-                    </td>
+                    <td className="border p-2">{feedback.overallGrade}</td>
+                    <td className="border p-2">{feedback.regularityInMeeting}</td>
+                    <td className="border p-2">{feedback.attendanceInLectures}</td>
+                    <td className="border p-2">{feedback.preparednessForTutorials}</td>
+                    <td className="border p-2">{feedback.timelinessOfTasks}</td>
+                    <td className="border p-2">{feedback.qualityOfWork}</td>
+                    <td className="border p-2">{feedback.attitudeCommitment}</td>
+                    <td className="border p-2">{feedback.nominatedForBestTA ? 'Yes' : 'No'}</td>
+
+                    <td className="border p-2">{feedback.comments}</td>
+
+
                     {!user || (user && user.role !== 'admin') && (
                       <td className="border p-2">
-                        {editableFeedbackId === feedback.id ? (
+                        {editableFeedbackId === feedback._id ? (
                           <button className="bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline" onClick={() => handleSave(feedback, feedback.rating, feedback.description)}>Submit</button>
                         ) : (
                           <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline" onClick={() => handleEditClick(feedback)}>Edit</button>

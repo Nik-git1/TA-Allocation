@@ -6,6 +6,8 @@ import CryptoJS from "crypto-js";
 import ClipLoader from "react-spinners/ClipLoader";
 import { AiOutlineSearch } from "react-icons/ai";
 
+import Select from "react-select";
+
 const StudentForm = () => {
   const [formOpened, setFormOpened] = useState(true);
   const location = useLocation();
@@ -32,7 +34,6 @@ const StudentForm = () => {
     ],
     nonPreferences: ["", "", ""],
   };
-  const [searchTerm, setSearchTerm] = useState("");
 
   const secretKey = "your-secret-key"; // Use the same secret key used for encryption
   const decryptedEmail = CryptoJS.AES.decrypt(
@@ -97,6 +98,21 @@ const StudentForm = () => {
         console.error("Error fetching courses:", error);
       });
   }, []);
+
+  const getCoursesOptions = (selectedDepartment, member) => {
+    const filteredCourses = courses.filter((course) => {
+      if (member === "department") {
+        return course.department === selectedDepartment;
+      } else {
+        return course.department !== selectedDepartment;
+      }
+    });
+
+    return filteredCourses.map((course) => ({
+      label: `${course.code} \u00a0\u00a0${course.name}-(${course.acronym}) \u00a0\u00a0\u00a0\u00a0${course.professor}`,
+      value: course.name,
+    }));
+  };
 
   const handleChange = (event, index, section) => {
     const { name, value } = event.target;
@@ -278,19 +294,29 @@ const StudentForm = () => {
     }
   };
 
-  const handleInputChange = (e, key) => {
-    setSearchTerm(e.target.value);
-  };
-
   const handleDepartmentChange = (event) => {
     const { value } = event.target;
     setSelectedDepartment(value);
+
+    const updatedFormData = { ...formData };
+    updatedFormData.departmentPreferences = formData.departmentPreferences.map(
+      (pref) => ({ course: null, grade: pref.grade })
+    );
+    setFormData(updatedFormData);
   };
 
-  const filteredCourses = courses.filter((course) => {
-    const values = Object.values(course).join(" ").toLowerCase();
-    return values.includes(searchTerm.toLowerCase());
-  });
+  const handleChangeSelect = (selectedOption, index, section) => {
+    const updatedFormData = { ...formData };
+
+    if (
+      section === "departmentPreferences" ||
+      section === "nonDepartmentPreferences"
+    ) {
+      updatedFormData[section][index].course = selectedOption.value;
+    }
+
+    setFormData(updatedFormData);
+  };
 
   return (
     <>
@@ -497,49 +523,32 @@ const StudentForm = () => {
                     >
                       Preference {index + 1}:
                     </label>
-                    <input
-                      type="text"
-                      className="w-full p-2 border rounded mt-2"
-                      placeholder="Search Course..."
-                      value={pref.otherCourse}
-                      onChange={(e) => handleInputChange(e, "Search")}
-                    />
-                    <select
+                    <Select
                       id={`deptCourse-${index}`}
                       name="course"
-                      value={pref.course}
-                      onChange={(e) =>
-                        handleChange(e, index, "departmentPreferences")
+                      value={
+                        formData.departmentPreferences[index].course
+                          ? {
+                              label:
+                                formData.departmentPreferences[index].course,
+                              value:
+                                formData.departmentPreferences[index].course,
+                            }
+                          : null
+                      }
+                      options={getCoursesOptions(
+                        selectedDepartment,
+                        "department"
+                      )}
+                      onChange={(selectedOption) =>
+                        handleChangeSelect(
+                          selectedOption,
+                          index,
+                          "departmentPreferences"
+                        )
                       }
                       className="w-full p-2 border rounded"
-                    >
-                      <option key="default" value="">
-                        Select Department Course
-                      </option>
-                      {/* Render the "Any Course" option */}
-                      <option value="any">Any Course</option>
-                      <option value=""></option>
-                      {/* Filter courses based on the selected department */}
-                      {filteredCourses
-                        .filter(
-                          (course) =>
-                            course.department === selectedDepartment &&
-                            course.code !== "CSE100" // Exclude "Any Course" from the list
-                        )
-                        .sort((a, b) => a.acronym.localeCompare(b.acronym)) // Sort courses by acronym
-                        .map((filteredCourse) => (
-                          <option
-                            key={filteredCourse._id}
-                            value={filteredCourse._id}
-                            disabled={selectedCourses.includes(
-                              filteredCourse._id
-                            )}
-                          >
-                            {/* here \u00a0 refers to space while rendering following data */}
-                            {`${filteredCourse.code} \u00a0\u00a0${filteredCourse.name}-(${filteredCourse.acronym}) \u00a0\u00a0\u00a0\u00a0${filteredCourse.professor}`}
-                          </option>
-                        ))}
-                    </select>
+                    />
 
                     <label
                       htmlFor={`deptGrade-${index}`}
@@ -582,32 +591,33 @@ const StudentForm = () => {
                     >
                       Preference {index + 1}:
                     </label>
-
-                    <select
+                    <Select
                       id={`nonDeptCourse-${index}`}
-                      value={pref.course}
                       name="course"
-                      onChange={(e) =>
-                        handleChange(e, index, "nonDepartmentPreferences")
+                      value={
+                        formData.nonDepartmentPreferences[index].course
+                          ? {
+                              label:
+                                formData.nonDepartmentPreferences[index].course,
+                              value:
+                                formData.nonDepartmentPreferences[index].course,
+                            }
+                          : null
+                      }
+                      options={getCoursesOptions(
+                        selectedDepartment,
+                        "non-department"
+                      )}
+                      onChange={(selectedOption) =>
+                        handleChangeSelect(
+                          selectedOption,
+                          index,
+                          "nonDepartmentPreferences"
+                        )
                       }
                       className="w-full p-2 border rounded"
-                    >
-                      <option value="">Select Preferred Course</option>
-                      <option value="any">Any Course</option>
-                      {/* Filter courses based on the selected department */}
-                      {courses.map((filteredCourse) => (
-                        <option
-                          key={filteredCourse._id}
-                          value={filteredCourse._id}
-                          disabled={selectedCourses.includes(
-                            filteredCourse._id
-                          )}
-                          // className="font-bold"
-                        >
-                          {`${filteredCourse.code} \u00a0\u00a0${filteredCourse.name}-(${filteredCourse.acronym}) \u00a0\u00a0\u00a0\u00a0${filteredCourse.professor}`}
-                        </option>
-                      ))}
-                    </select>
+                    />
+
                     <label
                       htmlFor={`nonDeptGrade-${index}`}
                       className="block text-gray-700 font-bold mt-2"
@@ -654,10 +664,6 @@ const StudentForm = () => {
                         <option
                           key={filteredCourse._id}
                           value={filteredCourse._id}
-                          disabled={
-                            filteredCourse.antiPref > 0 ||
-                            selectedCourses.includes(filteredCourse._id)
-                          }
                         >
                           {`${filteredCourse.code} \u00a0\u00a0${filteredCourse.name}-(${filteredCourse.acronym}) \u00a0\u00a0\u00a0\u00a0${filteredCourse.professor}`}
                         </option>
@@ -666,23 +672,17 @@ const StudentForm = () => {
                   </div>
                 ))}
               </div>
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  className="bg-[#3dafaa] text-white p-2 rounded"
-                >
-                  Submit
-                </button>
-              </div>
+              <button
+                type="submit"
+                className="bg-[#3dafaa] text-white px-4 py-2 mt-4 rounded font-semibold"
+              >
+                Submit
+              </button>
             </form>
           </div>
         </div>
       ) : (
-        <div className="flex justify-center items-center">
-          <h2 className="text-8xl font-bold mb-2  text-[#3dafaa]">
-            Form Closed
-          </h2>
-        </div>
+        <h2 className="text-center text-3xl text-red-600 mt-20">Form Closed</h2>
       )}
     </>
   );

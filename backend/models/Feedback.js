@@ -16,14 +16,46 @@ const feedbackSchema = new mongoose.Schema({
         ref: 'Professor',
         required: true
     },
-    rating: {
-        type: Number,
-        required: true,
-        default : 5,
-        min: 0,
-        max: 5
+    overallGrade: {
+        type: String,
+        enum: ['S', 'X'],
+        required: true
     },
-    description: {
+    regularityInMeeting: {
+        type: String,
+        enum: ['Excellent', 'Very Good', 'Good', 'Average', 'Below Average'],
+        default: 'Average'
+    },
+    attendanceInLectures: {
+        type: String,
+        enum: ['Excellent', 'Very Good', 'Good', 'Average', 'Below Average'],
+        default: 'Average'
+    },
+    preparednessForTutorials: {
+        type: String,
+        enum: ['Excellent', 'Very Good', 'Good', 'Average', 'Below Average'],
+        default: 'Average'
+    },
+    timelinessOfTasks: {
+        type: String,
+        enum: ['Excellent', 'Very Good', 'Good', 'Average', 'Below Average'],
+        default: 'Average'
+    },
+    qualityOfWork: {
+        type: String,
+        enum: ['Excellent', 'Very Good', 'Good', 'Average', 'Below Average'],
+        default: 'Average'
+    },
+    attitudeCommitment: {
+        type: String,
+        enum: ['Excellent', 'Very Good', 'Good', 'Average', 'Below Average'],
+        default: 'Average'
+    },
+    nominatedForBestTA: {
+        type: Boolean,
+        default: false
+    },
+    comments: {
         type: String
     }
 });

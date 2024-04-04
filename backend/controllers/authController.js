@@ -90,7 +90,7 @@ const sendOtp = asyncHandler( async ( req, res ) =>
 } );
 
 
-const verifyOtp = asyncHandler( async ( req, res ) =>
+const handleTAlogin = asyncHandler( async ( req, res ) =>
 {
   const { email, enteredOTP } = req.body;
   const storedOTP = otpStorage.get( email );
@@ -100,7 +100,15 @@ const verifyOtp = asyncHandler( async ( req, res ) =>
     return res.status( 400 ).json( { success: false, message: 'Invalid OTP' } );
   }
 
-  res.status( 200 ).json( { success: true, message: 'OTP verified successfully' } );
+  const data = {
+    user: {
+      role: "TA",
+    },
+  };
+
+  const authtoken = jwt.sign( data, JWT_SECRET );
+
+  res.status( 200 ).json( { success: true, message: 'OTP verified successfully', authtoken } );
 } );
 
 const addAdmin = asyncHandler( async ( req, res ) =>
@@ -303,4 +311,41 @@ const Professorotp = asyncHandler( async ( req, res ) =>
 } );
 
 
-module.exports = { Professorotp, JMotp, adminLogin, ProfessorLogin, JMLogin, sendOtp, verifyOtp, addAdmin };
+const verifyOtp = async ( req, res ) =>
+{
+  const { email, enteredOTP } = req.body;
+  console.log( 'Entered OTP:', enteredOTP );
+  const storedOTP = otpStorage.get( email );
+  console.log( 'Stored OTP:', storedOTP );
+
+  if ( !storedOTP || storedOTP.toString() !== enteredOTP.toString() )
+  {
+    return res.status( 400 ).json( { success: false, message: 'Invalid OTP' } );
+  }
+
+  res.status( 200 ).json( { success: true, message: 'OTP verified successfully' } );
+};
+
+
+const forgotPassword = async ( req, res ) =>
+{
+  try
+  {
+    const { email, password } = req.body;
+    const admin = await Admin.findOne( { emailId: email } );
+    if ( !admin )
+    {
+      return res.status( 400 ).json( { success: false, message: 'No user registed with this Email Id' } )
+    }
+    const hashedPassword = await argon2.hash( password );
+    admin.password = hashedPassword;
+    await admin.save();
+    res.status( 200 ).json( { success: true, message: "password updated successfully" } );
+  } catch ( error )
+  {
+    res.status( 500 ).json( { success: false, message: 'Internal Server Error' } );
+  }
+}
+
+
+module.exports = { Professorotp, JMotp, adminLogin, ProfessorLogin, JMLogin, sendOtp, handleTAlogin, addAdmin, verifyOtp, forgotPassword };

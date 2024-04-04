@@ -141,8 +141,7 @@ const LoginPage = () => {
           department: decodedToken.user["department"],
         };
         login(userData);
-        // setSelectedDepartment(userData.department)
-        // setSelectedCourse(userData.courses)
+
         navigate("/professor", { state: { name: json.name } });
       } else {
         alert("Login Error");
@@ -190,9 +189,9 @@ const LoginPage = () => {
       alert("Please enter an email address.");
     }
   };
-  const handleVerifyOTP = async () => {
+  const handleTAlogin = async () => {
     if (email && Otp) {
-      const response = await fetch(`${host}/api/login/verifyOTP`, {
+      const response = await fetch(`${host}/api/login/TAlogin`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -202,6 +201,12 @@ const LoginPage = () => {
 
       const json = await response.json();
       if (json.success) {
+        localStorage.setItem("token", json.authtoken);
+        const decodedToken = jwtDecode(json.authtoken); // Decode the JWT token
+        const userData = {
+          role: decodedToken.user["role"],
+        };
+        login(userData);
         const eEmail = encryptEmail(email);
         setEncryptedEmail(eEmail);
         navigate("/TAform", {
@@ -245,7 +250,7 @@ const LoginPage = () => {
           handleProfessorLogin();
           break;
         case "TA":
-          handleVerifyOTP();
+          handleTAlogin();
           break;
         default:
           alert("Please select an option: Admin, Department, Faculty.");
@@ -317,7 +322,7 @@ const LoginPage = () => {
                   } outline-none focus:border-[#3dafaa]`}
                   onClick={() => handleLoginOptionClick("professor")}
                 >
-                  Professor
+                  Faculty
                 </button>
                 <button
                   type="button"
@@ -381,8 +386,8 @@ const LoginPage = () => {
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
-              <div className="flex justify-between text-gray-600 py-2">
-                <a>Forgot Password?</a>
+              <div className="flex justify-between text-gray-600 py-2 hover:text-gray-700">
+                <a href="/forgotPassword">Forgot Password?</a>
               </div>
               <button
                 type="submit"
