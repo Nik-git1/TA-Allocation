@@ -387,7 +387,7 @@ const LoginPage = () => {
                 />
               </div>
               <div className="flex justify-between text-gray-600 py-2 hover:text-gray-700">
-                <a href="">Forgot Password?</a>
+                <a href="/forgotPassword">Forgot Password?</a>
               </div>
               <button
                 type="submit"
