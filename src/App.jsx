@@ -4,7 +4,7 @@ import { useLocation, Routes, Route } from 'react-router-dom';
 import AdminPage from './Pages/AdminPage';
 import Department from './Pages/DepartmentPage';
 import Professor from './Pages/ProfessorPage';
-import Form from './Pages/Form';
+import StudentForm from './Pages/Form';
 import StudentState from './context/StudentState';
 import CourseState from './context/CourseState';
 import DepartmentState from './context/DepartmentState';
@@ -21,10 +21,11 @@ const App = () => {
           <DepartmentState>
             <Routes>
               <Route element={<LoginPage />} path="/" />
+              {/* <Route element={<StudentForm />} path="/TAform" /> */}
               <Route
                 element={
                   <ProtectedRoute
-                    element={<Form />}
+                    element={<StudentForm />}
                     allowedRoles={['TA']}
                   />
                 }

@@ -16,7 +16,11 @@ const validationSchema = Yup.object().shape({
     .required("Roll No is required"),
   program: Yup.string().required("Program is required"),
   department: Yup.string().required("Department is required"),
-  taType: Yup.string().required("TA Type is required"),
+  taType: Yup.string().when("program", {
+    is: (val) => val.startsWith("B.Tech"),
+    then: Yup.string().required("TA Type is required"),
+    otherwise: Yup.string(),
+  }),
   cgpa: Yup.number().typeError("Invalid CGPA").max(10, "Invalid CGPA"),
 });
 
@@ -44,7 +48,7 @@ const StudentForm = () => {
       { course: "", grade: "" },
       { course: "", grade: "" },
     ],
-    nonPreferences: [ "","",""],
+    nonPreferences: ["", "", ""],
   };
   const secretKey = "your-secret-key"; // Use the same secret key used for encryption
   const decryptedEmail = CryptoJS.AES.decrypt(
@@ -79,7 +83,7 @@ const StudentForm = () => {
         : studentExistData.nonDepartmentPreferences,
     nonPreferences:
       studentExistData.nonPreferences.length === 0
-        ? ["", "",""]
+        ? ["", "", ""]
         : studentExistData.nonPreferences,
   });
 
@@ -112,45 +116,34 @@ const StudentForm = () => {
 
   const handleChange = (event, index, section) => {
     const { name, value } = event.target;
-
-    var courseId = courses.find((course) => course.name === value)?._id;
-
-    console.log(name ,value);
     const updatedFormData = { ...formData };
+    console.log(event);
 
     if (
       section === "departmentPreferences" ||
       section === "nonDepartmentPreferences"
     ) {
-       console.log(value)
-      console.log(name)
       const prevSelectedCourse = updatedFormData[section][index][name];
-      if(name === "grade"){
-        console.log("in grade")
-        updatedFormData[section][index][name] = value;
-      }else{
-        updatedFormData[section][index][name] = courseId;
-      }
-    
+      updatedFormData[section][index][name] = value;
 
       const updatedSelectedCourses = selectedCourses.filter(
         (course) => course !== prevSelectedCourse
       );
 
-      if (courseId !== "") {
-        updatedSelectedCourses.push(courseId);
+      if (value !== "") {
+        updatedSelectedCourses.push(value);
       }
 
       setSelectedCourses(updatedSelectedCourses);
     } else if (section === "nonPreferences") {
       const prevSelectedCourse = updatedFormData[section][index];
-      updatedFormData[section][index] = courseId;
+      updatedFormData[section][index] = value;
       const updatedSelectedCourses = selectedCourses.filter(
         (course) => course !== prevSelectedCourse
       );
 
-      if (courseId !== "") {
-        updatedSelectedCourses.push(courseId);
+      if (value !== "") {
+        updatedSelectedCourses.push(value);
       }
       setSelectedCourses(updatedSelectedCourses);
     } else {
@@ -163,34 +156,31 @@ const StudentForm = () => {
   };
 
   const handleSubmit = async () => {
-    event.preventDefault();
     try {
       // Validate form data using Yup
       await validationSchema.validate(formData, { abortEarly: false });
-      
-      // if (email === "your email id") {
-      //   alert(
-      //     "please visit login page and generate valid otp for your email Id"
-      //   );
-      //   return;
-      // }
 
-      // if (email !== decryptedEmail) {
-      //   alert("Invalid email");
-      //   return;
-      // }
+      if (email === "your email id") {
+        alert(
+          "please visit login page and generate valid otp for your email Id"
+        );
+        return;
+      }
 
-      // if (!decryptedEmail.endsWith("@iiitd.ac.in")) {
-      //   alert("Only IIITD Students allowed");
-      //   return;
-      // }
+      if (email !== decryptedEmail) {
+        alert("Invalid email");
+        return;
+      }
 
-      // if (!formOpened) {
-      //   alert("Form Closed");
-      //   return;
-      // }
+      if (!decryptedEmail.endsWith("@iiitd.ac.in")) {
+        alert("Only IIITD Students allowed");
+        return;
+      }
 
-      //add these to yup validation
+      if (!formOpened) {
+        alert("Form Closed");
+        return;
+      }
 
       setLoading(true);
       const apiUrl =
@@ -202,7 +192,7 @@ const StudentForm = () => {
       const response = await axios({
         method: studentExist === null ? "post" : "put",
         url: apiUrl,
-        data: formData, // Changed from studentData to formData
+        data: studentData,
       });
 
       setLoading(false);
@@ -228,8 +218,7 @@ const StudentForm = () => {
         Swal.fire("Error!", "Failed to submit form", "error");
       }
     }
-};
-
+  };
 
   const handleDepartmentChange = (event) => {
     const { value } = event.target;
@@ -384,7 +373,8 @@ const StudentForm = () => {
                   value={formData.taType}
                   onChange={handleChange}
                   className="w-full p-2 border rounded"
-                  disabled={!formData.program.startsWith("B.Tech")}
+                  // disabled={!formData.program || !formData.program.startsWith("B.Tech")}
+
                 >
                   {/* Rendering options based on condition */}
                   {formData.program.startsWith("B.Tech") ? (
@@ -442,13 +432,17 @@ const StudentForm = () => {
                     <Select
                       id={`deptCourse-${index}`}
                       options={[
+                        // { value: "", label: "Select Preferred Course" }, // Dummy option
                         ...courses
                           .filter(
                             (course) => course.department === selectedDepartment
                           )
                           .sort((a, b) => a.acronym.localeCompare(b.acronym))
                           .map((filteredCourse) => ({
-                            value: filteredCourse.name, // Use the _id as the value
+                            value: {
+                              _id: filteredCourse._id,
+                              name: filteredCourse.name,
+                            },
                             label: (
                               <div>
                                 <div>{`${filteredCourse.code} ${filteredCourse.name}`}</div>
@@ -471,8 +465,6 @@ const StudentForm = () => {
                         value: pref.course ? pref.course : "", // Use pref.course if it exists
                         label: pref.course ? (
                           <div>
-                            {/* Print the value of pref here */}
-
                             <div>{`${
                               courses.find(
                                 (course) => course._id === pref.course
@@ -516,37 +508,44 @@ const StudentForm = () => {
                         )
                       }
                       className="w-full"
-                      // Enable search functionality
+                      isSearchable // Enable search functionality
                     />
 
-<label
+                    <label
                       htmlFor={`deptGrade-${index}`}
                       className="block text-gray-700 font-bold mt-2"
                     >
                       Grade:
                     </label>
-                    <select
+                    <Select
                       id={`deptGrade-${index}`}
-                      value={pref.grade}
-                      name="grade"
-                      onChange={(e) =>
-                        handleChange(e, index, "departmentPreferences")
+                      options={[
+                        { value: "A+(10)", label: "A+(10)" },
+                        { value: "A(10)", label: "A(10)" },
+                        { value: "A-(9)", label: "A-(9)" },
+                        { value: "B(8)", label: "B(8)" },
+                        { value: "B-(7)", label: "B-(7)" },
+                        { value: "C(6)", label: "C(6)" },
+                        { value: "C-(5)", label: "C-(5)" },
+                        { value: "D(4)", label: "D(4)" },
+                        { value: "Course Not Done", label: "Course Not Done" },
+                      ]}
+                      value={{ value: pref.grade, label: pref.grade }}
+                      onChange={(selectedOption) =>
+                        handleChange(
+                          {
+                            target: {
+                              name: "grade",
+                              value: selectedOption ? selectedOption.value : "",
+                            },
+                          },
+                          index,
+                          "departmentPreferences"
+                        )
                       }
-                      className="w-full p-2 border rounded"
-                    >
-                      <option value="">Select Grade</option>
-                      <option value="A+(10)">A+(10)</option>
-                      <option value="A(10)">A(10)</option>
-                      <option value="A-(9)">A-(9)</option>
-                      <option value="B(8)">B(8)</option>
-                      <option value="B-(7)">B-(7)</option>
-                      <option value="C(6)">C(6)</option>
-                      <option value="C-(5)">C-(5)</option>
-                      <option value="D(4)">D(4)</option>
-                      <option valie="Course Not Done"> Course Not Done </option>
-                    </select>
+                      className="w-full"
+                    />
                   </div>
-
                 ))}
               </div>
 
@@ -564,13 +563,14 @@ const StudentForm = () => {
                     <Select
                       id={`nonDeptCourse-${index}`}
                       options={[
+                        { value: "", label: "Select Preferred Course" }, // Dummy option
                         ...courses
                           .filter(
-                            (course) => course.department !== selectedDepartment
+                            (course) => course.department === selectedDepartment
                           )
                           .sort((a, b) => a.acronym.localeCompare(b.acronym))
                           .map((filteredCourse) => ({
-                            value: filteredCourse.name,
+                            value: filteredCourse._id,
                             label: (
                               <div>
                                 <div>{`${filteredCourse.code} ${filteredCourse.name}`}</div>
@@ -676,89 +676,85 @@ const StudentForm = () => {
               </div>
 
               {/* Non-Preferences */}
-         
-           <div>
-  <h3 className="text-xl font-bold mb-2">Non-Preferences</h3>
-  {formData.nonPreferences.map((pref, index) => (
-    <div key={index}>
-      <Select
-        options={[
-          ...courses
-            .sort((a, b) => a.acronym.localeCompare(b.acronym))
-            .map((filteredCourse) => ({
-              value: filteredCourse.name,
-              label: (
-                <div>
-                  <div>{`${filteredCourse.code} ${filteredCourse.name}`}</div>
-                  <div
-                    style={{
-                      fontStyle: "italic",
-                      fontSize: "0.8rem",
-                    }}
-                  >
-                    {`(${filteredCourse.acronym}) - ${filteredCourse.professor}`}
+              <div>
+                <h3 className="text-xl font-bold mb-2">Non-Preferences</h3>
+                {formData.nonPreferences.map((pref, index) => (
+                  <div key={index}>
+                    <Select
+                      onChange={(selectedOption) =>
+                        handleChange(
+                          {
+                            target: {
+                              name: "course",
+                              value: selectedOption ? selectedOption.value : "",
+                            },
+                          },
+                          index,
+                          "nonPreferences"
+                        )
+                      }
+                      options={[
+                        { value: "", label: "Select Non-Preference Course" },
+                        ...courses.map((filteredCourse) => ({
+                          value: filteredCourse._id,
+                          label: (
+                            <div>
+                              <div>{`${filteredCourse.code} ${filteredCourse.name}`}</div>
+                              <div
+                                style={{
+                                  fontStyle: "italic",
+                                  fontSize: "0.8rem",
+                                }}
+                              >
+                                {`(${filteredCourse.acronym}) - ${filteredCourse.professor}`}
+                              </div>
+                            </div>
+                          ),
+                          isDisabled: selectedCourses.includes(
+                            filteredCourse._id
+                          ),
+                        })),
+                      ]}
+                      value={{
+                        value: pref.course ? pref.course : "", // Use pref.course if it exists
+                        label: pref.course ? (
+                          <div>
+                            <div>{`${
+                              courses.find(
+                                (course) => course._id === pref.course
+                              )?.code
+                            } ${
+                              courses.find(
+                                (course) => course._id === pref.course
+                              )?.name
+                            }`}</div>
+                            <div
+                              style={{
+                                fontStyle: "italic",
+                                fontSize: "0.8rem",
+                              }}
+                            >
+                              {`(${
+                                courses.find(
+                                  (course) => course._id === pref.course
+                                )?.acronym
+                              }) - ${
+                                courses.find(
+                                  (course) => course._id === pref.course
+                                )?.professor
+                              }`}
+                            </div>
+                          </div>
+                        ) : (
+                          "Select Preferred Course"
+                        ), // Display dummy label if no option is selected
+                      }}
+                      className="p-2 border rounded-md mb-2"
+                      isSearchable // Enable search functionality
+                    />
                   </div>
-                </div>
-              ),
-              isDisabled: selectedCourses.includes(filteredCourse._id),
-            })),
-        ]}
-        onChange={(selectedOption) =>
-          handleChange(
-            {
-              target: {
-                name: "course",
-                value: selectedOption ? selectedOption.value : "",
-              },
-            },
-            index,
-            "nonPreferences"
-          )
-        }
-        value={{
-          value: pref ? pref : "", // Use pref.course if it exists
-           label: pref ? 
-          (
-            <div>
-            {/* Print the value of pref here */}
-
-            <div>{`${
-              courses.find(
-                (course) => course._id === pref
-              )?.code
-            } ${
-              courses.find(
-                (course) => course._id === pref
-              )?.name
-            }`}</div>
-            <div
-              style={{
-                fontStyle: "italic",
-                fontSize: "0.8rem",
-              }}
-            >
-              {`(${
-                courses.find(
-                  (course) => course._id === pref
-                )?.acronym
-              }) - ${
-                courses.find(
-                  (course) => course._id === pref
-                )?.professor
-              }`}
-            </div>
-          </div>
-         ) : (
-            "Select Preferred Course"
-          ),
-        }}
-        className="p-2 border rounded-md mb-2"
-      />
-    </div>
-  ))}
-</div>
-
-
+                ))}
+              </div>
 
               <div className="flex justify-end">
                 <button
