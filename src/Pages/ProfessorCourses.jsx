@@ -4,6 +4,7 @@ import AuthContext from '../context/AuthContext';
 import FeedbackList from '../Components/FeedbackList';
 import CourseContext from '../context/CourseContext';
 import axios from "axios";
+import { GoDotFill } from "react-icons/go";
 
 const ProfessorCourses = ( ) => {
   const location = useLocation();
@@ -12,8 +13,22 @@ const ProfessorCourses = ( ) => {
   const [feedbackForm, setFeedbackForm] = useState(false)
   const navigate = useNavigate();
   const {setSelectedCourse} = useContext(CourseContext)
-  
+  const [currentRound, setCurrentRound] = useState(null);
   const { user } = useContext(AuthContext);
+
+
+
+  const fetchCurrentRound = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:5001/api/rd/currentround"
+      );
+      const data = await response.json();
+      setCurrentRound(data.currentRound);
+    } catch (error) {
+      console.error("Error fetching round status:", error);
+    }
+  };
 
   // Fetch courses from the backend
   useEffect(() => {  
@@ -37,7 +52,13 @@ const ProfessorCourses = ( ) => {
   
     fetchCourses();
     getFeedbackFormStatus();
+    fetchCurrentRound();
   }, [user]); // Include user in the dependency array to avoid missing dependency warning
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    window.location.replace("http://localhost:5173");
+  };
 
   
   const getFeedbackFormStatus = () => {
@@ -83,7 +104,41 @@ const ProfessorCourses = ( ) => {
 
   return (
   <div>
- <div className='m-4' style={{ fontSize: '48px' }}>Welcome {profName}</div>
+    <div className='flex justify-between'>
+      <div className='flex'>
+        <div className='m-4' style={{ fontSize: '48px' }}>Welcome {profName}</div>
+        <div className="flex items-center">
+          <p className="text-[#3dafaa] text-2xl font-bold mr-2">
+            Ongoing Round:
+          </p>
+          <p className=" text-2xl flex mr-1">
+            Round
+          </p>
+          <p className=" text-2xl flex">
+            {currentRound}
+          </p>
+        </div>
+        <p className="flex items-center ml-2 mb-2 text-3xl">|</p>
+        <div className="flex ml-2 items-center">
+          <p className="text-red-500"><GoDotFill/></p>
+          <p className="mr-2">Red courses are overallocated</p>
+          {currentRound >= 2 ? (
+            <>
+            <p className="text-yellow-500"><GoDotFill/></p>
+            <p className="">Yellow courses are underallocated</p>
+            </>
+          ) : null}
+          
+        </div>
+      </div>
+      <div className="flex items-center">
+        <button className='rounded-full bg-[#3dafaa] text-white py-2 px-6 hover:bg-red-500 font-bold mr-2'
+          onClick={handleLogout}
+        >
+          Logout
+        </button>
+      </div>
+    </div>
 
     <div className="max-w-[100vw] max-h-[78vh] overflow-auto mt-4">
       <table className="border-collapse border w-full" style={{ width: '100%' }}>

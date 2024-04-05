@@ -30,7 +30,7 @@ const CoursePage = () => {
     key: null,
     direction: "ascending",
   });
-
+  console.log(students)
   const [sorted, setSorted] = useState([]);
 
   const fetchCurrentRound = async () => {
@@ -40,7 +40,7 @@ const CoursePage = () => {
       );
       const data = await response.json();
       setCurrentRound(data.currentRound);
-      console.log(currentRound)
+
     } catch (error) {
       console.error("Error fetching round status:", error);
     }
@@ -84,41 +84,47 @@ const CoursePage = () => {
   }, [selectedCourse, students, allocated]);
 
   const handleAllocate = (studentId) => {
-    // Make a POST request to allocate the student
-    axios
-      .post("http://localhost:5001/api/al/allocation", {
-        studentId,
-        courseId: selectedCourse._id,
-        allocatedByID: user.id,
-        allocatedBy: user.role,
-      })
-      .then((response) => {
-        // Allocation was successful
 
-        // Move the student from available to allocated
-        const studentToAllocate = availableStudents.find(
-          (student) => student._id === studentId
-        );
-
-        setAllocatedToThisCourse((prevAllocated) => [
-          ...prevAllocated,
-          studentToAllocate,
-        ]);
-        setAvailableStudents((prevAvailable) =>
-          prevAvailable.filter((student) => student._id !== studentId)
-        );
-
-        getStudentsFromBackend();
-
-        // Toggle the button state to trigger recalculation
-        setbutton((prevState) => !prevState);
-      })
-      .catch((error) => {
-        if (error.message === "Request failed with status code 400") {
-          Swal.fire("Can't Allocate", "TA limit exceeded.", "error");
-        }
-        console.error("Error allocating student:", error);
-      });
+    if (currentRound == null){
+      Swal.fire("Can't Allocate", "No allocation round is going on", "error");
+    }
+    else{
+      // Make a POST request to allocate the student
+      axios
+        .post("http://localhost:5001/api/al/allocation", {
+          studentId,
+          courseId: selectedCourse._id,
+          allocatedByID: user.id,
+          allocatedBy: user.role,
+        })
+        .then((response) => {
+          // Allocation was successful
+  
+          // Move the student from available to allocated
+          const studentToAllocate = availableStudents.find(
+            (student) => student._id === studentId
+          );
+  
+          setAllocatedToThisCourse((prevAllocated) => [
+            ...prevAllocated,
+            studentToAllocate,
+          ]);
+          setAvailableStudents((prevAvailable) =>
+            prevAvailable.filter((student) => student._id !== studentId)
+          );
+  
+          getStudentsFromBackend();
+  
+          // Toggle the button state to trigger recalculation
+          setbutton((prevState) => !prevState);
+        })
+        .catch((error) => {
+          if (error.message === "Request failed with status code 400") {
+            Swal.fire("Can't Allocate", "TA limit exceeded.", "error");
+          }
+          console.error("Error allocating student:", error);
+        });
+    }
   };
 
   const prefRank = (student) => {
@@ -229,16 +235,25 @@ const CoursePage = () => {
   const handleRenderAllocatedTable = async () => {
     setAllocated(1);
     setSortConfig({ key: null, direction: "ascending" });
+    setProgramFilter('All');
+    setDepartmentFilter('All');
+    setPrefFilter('All');
   };
 
   const handleRenderAvailableStudentTable = async () => {
     setAllocated(0);
     setSortConfig({ key: null, direction: "ascending" });
+    setProgramFilter('All');
+    setDepartmentFilter('All');
+    setPrefFilter('All');
   };
 
   const handleRenderAllocatedToOthersTable = async () => {
     setAllocated(2);
     setSortConfig({ key: null, direction: "ascending" });
+    setProgramFilter('All');
+    setDepartmentFilter('All');
+    setPrefFilter('All');
   };
 
   const handleDownload = () => {
@@ -361,7 +376,6 @@ const CoursePage = () => {
 
   // Updated renderAllocatedRow function
   const renderAllocatedRow = (student) => {
-    console.log(student);
     let pref = "Not Any";
     let grade = "No Grade"; // Initialize grade variable
     const coursePreference = findCourseInPreferences(
@@ -376,10 +390,10 @@ const CoursePage = () => {
       <tr className="text-center">
         <td className="border p-2">{student.name}</td>
         <td className="border p-2">{student.emailId}</td>
+        <td className="border p-2">{student.program}</td>
+        <td className="border p-2">{student.department}</td>
         {currentRound === 1 ? null : (
           <>
-            <td className="border p-2">{student.program}</td>
-            <td className="border p-2">{student.department}</td>
             <td className="border p-2">{student.cgpa}</td>
             <td className="border p-2">{grade}</td> {/* Display grade */}
             <td className="border p-2">{pref}</td>
@@ -418,10 +432,10 @@ const CoursePage = () => {
             <tr className="text-center">
               <td className="border p-2">{student.name}</td>
               <td className="border p-2">{student.emailId}</td>
+              <td className="border p-2">{student.program}</td>
+              <td className="border p-2">{student.department}</td>
               {currentRound === 1 ? null : (
-                <>
-                  <td className="border p-2">{student.program}</td>
-                  <td className="border p-2">{student.department}</td>
+                <>   
                   <td className="border p-2">{student.cgpa}</td>
                   <td className="border p-2">{grade}</td> {/* Display grade */}
                   <td className="border p-2">{pref}</td>
@@ -471,10 +485,10 @@ const CoursePage = () => {
           <tr className="text-center">
             <td className="border p-2">{student.name}</td>
             <td className="border p-2">{student.emailId}</td>
+            <td className="border p-2">{student.program}</td>
+            <td className="border p-2">{student.department}</td>
             {currentRound === 1 ? null : (
               <>
-                <td className="border p-2">{student.program}</td>
-                <td className="border p-2">{student.department}</td>
                 <td className="border p-2">{student.cgpa}</td>
                 <td className="border p-2">{grade}</td> {/* Display grade */}
                 <td className="border p-2">{pref}</td>
@@ -533,10 +547,10 @@ const CoursePage = () => {
             onChange={handleProgramFilter}
           >
             <option value="All">All</option>
-            <option value="B.Tech 3th Year">B.Tech 3th Year</option>
+            <option value="B.Tech 3rd Year">B.Tech 3rd Year</option>
             <option value="B.Tech 4th Year">B.Tech 4th Year</option>
             <option value="M.Tech 1st Year">M.Tech 1th Year</option>
-            <option value="M.Tech 2th Year">M.Tech 2th Year</option>
+            <option value="M.Tech 2nd Year">M.Tech 2nd Year</option>
             <option value="PhD">PhD</option>
           </select>
         </div>
@@ -912,10 +926,10 @@ const CoursePage = () => {
                 onChange={handleProgramFilter}
               >
                 <option value="All">All</option>
-                <option value="B.Tech 3th Year">B.Tech 3th Year</option>
+                <option value="B.Tech 3rd Year">B.Tech 3rd Year</option>
                 <option value="B.Tech 4th Year">B.Tech 4th Year</option>
                 <option value="M.Tech 1th Year">M.Tech 1th Year</option>
-                <option value="M.Tech 2th Year">M.Tech 2th Year</option>
+                <option value="M.Tech 2nd Year">M.Tech 2nd Year</option>
                 <option value="PhD">PhD</option>
               </select>
             </div>

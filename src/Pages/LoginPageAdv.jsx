@@ -322,7 +322,7 @@ const LoginPage = () => {
                   } outline-none focus:border-[#3dafaa]`}
                   onClick={() => handleLoginOptionClick("professor")}
                 >
-                  Professor
+                  Faculty
                 </button>
                 <button
                   type="button"
@@ -386,8 +386,8 @@ const LoginPage = () => {
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
-              <div className="flex justify-between text-gray-600 py-2">
-                <a>Forgot Password?</a>
+              <div className="flex justify-between text-gray-600 py-2 hover:text-gray-700">
+                <a href="/forgotPassword">Forgot Password?</a>
               </div>
               <button
                 type="submit"

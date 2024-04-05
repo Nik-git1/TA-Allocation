@@ -58,7 +58,7 @@ const FeedbackList = () => {
       {loading ? (
         <p>Loading...</p>
       ) : (
-        <div className="overflow-auto max-w-full">
+        <div className="overflow-auto max-w-[80vw] max-h-[82vh]">
           <table className="w-full table-auto border-collapse border">
             <thead>
               <tr className="bg-gray-200">

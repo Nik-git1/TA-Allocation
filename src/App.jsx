@@ -12,6 +12,7 @@ import AuthState from './context/AuthState';
 import ProtectedRoute from './ProtectedRoutes';
 import ProfState from './context/ProfState';
 import LoginPage from './Pages/LoginPageAdv';
+import ForgotPassword from './Pages/ForgotPassword';
 const App = () => {
   return (
     <AuthState>
@@ -21,7 +22,7 @@ const App = () => {
           <DepartmentState>
             <Routes>
               <Route element={<LoginPage />} path="/" />
-              {/* <Route element={<StudentForm />} path="/TAform" /> */}
+              <Route element={<ForgotPassword />} path="/forgotPassword" />
               <Route
                 element={
                   <ProtectedRoute
