@@ -48,8 +48,13 @@ const CourseTable = () => {
         updatedData[key] = editedCourseData[key]; // Add changed field to updatedData
       }
     } */
-    await updateCourse(row._id, row);
-    Swal.fire('Updated!', 'Course has been Updated', 'success');
+    const res = await updateCourse(row._id, row);
+    if (res.status === 'Success'){
+      Swal.fire('Updated!', 'Course has been Updated', 'success');
+    }
+    else{
+      Swal.fire('Oops!', res.message, 'error');
+    }
     handleCancel();
   };
 
@@ -67,10 +72,15 @@ const CourseTable = () => {
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6',
       confirmButtonText: 'Yes, delete it!',
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        deleteCourse(courseId);
-        Swal.fire('Deleted!', 'Course has been deleted', 'success');
+        const res = await deleteCourse(courseId);
+        if (res.status === 'Success'){
+          Swal.fire('Deleted!', 'Course has been deleted', 'success');
+        }
+        else{
+          Swal.fire('Oops!', res.message, 'error');
+        }
       }
     });
   };

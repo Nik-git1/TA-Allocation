@@ -77,9 +77,14 @@ const Tablestudents = () => {
         updatedData[key.toLowerCase()] = editedStudentData[key];
       }
     }  
-    await updateStudent(ID, updatedData);
+    const res = await updateStudent(ID, updatedData);
     setLoader(false);
-    Swal.fire('Updated!', 'Student has been updated', 'success');
+    if (res.status === 'Success'){
+      Swal.fire('Updated!', 'Student has been updated', 'success');
+    }
+    else{
+      Swal.fire('Oops!', res.message, 'error');
+    }
     handleCancel();
   };
 
@@ -98,10 +103,15 @@ const Tablestudents = () => {
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6',
       confirmButtonText: 'Yes, delete it!',
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        deleteStudent(studentId);
-        Swal.fire('Deleted!', 'Student has been deleted', 'success');
+        const res = await deleteStudent(studentId);
+        if (res.status === 'Success'){
+          Swal.fire('Updated!', 'Student has been deleted', 'success');
+        }
+        else{
+          Swal.fire('Oops!', res.message, 'error');
+        }
       }
     });
   };

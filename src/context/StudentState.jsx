@@ -14,11 +14,14 @@ const StudentState = (props) => {
         // Student data updated successfully
         // You can choose to update the local state if needed
         getStudentsFromBackend(); // Fetch updated data from the backend
+        return { status: 'Success' };
       } else {
         console.error("Failed to update student data on the backend");
+        return { status: 'Failed', message: 'Failed to update student data on the backend' };
       }
     } catch (error) {
       console.error("Error updating student data:", error);
+      return { status: 'Failed', message: 'Error updating student data' };
     }
   };
 
@@ -27,9 +30,11 @@ const StudentState = (props) => {
       .delete(`http://localhost:5001/api/student/${studentId}`)
       .then((response) => {
         getStudentsFromBackend(); // Fetch updated student data after deletion
+        return { status: 'Success' };
       })
       .catch((error) => {
         console.error('Error deleting student:', error);
+        return { status: 'Failed', message: 'Error deleting student' };
       });
   };
 

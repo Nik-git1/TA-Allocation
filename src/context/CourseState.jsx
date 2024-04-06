@@ -90,9 +90,11 @@ const CourseState = (props) => {
       .then((response) => {
   
         getCoursesFromBackend(); // Fetch updated student data after deletion
+        return { status: 'Success' };
       })
       .catch((error) => {
-        console.error('Error deleting student:', error);
+        console.error('Error deleting course:', error);
+        return { status: 'Failed', message: 'Error deleting course data' };
       });
   };
 
@@ -104,11 +106,15 @@ const CourseState = (props) => {
         // Student data updated successfully
         // You can choose to update the local state if needed
         getCoursesFromBackend(); // Fetch updated data from the backend
+        return { status: 'Success' };
       } else {
-        console.error("Failed to update student data on the backend");
+        console.error("Failed to update course data on the backend");
+        return { status: 'Failed', message: 'Failed to update course data on the backend' };
       }
     } catch (error) {
-      console.error("Error updating student data:", error);
+      console.error("Error updating course data:", error);
+      return { status: 'Failed', message: 'Error updating course data' };
+      
     }
   };
 

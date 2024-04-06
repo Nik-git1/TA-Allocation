@@ -14,8 +14,13 @@ const AdminProfessor = () => {
   };
 
   const handleSave = async (row) => {
-    await updateProfessor(row._id, row);
-    Swal.fire('Updated!', 'Professor has been Updated', 'success');
+    const res = await updateProfessor(row._id, row);
+    if (res.status === 'Success'){
+      Swal.fire('Updated!', 'Professor has been Updated', 'success');
+    }
+    else{
+      Swal.fire('Oops!', res.message, 'error');
+    }
     handleCancel();
   };
 
@@ -32,10 +37,15 @@ const AdminProfessor = () => {
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6',
       confirmButtonText: 'Yes, delete it!',
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        deleteProfessor(professorId);
-        Swal.fire('Deleted!', 'Professor has been deleted', 'success');
+        const res = await deleteProfessor(professorId);
+        if (res.status === 'Success'){
+          Swal.fire('Deleted!', 'Professor has been deleted', 'success');
+        }
+        else{
+          Swal.fire('Oops!', res.message, 'error');
+        }
       }
     });
   };

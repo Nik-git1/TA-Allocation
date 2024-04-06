@@ -87,9 +87,11 @@ const ProfState = (props) => {
       .delete(`http://localhost:5001/api/professor/${professorId}`)
       .then((response) => {
         getProfessorsFromBackend(); // Fetch updated professor data after deletion
+        return { status: 'Success' };
       })
       .catch((error) => {
         console.error('Error deleting professor:', error);
+        return { status: 'Failed', message: 'Error deleting professor' };
       });
   };
 
@@ -100,11 +102,14 @@ const ProfState = (props) => {
         // Professor data updated successfully
         // You can choose to update the local state if needed
         getProfessorsFromBackend(); // Fetch updated data from the backend
+        return { status: 'Success' };
       } else {
         console.error("Failed to update professor data on the backend");
+        return { status: 'Failed', message: 'Failed to update professor data on the backend' };
       }
     } catch (error) {
       console.error("Error updating professor data:", error);
+      return { status: 'Failed', message: 'Error updating professor data' };
     }
   };
 
