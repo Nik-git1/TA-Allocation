@@ -111,6 +111,9 @@ const LoginPage = () => {
         navigate("/department");
       } else {
         alert("Login Error");
+        setOtpSent(false)
+        setEmail("")
+        setOtp("")
         setotpOptionSelected(false); 
       }
     } else {
@@ -145,6 +148,9 @@ const LoginPage = () => {
         navigate("/professor", { state: { name: json.name } });
       } else {
         alert("Login Error");
+        setOtpSent(false)
+        setEmail("")
+        setOtp("")
         setotpOptionSelected(false); 
       }
     } else {
@@ -183,6 +189,7 @@ const LoginPage = () => {
         }, 1600);
       } else {
         stopLoader();
+        setEmail("")
         alert("Failed to send OTP.");
       }
     } else {
@@ -220,6 +227,8 @@ const LoginPage = () => {
         // Redirect to the appropriate page after OTP verification
       } else {
         alert("Invalid OTP.");
+        setEmail("")
+
         setotpOptionSelected(false); // Reset the form state
       }
     } else {
@@ -286,11 +295,15 @@ const LoginPage = () => {
             <button
               type="button"
               className="w-full my-2 py-2 bg-[#3dafaa] shadow-lg shadow-[#3dafaa]/50 hover:shadow-[#3dafaa]/40 text-white font-semibold rounded-lg"
-              onClick={() =>
-                otpOptionSelected
-                  ? setotpOptionSelected(false)
-                  : handleLoginOptionClick("TA")
-              }
+              onClick={() => {
+                if (otpOptionSelected) {
+                  setotpOptionSelected(false);
+                  setEmail("");
+                } else {
+                  handleLoginOptionClick("TA");
+                }
+              }}
+              
               disabled={OtpSent}
             >
               {otpOptionSelected ? "Back to Main Page" : "TA Form"}
