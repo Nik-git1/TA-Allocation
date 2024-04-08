@@ -7,8 +7,6 @@ import Select from "react-select";
 
 import CryptoJS from "crypto-js";
 import ClipLoader from "react-spinners/ClipLoader";
-import { AiOutlineSearch } from "react-icons/ai";
-
 const validationSchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
   rollNo: Yup.string()
@@ -19,6 +17,8 @@ const validationSchema = Yup.object().shape({
   taType: Yup.string().required("TA Type is required"),
   cgpa: Yup.number().typeError("Invalid CGPA").max(10, "Invalid CGPA"),
 });
+
+const API = import.meta.env.VITE_API_URL;
 
 const StudentForm = () => {
   const [formOpened, setFormOpened] = useState(true);
@@ -44,7 +44,7 @@ const StudentForm = () => {
       { course: "", grade: "" },
       { course: "", grade: "" },
     ],
-    nonPreferences: [ "","",""],
+    nonPreferences: ["", "", ""],
   };
   const secretKey = "your-secret-key"; // Use the same secret key used for encryption
   const decryptedEmail = CryptoJS.AES.decrypt(
@@ -79,7 +79,7 @@ const StudentForm = () => {
         : studentExistData.nonDepartmentPreferences,
     nonPreferences:
       studentExistData.nonPreferences.length === 0
-        ? ["", "",""]
+        ? ["", "", ""]
         : studentExistData.nonPreferences,
   });
 
@@ -88,11 +88,25 @@ const StudentForm = () => {
   const [selectedDepartment, setSelectedDepartment] = useState(
     formData.department
   );
+  const [dataCorrect, setDataCorrect] = useState(false);
+  const handleDataCorrectChange = () => {
+    setDataCorrect(!dataCorrect);
+  };
+
+  const isAnyFieldEmpty = () => {
+    for (const key in formData) {
+      if (formData[key] === "" || formData[key].length === 0) {
+        return true;
+      }
+    }
+    return !dataCorrect; 
+  };
 
   useEffect(() => {
-    // Fetch course data from the backend API
+   
+ 
     axios
-      .get("http://localhost:5001/api/course")
+      .get(`${API}/api/course`)
       .then((response) => {
         setCourses(response.data);
       })
@@ -101,7 +115,7 @@ const StudentForm = () => {
       });
 
     axios
-      .get("http://localhost:5001/api/form")
+      .get(`${API}/api/form`)
       .then((response) => {
         setFormOpened(response.data.state);
       })
@@ -115,23 +129,20 @@ const StudentForm = () => {
 
     var courseId = courses.find((course) => course.name === value)?._id;
 
-    console.log(name ,value);
+    console.log(name, value);
     const updatedFormData = { ...formData };
 
     if (
       section === "departmentPreferences" ||
       section === "nonDepartmentPreferences"
     ) {
-       console.log(value)
-      console.log(name)
+   
       const prevSelectedCourse = updatedFormData[section][index][name];
-      if(name === "grade"){
-        console.log("in grade")
+      if (name === "grade") {
         updatedFormData[section][index][name] = value;
-      }else{
+      } else {
         updatedFormData[section][index][name] = courseId;
       }
-    
 
       const updatedSelectedCourses = selectedCourses.filter(
         (course) => course !== prevSelectedCourse
@@ -140,7 +151,6 @@ const StudentForm = () => {
       if (courseId !== "") {
         updatedSelectedCourses.push(courseId);
       }
-
       setSelectedCourses(updatedSelectedCourses);
     } else if (section === "nonPreferences") {
       const prevSelectedCourse = updatedFormData[section][index];
@@ -163,40 +173,38 @@ const StudentForm = () => {
   };
 
   const handleSubmit = async () => {
+    console.log("in");
     event.preventDefault();
     try {
       // Validate form data using Yup
       await validationSchema.validate(formData, { abortEarly: false });
-      
-      // if (email === "your email id") {
-      //   alert(
-      //     "please visit login page and generate valid otp for your email Id"
-      //   );
-      //   return;
-      // }
 
-      // if (email !== decryptedEmail) {
-      //   alert("Invalid email");
-      //   return;
-      // }
+      if (email === "your email id") {
+        alert(
+          "please visit login page and generate valid otp for your email Id"
+        );
+        return;
+      }
 
-      // if (!decryptedEmail.endsWith("@iiitd.ac.in")) {
-      //   alert("Only IIITD Students allowed");
-      //   return;
-      // }
+      if (email !== decryptedEmail) {
+        alert("Invalid email");
+        return;
+      }
 
-      // if (!formOpened) {
-      //   alert("Form Closed");
-      //   return;
-      // }
+      if (!decryptedEmail.endsWith("@iiitd.ac.in")) {
+        alert("Only IIITD Students allowed");
+        return;
+      }
 
-      //add these to yup validation
-
+      if (!formOpened) {
+        alert("Form Closed");
+        return;
+      }
       setLoading(true);
       const apiUrl =
         studentExist === null
-          ? "http://localhost:5001/api/student"
-          : `http://localhost:5001/api/student/${studentExist._id}`;
+          ? `${API}/api/student`
+          : `${API}/api/student/${studentExist._id}`;
 
       // Send data to server
       const response = await axios({
@@ -217,19 +225,25 @@ const StudentForm = () => {
       setLoading(false);
       if (error.name === "ValidationError") {
         // Handle Yup validation errors
-        const validationErrors = {};
+        let errorMessage = "<ul>"; // Opening unordered list tag
         error.inner.forEach((e) => {
-          validationErrors[e.path] = e.message;
+          errorMessage += `<li>${e.message}</li>`; // Adding each error message as list item
         });
-        console.error("Validation errors:", validationErrors);
-        // You can set validation error messages here or handle them as needed
-      } else {
+        errorMessage += "</ul>"; // Closing unordered list tag
+        console.error("Validation errors:", errorMessage);
+        
+        Swal.fire({
+          icon: "error",
+          title: "Validation Error!",
+          html: errorMessage, // Display formatted error messages
+        });
+      }
+       else {
         console.error("Error submitting student data:", error);
         Swal.fire("Error!", "Failed to submit form", "error");
       }
     }
-};
-
+  };
 
   const handleDepartmentChange = (event) => {
     const { value } = event.target;
@@ -501,7 +515,7 @@ const StudentForm = () => {
                           </div>
                         ) : (
                           "Select Preferred Course"
-                        ), // Display dummy label if no option is selected
+                        ),
                       }}
                       onChange={(selectedOption) =>
                         handleChange(
@@ -516,10 +530,9 @@ const StudentForm = () => {
                         )
                       }
                       className="w-full"
-                      // Enable search functionality
                     />
 
-<label
+                    <label
                       htmlFor={`deptGrade-${index}`}
                       className="block text-gray-700 font-bold mt-2"
                     >
@@ -546,7 +559,6 @@ const StudentForm = () => {
                       <option valie="Course Not Done"> Course Not Done </option>
                     </select>
                   </div>
-
                 ))}
               </div>
 
@@ -563,32 +575,39 @@ const StudentForm = () => {
                     </label>
                     <Select
                       id={`nonDeptCourse-${index}`}
-                      options={[
-                        ...courses
-                          .filter(
-                            (course) => course.department !== selectedDepartment
-                          )
-                          .sort((a, b) => a.acronym.localeCompare(b.acronym))
-                          .map((filteredCourse) => ({
-                            value: filteredCourse.name,
-                            label: (
-                              <div>
-                                <div>{`${filteredCourse.code} ${filteredCourse.name}`}</div>
-                                <div
-                                  style={{
-                                    fontStyle: "italic",
-                                    fontSize: "0.8rem",
-                                  }}
-                                >
-                                  {`(${filteredCourse.acronym}) - ${filteredCourse.professor}`}
-                                </div>
-                              </div>
-                            ),
-                            isDisabled: selectedCourses.includes(
-                              filteredCourse._id
-                            ),
-                          })),
-                      ]}
+                      options={
+                        selectedDepartment
+                          ? [
+                              ...courses
+                                .filter(
+                                  (course) =>
+                                    course.department !== selectedDepartment
+                                )
+                                .sort((a, b) =>
+                                  a.acronym.localeCompare(b.acronym)
+                                )
+                                .map((filteredCourse) => ({
+                                  value: filteredCourse.name,
+                                  label: (
+                                    <div>
+                                      <div>{`${filteredCourse.code} ${filteredCourse.name}`}</div>
+                                      <div
+                                        style={{
+                                          fontStyle: "italic",
+                                          fontSize: "0.8rem",
+                                        }}
+                                      >
+                                        {`(${filteredCourse.acronym}) - ${filteredCourse.professor}`}
+                                      </div>
+                                    </div>
+                                  ),
+                                  isDisabled: selectedCourses.includes(
+                                    filteredCourse._id
+                                  ),
+                                })),
+                            ]
+                          : []
+                      }
                       value={{
                         value: pref.course ? pref.course : "", // Use pref.course if it exists
                         label: pref.course ? (
@@ -621,14 +640,14 @@ const StudentForm = () => {
                           </div>
                         ) : (
                           "Select Preferred Course"
-                        ), // Display dummy label if no option is selected
+                        ),
                       }}
                       onChange={(selectedOption) =>
                         handleChange(
                           {
                             target: {
                               name: "course",
-                              value: selectedOption ? selectedOption.value : "", // Use selected option value
+                              value: selectedOption ? selectedOption.value : "",
                             },
                           },
                           index,
@@ -675,95 +694,119 @@ const StudentForm = () => {
                 ))}
               </div>
 
-              {/* Non-Preferences */}
-         
-           <div>
-  <h3 className="text-xl font-bold mb-2">Non-Preferences</h3>
-  {formData.nonPreferences.map((pref, index) => (
-    <div key={index}>
-      <Select
-        options={[
-          ...courses
-            .sort((a, b) => a.acronym.localeCompare(b.acronym))
-            .map((filteredCourse) => ({
-              value: filteredCourse.name,
-              label: (
-                <div>
-                  <div>{`${filteredCourse.code} ${filteredCourse.name}`}</div>
-                  <div
-                    style={{
-                      fontStyle: "italic",
-                      fontSize: "0.8rem",
-                    }}
-                  >
-                    {`(${filteredCourse.acronym}) - ${filteredCourse.professor}`}
+              <div>
+                <h3 className="text-xl font-bold mb-2">Non-Preferences</h3>
+                {formData.nonPreferences.map((pref, index) => (
+                  <div key={index}>
+                    <Select
+                      options={
+                        selectedDepartment
+                          ? [
+                              ...courses
+                                .filter(
+                                  (course) =>
+                                    course.department !== selectedDepartment
+                                )
+                                .sort((a, b) =>
+                                  a.acronym.localeCompare(b.acronym)
+                                )
+                                .map((filteredCourse) => ({
+                                  value: filteredCourse.name,
+                                  label: (
+                                    <div>
+                                      <div>{`${filteredCourse.code} ${filteredCourse.name}`}</div>
+                                      <div
+                                        style={{
+                                          fontStyle: "italic",
+                                          fontSize: "0.8rem",
+                                        }}
+                                      >
+                                        {`(${filteredCourse.acronym}) - ${filteredCourse.professor}`}
+                                      </div>
+                                    </div>
+                                  ),
+                                  isDisabled: selectedCourses.includes(
+                                    filteredCourse._id
+                                  ),
+                                })),
+                            ]
+                          : []
+                      }
+                      onChange={(selectedOption) =>
+                        handleChange(
+                          {
+                            target: {
+                              name: "course",
+                              value: selectedOption ? selectedOption.value : "",
+                            },
+                          },
+                          index,
+                          "nonPreferences"
+                        )
+                      }
+                      value={{
+                        value: pref ? pref : "", // Use pref.course if it exists
+                        label: pref ? (
+                          <div>
+                            <div>{`${
+                              courses.find((course) => course._id === pref)
+                                ?.code
+                            } ${
+                              courses.find((course) => course._id === pref)
+                                ?.name
+                            }`}</div>
+                            <div
+                              style={{
+                                fontStyle: "italic",
+                                fontSize: "0.8rem",
+                              }}
+                            >
+                              {`(${
+                                courses.find((course) => course._id === pref)
+                                  ?.acronym
+                              }) - ${
+                                courses.find((course) => course._id === pref)
+                                  ?.professor
+                              }`}
+                            </div>
+                          </div>
+                        ) : (
+                          "Select Preferred Course"
+                        ),
+                      }}
+                      className="p-2 border rounded-md mb-2"
+                    />
                   </div>
-                </div>
-              ),
-              isDisabled: selectedCourses.includes(filteredCourse._id),
-            })),
-        ]}
-        onChange={(selectedOption) =>
-          handleChange(
-            {
-              target: {
-                name: "course",
-                value: selectedOption ? selectedOption.value : "",
-              },
-            },
-            index,
-            "nonPreferences"
-          )
-        }
-        value={{
-          value: pref ? pref : "", // Use pref.course if it exists
-           label: pref ? 
-          (
-            <div>
-            {/* Print the value of pref here */}
-
-            <div>{`${
-              courses.find(
-                (course) => course._id === pref
-              )?.code
-            } ${
-              courses.find(
-                (course) => course._id === pref
-              )?.name
-            }`}</div>
-            <div
-              style={{
-                fontStyle: "italic",
-                fontSize: "0.8rem",
-              }}
-            >
-              {`(${
-                courses.find(
-                  (course) => course._id === pref
-                )?.acronym
-              }) - ${
-                courses.find(
-                  (course) => course._id === pref
-                )?.professor
-              }`}
-            </div>
-          </div>
-         ) : (
-            "Select Preferred Course"
-          ),
-        }}
-        className="p-2 border rounded-md mb-2"
-      />
-    </div>
-  ))}
-</div>
-
-
+                ))}
+              </div>
+              <div className="mb-4">
+                <label className="inline-flex items-center">
+                  <input
+                    type="checkbox"
+                    className="form-checkbox h-5 w-5 text-[#3dafaa]"
+                    checked={dataCorrect}
+                    onChange={handleDataCorrectChange}
+                  />
+                  <span className="ml-2 text-gray-700">
+                    I am committed to fulfilling my TA duties once assigned and
+                    will not opt out thereafter. <br />
+                    Prior to commencing my TA responsibilities, I will ensure to
+                    complete the requisite TA training. <br />I hereby confirm
+                    the accuracy of the provided data to the best of my
+                    knowledge.
+                  </span>
+                </label>
+              </div>
 
               <div className="flex justify-end">
                 <button
                   type="submit"
-                  className="bg-[#3dafaa] text-white p-2 rounded"
+                  className={`p-2 rounded ${
+                    isAnyFieldEmpty()
+                      ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                      : "bg-[#3dafaa] text-white"
+                  }`}
+                  disabled={isAnyFieldEmpty()}
                 >
                   Submit
                 </button>
@@ -782,13 +825,6 @@ const StudentForm = () => {
   );
 };
 
-// label: (
-//   <div>
-//     <div>{`${filteredCourse.code} ${filteredCourse.name}`}</div>
-//     <div style={{ fontStyle: "italic", fontSize: "0.8rem" }}>
-//       {`(${filteredCourse.acronym}) - ${filteredCourse.professor}`}
-//     </div>
-//   </div>
-// ),
+
 
 export default StudentForm;

@@ -4,7 +4,7 @@ import { useLocation, Routes, Route } from 'react-router-dom';
 import AdminPage from './Pages/AdminPage';
 import Department from './Pages/DepartmentPage';
 import Professor from './Pages/ProfessorPage';
-import StudentForm from './Pages/Form';
+import StudentForm from './Pages/TAForm';
 import StudentState from './context/StudentState';
 import CourseState from './context/CourseState';
 import DepartmentState from './context/DepartmentState';

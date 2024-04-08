@@ -7,6 +7,8 @@ const CourseState = (props) => {
   const initCourses = [];
   const [courses, setCourses] = useState(initCourses);
   const [ selectedCourse , setSelectedCourse] = useState(); //might be redundant
+ 
+  const API = import.meta.env.VITE_API_URL
 
   useEffect(() => {
     getCoursesFromBackend();
@@ -15,7 +17,7 @@ const CourseState = (props) => {
 
   const filterCoursesByDepartment = async (department) => {
     try {
-      const response = await axios.get(`http://localhost:5001/api/course?department=${department}`);
+      const response = await axios.get(`${API}/api/course?department=${department}`);
       if (response.status === 200) {
         const filteredCourses = response.data;
         // Update the local state with the filtered courses
@@ -31,7 +33,7 @@ const CourseState = (props) => {
 
   const getCoursesFromBackend = () => {
     axios
-      .get('http://localhost:5001/api/course') // Replace with your actual API endpoint
+      .get(`${API}/api/course`) // Replace with your actual API endpoint
       .then((response) => {
         let coursesFromBackend = response.data;
         setCourses(coursesFromBackend);
