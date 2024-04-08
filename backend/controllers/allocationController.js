@@ -102,67 +102,69 @@ const sendAllocationDetails = asyncHandler(
 //@desc Allocate Student to Course
 //@route POST /api/al/allocation
 //@access public
-const allocate = asyncHandler( async ( req, res ) =>
-{
-  console.log( req.body )
+const allocate = asyncHandler(async (req, res) => {
+  console.log(req.body);
   const { studentId, courseId, allocatedBy, allocatedByID } = req.body;
   const session = await mongoose.startSession();
   session.startTransaction();
 
-  try
-  {
-    var currentRound = await Round.findOne( {
+  try {
+    var currentRound = await Round.findOne({
       ongoing: true,
       endDate: { $exists: false },
-    } ).session( session );
+    }).session(session);
 
-    if ( !currentRound )
-    {
-      // session.abortTransaction();
-      return res.status( 400 ).json( { message: "No ongoing round for allocation." } );
+    if (!currentRound) {
+      return res
+        .status(400)
+        .json({ message: "No ongoing round for allocation." });
     }
 
-    var student = await Student.findById( studentId ).session( session );
-    var course = await Course.findById( courseId ).session( session );
-    const adminEmail = "nikjr7777@gmail.com";
-    const professor = await Professor.findById( course.professor ); //check for session parameters here
-    const department = await JM.findById( course.department );
+    var student = await Student.findById(studentId).session(session);
+    var course = await Course.findById(courseId).session(session);
 
-
-
-    if ( !student || !course )
-    {
-      // session.abortTransaction();
-      return res.status( 404 ).json( { message: "Student or Course not found" } );
+    if (!student || !course) {
+      return res.status(404).json({ message: "Student or Course not found" });
     }
 
     const allocatedStudentsCount = course.taAllocated.length;
 
-    if ( currentRound.currentRound === 1 )
-    {
-      if ( course.totalStudents >= 100 && allocatedStudentsCount >= 2 )
-      {
-        // session.abortTransaction();
-        return res.status( 400 ).json( { message: "Maximum allocation limit reached (2 students)." } );
-      } else if ( course.totalStudents < 100 && allocatedStudentsCount >= 1 )
-      {
-        // session.abortTransaction();
-        return res.status( 400 ).json( { message: "Maximum allocation limit reached (1 student)." } );
+    if (currentRound.currentRound === 1) {
+      if (course.totalStudents >= 100 && allocatedStudentsCount >= 2) {
+        return res
+          .status(400)
+          .json({ message: "Maximum allocation limit reached (2 students)." });
+      } else if (course.totalStudents < 100 && allocatedStudentsCount >= 1) {
+        return res
+          .status(400)
+          .json({ message: "Maximum allocation limit reached (1 student)." });
       }
-    } else if ( currentRound.currentRound > 1 )
-    {
-      if ( allocatedStudentsCount >= course.taRequired )
-      {
-        // session.abortTransaction();
-        return res.status( 400 ).json( { message: `Maximum allocation limit reached (${ course.taRequired } students).` } );
+    } else if (currentRound.currentRound > 1) {
+      if (allocatedStudentsCount >= course.taRequired) {
+        return res.status(400).json({
+          message: `Maximum allocation limit reached (${course.taRequired} students).`,
+        });
       }
     }
 
-    if ( student.allocationStatus !== 0 || student.allocatedTA )
-    {
-      // session.abortTransaction();
-      return res.status( 400 ).json( { message: "Student is not available for allocation" } );
+    if (student.allocationStatus !== 0 || student.allocatedTA) {
+      return res
+        .status(400)
+        .json({ message: "Student is not available for allocation" });
     }
+
+    let userEmailId;
+
+    if (allocatedBy === 'jm') {
+      const jm = await JM.findById(allocatedByID).session(session);
+      if (jm) userEmailId = jm.emailId;
+    } else if (allocatedBy === 'professor') {
+      const professor = await Professor.findById(allocatedByID).session(session);
+      if (professor) userEmailId = professor.emailId;
+    } else {
+      userEmailId = 'admin';
+    }
+
 
     const studentUpdatePromise = Student.findByIdAndUpdate(
       studentId,
@@ -181,31 +183,30 @@ const allocate = asyncHandler( async ( req, res ) =>
       { session }
     ).exec();
 
-    await Promise.all( [ studentUpdatePromise, courseUpdatePromise ] );
+    await Promise.all([studentUpdatePromise, courseUpdatePromise]);
 
-    const logEntry = new LogEntry( {
+    const logEntry = new LogEntry({
       student: studentId,
-      userEmailId: allocatedByID,
+      userEmailId: userEmailId,
       userRole: allocatedBy, // Assuming admin for now, change this accordingly
       action: 'Allocated',
       course: courseId,
-    } );
+    });
 
-    await logEntry.save( { session } );
+    console.log(logEntry)
+
+    await logEntry.save({ session });
 
     await session.commitTransaction();
 
-    return res.status( 200 ).json( { message: "Student allocated successfully" } );
-  } catch ( error )
-  {
+    return res.status(200).json({ message: "Student allocated successfully" });
+  } catch (error) {
     await session.abortTransaction();
-    return res.status( 500 ).json( { message: "Internal server error", error: error.message } );
-  } finally
-  {
+    return res.status(500).json({ message: "Internal server error", error: error.message });
+  } finally {
     session.endSession();
   }
-} );
-
+});
 
 //@desc Deallocate Student from Course
 //@route POST /api/al/deallocation
@@ -262,11 +263,22 @@ const deallocate = asyncHandler( async ( req, res ) =>
     student.allocatedTA = null;
     student.allocationStatus = 0;
     await student.save();
-    console.log( "Deallocated" )
+
+    let userEmailId
+   
+    if (deallocatedBy === 'jm') {
+      const jm = await JM.findById(deallocatedByID).session(session);
+      if (jm) userEmailId = jm.emailId;
+    } else if (deallocatedBy === 'professor') {
+      const professor = await Professor.findById(deallocatedByID).session(session);
+      if (professor) userEmailId = professor.emailId;
+    } else {
+      userEmailId = 'admin';
+    }
     // sendDeallocationDetails(student.emailId, adminEmail, department.emailId, professor.emailId,deallocatedBy );
     const logEntry = new LogEntry( {
       student: studentId,
-      userEmailId: deallocatedByID,
+      userEmailId: userEmailId,
       userRole: deallocatedBy, // Assuming admin for now, change this accordingly
       action: 'Deallocated',
       course: courseId,

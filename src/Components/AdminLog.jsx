@@ -27,7 +27,7 @@ const AdminLog = () => {
       <td className="border p-2">{logEntry.student ? logEntry.student.rollNo : 'N/A'}</td>
       <td className="border p-2">{logEntry.student ? logEntry.student.name : 'N/A'}</td>
       <td className="border p-2">{logEntry.action}</td>
-      <td className="border p-2">{logEntry.userRole}</td>
+      <td className="border p-2">{logEntry.userEmailId}</td>
       <td className="border p-2">{new Date(logEntry.timestamp).toLocaleString()}</td>
       <td className="border p-2">{logEntry.course ? logEntry.course.name : 'N/A'}</td>
     </tr>
