@@ -118,4 +118,66 @@ const studentSchema = new mongoose.Schema( {
     },
 } );
 
+studentSchema.pre( /^find/, function ( next )
+{
+    this.populate( { path: 'department', select: 'department' } )
+        .populate( { path: 'allocatedTA', select: 'name' } )
+        .populate( { path: 'departmentPreferences.course', select: 'name' } )
+        .populate( { path: 'nonDepartmentPreferences.course', select: 'name' } )
+        .populate( { path: 'nonPreferences', select: 'name' } );
+    next();
+} );
+
+studentSchema.virtual( 'flatStudent' ).get( function ()
+{
+    return {
+        _id: this._id,
+        name: this.name,
+        emailId: this.emailId,
+        rollNo: this.rollNo,
+        program: this.program,
+        department: this.department ? this.department.department : null,
+        taType: this.taType,
+        allocationStatus: this.allocationStatus,
+        allocatedTA: this.allocatedTA ? this.allocatedTA.name : null,
+        cgpa: this.cgpa,
+        nonPreferences: this.nonPreferences.map( preference => preference ? preference.name : null ),
+        departmentPreferences: this.departmentPreferences.map( preference => ( {
+            course: preference.course ? preference.course.name : null,
+            grade: preference.grade
+        } ) ),
+        nonDepartmentPreferences: this.nonDepartmentPreferences.map( preference => ( {
+            course: preference.course ? preference.course.name : null,
+            grade: preference.grade
+        } ) ),
+        __v: this.__v
+    };
+} );
+
+studentSchema.virtual( 'flatStudentByID' ).get( function ()
+{
+    return {
+        _id: this._id,
+        name: this.name,
+        emailId: this.emailId,
+        rollNo: this.rollNo,
+        program: this.program,
+        department: this.department ? this.department._id : null,
+        taType: this.taType,
+        allocationStatus: this.allocationStatus,
+        allocatedTA: this.allocatedTA ? this.allocatedTA._id : null,
+        cgpa: this.cgpa,
+        nonPreferences: this.nonPreferences.map( preference => preference ? preference._id : null ),
+        departmentPreferences: this.departmentPreferences.map( preference => ( {
+            course: preference.course ? preference.course._id : null,
+            grade: preference.grade
+        } ) ),
+        nonDepartmentPreferences: this.nonDepartmentPreferences.map( preference => ( {
+            course: preference.course ? preference.course._id : null,
+            grade: preference.grade
+        } ) ),
+        __v: this.__v
+    };
+} );
+
 module.exports = mongoose.model( 'Student', studentSchema );

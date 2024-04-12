@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+const mongoose = require( 'mongoose' );
 
-const logEntrySchema = new mongoose.Schema({
+const logEntrySchema = new mongoose.Schema( {
     student: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Student',
@@ -10,24 +10,24 @@ const logEntrySchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    userRole :{
+    userRole: {
         type: String,
-        required : true,
+        required: true,
     },
     action: {
         type: String,
-        enum: ['Allocated', 'Deallocated'],
+        enum: [ 'Allocated', 'Deallocated' ],
         required: true,
     },
     timestamp: {
         type: Date,
         default: Date.now,
     },
-    course :{
-        type : mongoose.Schema.Types.ObjectId,
+    course: {
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Course',
-        required : true, 
+        required: true,
     },
-});
+} );
 
-module.exports = mongoose.model('LogEntry', logEntrySchema);
+module.exports = mongoose.model( 'LogEntry', logEntrySchema );

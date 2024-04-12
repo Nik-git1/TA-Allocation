@@ -3,6 +3,8 @@ const Course = require( "../models/Course" );
 const JM = require( "../models/JM" );
 const Professor = require( "../models/Professor" );
 const { getProfessors } = require( './professorController' );
+const Feedback = require( '../models/Feedback' );
+const Student = require( '../models/Student' );
 
 
 //@desc Get course by ID
@@ -305,6 +307,12 @@ const deleteCourse = asyncHandler( async ( req, res ) =>
                 { $set: { allocatedTA: null } }
             );
         }
+
+        // what happens for preferences to this course?
+        await Feedback.deleteMany( { course: courseId } )
+        // await Student.updateMany( { 'departmentPreferences.course': courseId }, { 'departmentPreferences.$.course': null } )
+        // await Student.updateMany( { 'nonDepartmentPreferences.course': courseId }, { 'nonDepartmentPreferences.$.course': null } )
+        // await Student.updateMany( { 'nonPreferences': courseId }, { 'nonPreferences': null } )
 
         // Step 4: Delete the course
         await Course.findByIdAndRemove( courseId );

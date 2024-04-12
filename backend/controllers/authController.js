@@ -37,11 +37,12 @@ const sendOtp = asyncHandler( async ( req, res ) =>
 {
   const { email_id } = req.body;
   const findStudent = await Student.findOne( { emailId: email_id } );
+  const flatenedStudents = findStudent?.flatStudent
   let department = "";
-  if ( findStudent )
+  if ( flatenedStudents )
   {
-    department = await JM.findById( findStudent.department, "department" );
-    department = department.department
+    // department = await JM.findById( findStudent.department, "department" );
+    department = flatenedStudents.department
   }
   let otp = otpGenerator.generate( 6, {
     upperCaseAlphabets: false,
@@ -80,11 +81,11 @@ const sendOtp = asyncHandler( async ( req, res ) =>
   {
     console.log( ":", department, ":" )
     await transporter.sendMail( mailOptions );
-    res.status( 200 ).json( { success: true, message: 'OTP sent successfully', studentExist: findStudent, department: department } );
+    res.status( 200 ).json( { success: true, message: 'OTP sent successfully', studentExist: flatenedStudents, department: department } );
   } catch ( error )
   {
     console.error( 'Error sending OTP:', error );
-    res.status( 500 ).json( { success: false, message: 'Failed to send OTP', studentExist: findStudent, department: department } );
+    res.status( 500 ).json( { success: false, message: 'Failed to send OTP', studentExist: flatenedStudents, department: department } );
   }
 } );
 
@@ -107,7 +108,7 @@ const handleTAlogin = asyncHandler( async ( req, res ) =>
 
   const authtoken = jwt.sign( data, JWT_SECRET );
 
-  res.status( 200 ).json( { success: true, message: 'OTP verified successfully' , authtoken } );
+  res.status( 200 ).json( { success: true, message: 'OTP verified successfully', authtoken } );
 } );
 
 const addAdmin = asyncHandler( async ( req, res ) =>
@@ -240,7 +241,7 @@ const JMotp = asyncHandler( async ( req, res ) =>
   const authtoken = jwt.sign( data, JWT_SECRET );
   const success = true;
 
-  res.json( { success, authtoken , message: 'OTP verified successfully'} );
+  res.json( { success, authtoken, message: 'OTP verified successfully' } );
 } );
 
 const ProfessorLogin = asyncHandler( async ( req, res ) =>
@@ -292,7 +293,8 @@ const Professorotp = asyncHandler( async ( req, res ) =>
     return res.status( 400 ).json( { error: "Please enter valid credentials" } );
   }
 
-  console.log(user)
+  console.log( user )
+
   // Find if the professor teaches any courses
   const data = {
     user: {
@@ -309,35 +311,41 @@ const Professorotp = asyncHandler( async ( req, res ) =>
 } );
 
 
-const verifyOtp = async (req, res) => {
+const verifyOtp = async ( req, res ) =>
+{
   const { email, enteredOTP } = req.body;
-  console.log('Entered OTP:', enteredOTP);
-  const storedOTP = otpStorage.get(email);
-  console.log('Stored OTP:', storedOTP);
+  console.log( 'Entered OTP:', enteredOTP );
+  const storedOTP = otpStorage.get( email );
+  console.log( 'Stored OTP:', storedOTP );
 
-  if (!storedOTP || storedOTP.toString() !== enteredOTP.toString()) {
-    return res.status(400).json({ success: false, message: 'Invalid OTP' });
+  if ( !storedOTP || storedOTP.toString() !== enteredOTP.toString() )
+  {
+    return res.status( 400 ).json( { success: false, message: 'Invalid OTP' } );
   }
 
-  res.status(200).json({ success: true, message: 'OTP verified successfully' });
+  res.status( 200 ).json( { success: true, message: 'OTP verified successfully' } );
 };
 
 
-const forgotPassword = async(req, res) => {
-  try {
-    const {email , password} = req.body;
-    const admin = await Admin.findOne({ emailId: email });
-    if(!admin){
-      return res.status(400).json({ success: false, message: 'No user registed with this Email Id' })
+const forgotPassword = async ( req, res ) =>
+{
+  try
+  {
+    const { email, password } = req.body;
+    const admin = await Admin.findOne( { emailId: email } );
+    if ( !admin )
+    {
+      return res.status( 400 ).json( { success: false, message: 'No user registed with this Email Id' } )
     }
-    const hashedPassword = await argon2.hash(password);
+    const hashedPassword = await argon2.hash( password );
     admin.password = hashedPassword;
     await admin.save();
-    res.status(200).json({success:true, message:"password updated successfully"});
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Internal Server Error' });
+    res.status( 200 ).json( { success: true, message: "password updated successfully" } );
+  } catch ( error )
+  {
+    res.status( 500 ).json( { success: false, message: 'Internal Server Error' } );
   }
 }
 
 
-module.exports = { Professorotp,JMotp, adminLogin, ProfessorLogin, JMLogin, sendOtp, handleTAlogin, addAdmin, verifyOtp, forgotPassword };
+module.exports = { Professorotp, JMotp, adminLogin, ProfessorLogin, JMLogin, sendOtp, handleTAlogin, addAdmin, verifyOtp, forgotPassword };
