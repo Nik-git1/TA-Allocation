@@ -320,7 +320,7 @@ const LoginPage = () => {
                   className={`px-4 py-2 rounded-full cursor-pointer border ${
                     selectedOption === "admin"
                       ? "bg-[#3dafaa] text-white"
-                      : "border-[#3dafaa] hover:bg-[#3dafaa] hover:text-white"
+                      : "border-[#3dafaa] hover:bg-[#3dafaa] hover:text-white mx-1"
                   } outline-none focus:border-[#3dafaa]`}
                   onClick={() => handleLoginOptionClick("admin")}
                 >
