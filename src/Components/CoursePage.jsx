@@ -30,18 +30,22 @@ const CoursePage = () => {
     key: null,
     direction: "ascending",
   });
-  console.log(students);
+  
   const [sorted, setSorted] = useState([]);
 
   const fetchCurrentRound = async () => {
     try {
-      const response = await fetch("http://localhost:5001/api/rd/currentround");
+      const response = await fetch(
+        "http://localhost:5001/api/rd/currentround"
+      );
       const data = await response.json();
       setCurrentRound(data.currentRound);
+
     } catch (error) {
       console.error("Error fetching round status:", error);
     }
   };
+
 
   useEffect(() => {
     if (!selectedCourse || selectedCourse.name !== courseName) {
@@ -71,17 +75,21 @@ const CoursePage = () => {
         student.allocatedTA !== selectedCourse.name
     );
 
+  
     fetchCurrentRound();
 
     setAllocatedToThisCourse(studentsAllocatedToCourse);
 
     setAvailableStudents(studentsAvailableForAllocation);
+    console.log(studentsAllocatedToCourse)
   }, [selectedCourse, students, allocated]);
 
   const handleAllocate = (studentId) => {
-    if (currentRound == null) {
+
+    if (currentRound == null){
       Swal.fire("Can't Allocate", "No allocation round is going on", "error");
-    } else {
+    }
+    else{
       // Make a POST request to allocate the student
       axios
         .post("http://localhost:5001/api/al/allocation", {
@@ -92,12 +100,12 @@ const CoursePage = () => {
         })
         .then((response) => {
           // Allocation was successful
-
+  
           // Move the student from available to allocated
           const studentToAllocate = availableStudents.find(
             (student) => student._id === studentId
           );
-
+  
           setAllocatedToThisCourse((prevAllocated) => [
             ...prevAllocated,
             studentToAllocate,
@@ -105,9 +113,9 @@ const CoursePage = () => {
           setAvailableStudents((prevAvailable) =>
             prevAvailable.filter((student) => student._id !== studentId)
           );
-
+  
           getStudentsFromBackend();
-
+  
           // Toggle the button state to trigger recalculation
           setbutton((prevState) => !prevState);
         })
@@ -228,25 +236,25 @@ const CoursePage = () => {
   const handleRenderAllocatedTable = async () => {
     setAllocated(1);
     setSortConfig({ key: null, direction: "ascending" });
-    setProgramFilter("All");
-    setDepartmentFilter("All");
-    setPrefFilter("All");
+    setProgramFilter('All');
+    setDepartmentFilter('All');
+    setPrefFilter('All');
   };
 
   const handleRenderAvailableStudentTable = async () => {
     setAllocated(0);
     setSortConfig({ key: null, direction: "ascending" });
-    setProgramFilter("All");
-    setDepartmentFilter("All");
-    setPrefFilter("All");
+    setProgramFilter('All');
+    setDepartmentFilter('All');
+    setPrefFilter('All');
   };
 
   const handleRenderAllocatedToOthersTable = async () => {
     setAllocated(2);
     setSortConfig({ key: null, direction: "ascending" });
-    setProgramFilter("All");
-    setDepartmentFilter("All");
-    setPrefFilter("All");
+    setProgramFilter('All');
+    setDepartmentFilter('All');
+    setPrefFilter('All');
   };
 
   const handleDownload = () => {
@@ -270,11 +278,7 @@ const CoursePage = () => {
   };
 
   const filterStudents = (studentsList) => {
-    if (
-      prefFilter === "All" &&
-      programFilter === "All" &&
-      departmentFilter === "All"
-    ) {
+    if (prefFilter === "All" && programFilter === "All" && departmentFilter === "All") {
       return studentsList.filter(
         (student) =>
           student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -282,7 +286,8 @@ const CoursePage = () => {
       );
     } else {
       const filteredStudents = []; // Initialize an empty array to collect matching students
-      if (prefFilter !== "All") {
+      if (prefFilter !== "All"){
+
         for (const student of studentsList) {
           let pref = "Not Any";
           let count = 1;
@@ -295,7 +300,7 @@ const CoursePage = () => {
           }
           for (const i of student.nonDepartmentPreferences) {
             if (pref !== "Not Any") {
-              break;
+              break;  
             }
             if (i.course === selectedCourse.name) {
               pref = `Other Preference ${count}`;
@@ -303,31 +308,27 @@ const CoursePage = () => {
             }
             count++;
           }
-          if (
-            pref === prefFilter &&
-            (student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              student.emailId.toLowerCase().includes(searchQuery.toLowerCase()))
-          ) {
+          if (pref === prefFilter && (student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          student.emailId.toLowerCase().includes(searchQuery.toLowerCase()))) {
             filteredStudents.push(student); // Add matching student to the array
           }
         }
-      } else if (programFilter !== "All") {
+      }
+
+      else if (programFilter !== "All"){
+
         for (const student of studentsList) {
-          if (
-            student.program === programFilter &&
-            (student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              student.emailId.toLowerCase().includes(searchQuery.toLowerCase()))
-          ) {
+          if (student.program === programFilter && (student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          student.emailId.toLowerCase().includes(searchQuery.toLowerCase()))){
             filteredStudents.push(student);
           }
         }
-      } else if (departmentFilter !== "All") {
+      }
+
+      else if (departmentFilter !== "All"){
         for (const student of studentsList) {
-          if (
-            student.department === departmentFilter &&
-            (student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              student.emailId.toLowerCase().includes(searchQuery.toLowerCase()))
-          ) {
+          if (student.department === departmentFilter && (student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          student.emailId.toLowerCase().includes(searchQuery.toLowerCase()))){
             filteredStudents.push(student);
           }
         }
@@ -355,7 +356,7 @@ const CoursePage = () => {
     for (const preference of student.departmentPreferences) {
       if (preference.course === courseName) {
         return {
-          preferenceType: "Department Preference " + count,
+          preferenceType: "Department Preference "+count,
           grade: preference.grade,
         };
       }
@@ -365,7 +366,7 @@ const CoursePage = () => {
     for (const preference of student.nonDepartmentPreferences) {
       if (preference.course === courseName) {
         return {
-          preferenceType: "Non-Department Preference " + count,
+          preferenceType: "Non-Department Preference "+count,
           grade: preference.grade,
         };
       }
@@ -387,18 +388,18 @@ const CoursePage = () => {
       grade = coursePreference.grade;
     }
     return (
-      <tr key={student._id} className="text-center">
+      <tr className="text-center">
         <td className="border p-2">{student.name}</td>
         <td className="border p-2">{student.emailId}</td>
         <td className="border p-2">{student.program}</td>
         <td className="border p-2">{student.department}</td>
-        {currentRound === 1 ? (
-                <>
-                  <td className="border p-2">{student.cgpa}</td>
-                  <td className="border p-2">{grade}</td> {/* Display grade */}
-                  <td className="border p-2">{pref}</td>
-                </>
-              ) : null}
+        {currentRound === 1 ? null : (
+          <>
+            <td className="border p-2">{student.cgpa}</td>
+            <td className="border p-2">{grade}</td> {/* Display grade */}
+            <td className="border p-2">{pref}</td>
+          </>
+        )}
         <td className="border p-2">
           <button
             className="bg-red-500 text-white px-4 py-2 rounded cursor-pointer font-bold"
@@ -429,19 +430,18 @@ const CoursePage = () => {
         student.department === selectedCourse.department ||
         currentRound !== 2 ? (
           student.allocationStatus === 0 ? (
-            <tr key={student._id} className="text-center">
+            <tr className="text-center">
               <td className="border p-2">{student.name}</td>
               <td className="border p-2">{student.emailId}</td>
               <td className="border p-2">{student.program}</td>
               <td className="border p-2">{student.department}</td>
-              {currentRound === 1 ? (
-                <>
+              {currentRound === 1 ? null : (
+                <>   
                   <td className="border p-2">{student.cgpa}</td>
                   <td className="border p-2">{grade}</td> {/* Display grade */}
                   <td className="border p-2">{pref}</td>
                 </>
-              ) : null}
-
+              )}
               <td className="border p-2">
                 <button
                   className={`${
@@ -483,18 +483,18 @@ const CoursePage = () => {
       <>
         {student.allocationStatus === 1 &&
         student.allocatedTA !== selectedCourse.name ? (
-          <tr key={student._id} className="text-center">
+          <tr className="text-center">
             <td className="border p-2">{student.name}</td>
             <td className="border p-2">{student.emailId}</td>
             <td className="border p-2">{student.program}</td>
             <td className="border p-2">{student.department}</td>
-            {currentRound === 1 ? (
-                <>
-                  <td className="border p-2">{student.cgpa}</td>
-                  <td className="border p-2">{grade}</td> 
-                  <td className="border p-2">{pref}</td>
-                </>
-              ) : null}
+            {currentRound === 1 ? null : (
+              <>
+                <td className="border p-2">{student.cgpa}</td>
+                <td className="border p-2">{grade}</td> {/* Display grade */}
+                <td className="border p-2">{pref}</td>
+              </>
+            )}
             <td className="border p-2">{student.allocatedTA}</td>
           </tr>
         ) : null}
@@ -582,10 +582,16 @@ const CoursePage = () => {
       <div className="flex">
         <h1 className="text-3xl font-bold m-5">{selectedCourse.name},</h1>
         <div className="flex items-center">
-          <p className="text-2xl font-bold mr-2">Ongoing Round:</p>
-          <p className=" text-2xl flex mr-1">Round</p>
-          <p className=" text-2xl flex">{currentRound}</p>
-        </div>
+        <p className="text-2xl font-bold mr-2">
+          Ongoing Round:
+        </p>
+        <p className=" text-2xl flex mr-1">
+          Round
+        </p>
+        <p className=" text-2xl flex">
+          {currentRound}
+        </p>
+      </div>
       </div>
       <div className="flex justify-between">
         <div className="flex">
@@ -632,23 +638,21 @@ const CoursePage = () => {
             </div>
           </form>
         </div>
-        {allocated == 1 ? (
-          <button
-            className="bg-[#3dafaa] text-white px-4 py-2 rounded cursor-pointer font-bold mr-6"
-            onClick={handleDownload}
-          >
-            Download
-          </button>
-        ) : null}
+          {allocated == 1 ? (
+            <button
+              className="bg-[#3dafaa] text-white px-4 py-2 rounded cursor-pointer font-bold mr-6"
+                onClick={handleDownload}
+              >
+                Download
+            </button>
+          ) : null}
+        
       </div>
+
 
       {allocated === 1 && (
         <div className="m-5">
-          {renderCommonHeader(
-            `Allocated Students to ${courseName}`,
-            currentRound,
-            handlePrefFilter
-          )}
+         {renderCommonHeader(`Allocated Students to ${courseName}`, currentRound, handlePrefFilter)}
 
           <div className="overflow-auto ">
             <table className="w-full border-collapse border">
@@ -768,11 +772,7 @@ const CoursePage = () => {
 
       {allocated === 0 && (
         <div className="m-5">
-          {renderCommonHeader(
-            "Available Students",
-            currentRound,
-            handlePrefFilter
-          )}
+            {renderCommonHeader('Available Students', currentRound, handlePrefFilter)}
 
           <div className="overflow-auto">
             <table className="w-full border-collapse border ">

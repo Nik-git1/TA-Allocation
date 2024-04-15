@@ -38,6 +38,29 @@ const getCurrentRound = asyncHandler(async (req, res) => {
     }
   });
 
+// @desc Get the last completed round number
+// @route GET /api/rd/getLastRound
+// @access public
+const getLastRound = asyncHandler(async (req, res) => {
+    
+  try {
+    let lastRound = 0;
+    const completedRounds = await Round.find();
+
+    for (const round of completedRounds){
+      if(round.currentRound > lastRound){
+        lastRound = round.currentRound;
+      }
+    }
+
+    return res.status(200).json({ Round: lastRound });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: 'Internal server error', error: error.message });
+  }
+});
+
 //@desc Start new Round
 //@route POST /api/rd/startround
 //@access public
@@ -98,4 +121,4 @@ const endRound = asyncHandler( async ( req, res ) =>
     }
 } );
 
-module.exports = { startNewRound, endRound,getCurrentRound,resetRounds };
+module.exports = { startNewRound, endRound,getCurrentRound,resetRounds, getLastRound };

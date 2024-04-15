@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
 import "../App.css";
+import * as XLSX from "xlsx";
 import CourseContext from "../context/CourseContext";
 import DepartmentContext from "../context/DepartmentContext";
 import AllocateHeader from "./AllocateHeader";
@@ -109,36 +110,88 @@ const Department = () => {
     setAllocationStatus(event.target.value);
   }
 
+  const lastCompletedRound = async () => {
+    try {
+      const response = await fetch("http://localhost:5001/api/rd/getLastRound");
+      if (response.status === 200) {
+        const res = await response.json();
+        return res.Round; // Return the round number
+      } else {
+        const res = await response.json();
+        alert(res.message);
+      }
+    } catch (error) {
+      console.error("Error fetching last completed round:", error);
+    }
+  };
+  
+  const handleDownloadAllocations = async () => {
+    try {
+      let lastRoundValue;
+      if (currentRound == null) {
+        lastRoundValue = await lastCompletedRound(); // Wait for lastCompletedRound to finish
+      }
+      const response = await fetch("http://localhost:5001/api/al/getAllAllocation");
+      if (response.status == 200) {
+        const res = await response.json();
+        const ws = XLSX.utils.json_to_sheet(res.data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Students");
+        XLSX.writeFile(
+          wb,
+          `Round_${currentRound == null ? lastRoundValue : currentRound}_Allocation.xlsx`
+        );
+      } else {
+        const res = await response.json();
+        alert(res.message);
+      }
+    } catch (error) {
+      console.error("Error downloading complete allocation:", error);
+    }
+  };
+
   return (
     <div>
       <AllocateHeader />
-      <div className="flex items-center mb-4">
-        <form className="w-[500px] relative mr-3">
-          <div className="relative">
-            <input
-              type="search"
-              placeholder="Search Course by Name/Code/Acronym..."
-              value={searchQuery}
-              onChange={handleSearch}
-              className="w-full p-4 rounded-full h-10 border border-[#3dafaa] outline-none focus.border-[#3dafaa]"
-            />
-            <button className="absolute right-0 top-1/2 -translate-y-1/2 p-3 bg-[#3dafaa] rounded-full search-button">
-              <AiOutlineSearch />
-            </button>
-          </div>
-        </form>
+      <div className="flex items-center mb-4 justify-between">
+
+        {/* Search bar display and Allocation status filter */}
         <div className="flex items-center">
-          <p className="font-bold mr-1">Allocation Status:</p>
-          <select name="" id=""
-              className="px-2 py-2 border border-[#3dafaa] rounded inline-block"
-              onChange={handleAllocationStatus}
-          >
-            <option value="All">All</option>
-            <option value="Over Allocation" className="text-red-500">Over Allocation</option>
-            <option value="Under Allocation" className="text-yellow-500">Under Allocation</option>
-            <option value="Complete Allocation">Complete Allocation</option>
-          </select>
+          <form className="w-[500px] relative mr-3">
+            <div className="relative">
+              <input
+                type="search"
+                placeholder="Search Course by Name/Code/Acronym..."
+                value={searchQuery}
+                onChange={handleSearch}
+                className="w-full p-4 rounded-full h-10 border border-[#3dafaa] outline-none focus.border-[#3dafaa]"
+              />
+              <button className="absolute right-0 top-1/2 -translate-y-1/2 p-3 bg-[#3dafaa] rounded-full search-button">
+                <AiOutlineSearch />
+              </button>
+            </div>
+          </form>
+          <div className="flex items-center">
+            <p className="font-bold mr-1">Allocation Status:</p>
+            <select name="" id=""
+                className="px-2 py-2 border border-[#3dafaa] rounded inline-block"
+                onChange={handleAllocationStatus}
+            >
+              <option value="All">All</option>
+              <option value="Over Allocation" className="text-red-500">Over Allocation</option>
+              <option value="Under Allocation" className="text-yellow-500">Under Allocation</option>
+              <option value="Complete Allocation">Complete Allocation</option>
+            </select>
+          </div>
         </div>
+
+      {/* Download all courses allocation */}
+        <button className="bg-[#3dafaa] text-white px-4 py-2 rounded cursor-pointer font-bold mr-6"
+        onClick={handleDownloadAllocations}
+        >
+          Download all courses allocation
+        </button>
+
       </div>
       <div className="max-w-full max-h-[75vh] overflow-auto">
         <table className="border-collapse border w-full">
