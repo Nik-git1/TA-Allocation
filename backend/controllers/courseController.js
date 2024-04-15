@@ -123,7 +123,7 @@ const addCourse = asyncHandler( async ( req, res ) =>
     }
     try
     {
-        var collidingCourses = [];
+        // var collidingCourses = [];
         var invalidDeptCourses = [];
         var invalidProfCourses = [];
 
@@ -186,7 +186,11 @@ const addCourse = asyncHandler( async ( req, res ) =>
             } );
             if ( existingCourse )
             {
-                collidingCourses.push( newCourse );
+                // collidingCourses.push( newCourse );
+                const updatedCourse = await Course.updateOne(
+                    { _id: existingCourse._id },
+                    { $set: newCourse }
+                );
             } else
             {
                 // Add the course to the database
@@ -197,7 +201,7 @@ const addCourse = asyncHandler( async ( req, res ) =>
         // Prepare the response
         const response = {
             message: 'Courses added successfully',
-            collide: collidingCourses,
+            // collide: collidingCourses,
             invalid_dept: invalidDeptCourses,
             invalid_prof: invalidProfCourses,
         };
