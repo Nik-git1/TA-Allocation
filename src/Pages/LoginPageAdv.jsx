@@ -110,7 +110,7 @@ const LoginPage = () => {
         setSelectedDepartment(userData.department);
         navigate("/department");
       } else {
-        alert("Login Error");
+        alert("Invalid OTP or Email ID");
         setOtpSent(false)
         setEmail("")
         setOtp("")
@@ -147,7 +147,7 @@ const LoginPage = () => {
 
         navigate("/professor", { state: { name: json.name } });
       } else {
-        alert("Login Error");
+        alert("Invalid OTP or Email ID");
         setOtpSent(false)
         setEmail("")
         setOtp("")
@@ -198,38 +198,45 @@ const LoginPage = () => {
   };
   const handleTAlogin = async () => {
     if (email && Otp) {
-      const response = await fetch(`${host}/api/login/TAlogin`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: email, enteredOTP: Otp }),
-      });
 
-      const json = await response.json();
-      if (json.success) {
-        localStorage.setItem("token", json.authtoken);
-        const decodedToken = jwtDecode(json.authtoken); // Decode the JWT token
-        const userData = {
-          role: decodedToken.user["role"],
-        };
-        login(userData);
-        const eEmail = encryptEmail(email);
-        setEncryptedEmail(eEmail);
-        navigate("/TAform", {
-          state: {
-            email,
-            encryptedEmail: eEmail,
-            studentExist: studentExist,
-            department: studentExistDepartment,
+      const pattern = /@iiitd\.ac\.in$/;
+
+      if (pattern.test(email)) {
+        const response = await fetch(`${host}/api/login/TAlogin`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
+          body: JSON.stringify({ email: email, enteredOTP: Otp }),
         });
-        // Redirect to the appropriate page after OTP verification
+  
+        const json = await response.json();
+        if (json.success) {
+          localStorage.setItem("token", json.authtoken);
+          const decodedToken = jwtDecode(json.authtoken); // Decode the JWT token
+          const userData = {
+            role: decodedToken.user["role"],
+          };
+          login(userData);
+          const eEmail = encryptEmail(email);
+          setEncryptedEmail(eEmail);
+          navigate("/TAform", {
+            state: {
+              email,
+              encryptedEmail: eEmail,
+              studentExist: studentExist,
+              department: studentExistDepartment,
+            },
+          });
+          // Redirect to the appropriate page after OTP verification
+        } else {
+          alert("Invalid OTP.");
+          setEmail("")
+  
+          setotpOptionSelected(false); // Reset the form state
+        }
       } else {
-        alert("Invalid OTP.");
-        setEmail("")
-
-        setotpOptionSelected(false); // Reset the form state
+        alert("Please enter IIITD Email ID only");
       }
     } else {
       alert("Please enter an email and OTP.");
@@ -411,6 +418,7 @@ const LoginPage = () => {
               </button>
             </>
           ) : loading ? null : (
+            <>
             <button
               type="submit"
               className="w-full my-5 py-2 bg-[#3dafaa] shadow-lg shadow-[#3dafaa]/50 hover:shadow-[#3dafaa]/40 text-white font-semibold rounded-lg"
@@ -418,7 +426,16 @@ const LoginPage = () => {
             >
               {OtpSent ? "Verify OTP" : "Send OTP"}
             </button>
+            {OtpSent ? (
+              <div className="flex">
+                <p className="mr-1 text-gray-500">OTP sended to</p>
+                <p className="text-red-500">{email}</p>
+              </div>
+            ) : null}
+            
+          </>
           )}
+          
         </form>
       </div>
     </div>

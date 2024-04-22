@@ -13,7 +13,7 @@ const validationSchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
   rollNo: Yup.string()
     .matches(/^(PhD|MT\d|\d{3})/, "Invalid roll number")
-    .required("Roll No is required"),
+    .required("Roll number is required"),
   program: Yup.string().required("Program is required"),
   department: Yup.string().required("Department is required"),
   taType: Yup.string().when("program", {

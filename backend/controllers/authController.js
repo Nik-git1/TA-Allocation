@@ -151,7 +151,7 @@ const adminLogin = asyncHandler( async ( req, res ) =>
 
   if ( !user )
   {
-    return res.status( 400 ).json( { error: "Please enter valid credentials" } );
+    return res.status( 400 ).json( { success: false, error: "Please enter valid credentials" } );
   }
 
   const passwordMatch = await argon2.verify( user.password, password );
@@ -181,7 +181,7 @@ const JMLogin = asyncHandler( async ( req, res ) =>
   let user = await JM.findOne( { emailId: email_id } );
   if ( !user )
   {
-    return res.status( 400 ).json( { error: "Please enter valid credentials" } );
+    return res.status( 400 ).json( { success: false, error: "Please enter valid credentials" } );
   }
 
   const passwordMatch = await argon2.verify( user.password, password );
@@ -250,7 +250,7 @@ const ProfessorLogin = asyncHandler( async ( req, res ) =>
   let user = await Professor.findOne( { emailId: email_id } );
   if ( !user )
   {
-    return res.status( 400 ).json( { error: "Please enter valid credentials" } );
+    return res.status( 400 ).json( { success: false, error: "Please enter valid credentials" } );
   }
 
   const passwordMatch = await argon2.verify( user.password, password );
@@ -290,7 +290,7 @@ const Professorotp = asyncHandler( async ( req, res ) =>
   let user = await Professor.findOne( { emailId: email_id } );
   if ( !user )
   {
-    return res.status( 400 ).json( { error: "Please enter valid credentials" } );
+    return res.status( 400 ).json( { error: "Invalid Email ID" } );
   }
 
   console.log( user )

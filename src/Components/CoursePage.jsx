@@ -23,9 +23,11 @@ const CoursePage = () => {
   const [allocated, setAllocated] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentRound, setCurrentRound] = useState(null);
-  const [prefFilter, setPrefFilter] = useState("All");
-  const [programFilter, setProgramFilter] = useState("All");
-  const [departmentFilter, setDepartmentFilter] = useState("All");
+  const [filters, setFilters] = useState({
+    preference: 'All',
+    department: 'All',
+    program: 'All',
+  });
   const [sortConfig, setSortConfig] = useState({
     key: null,
     direction: "ascending",
@@ -236,25 +238,52 @@ const CoursePage = () => {
   const handleRenderAllocatedTable = async () => {
     setAllocated(1);
     setSortConfig({ key: null, direction: "ascending" });
-    setProgramFilter('All');
-    setDepartmentFilter('All');
-    setPrefFilter('All');
+    setFilters(prevFilters => ({
+      ...prevFilters,  // Keep the previous state
+      program: 'All' // Update the program property
+    }));
+    setFilters(prevFilters => ({
+      ...prevFilters,  // Keep the previous state
+      department: 'All' // Update the department property
+    }));
+    setFilters(prevFilters => ({
+      ...prevFilters,  // Keep the previous state
+      preference: 'All' // Update the preference property
+    }));
   };
 
   const handleRenderAvailableStudentTable = async () => {
     setAllocated(0);
     setSortConfig({ key: null, direction: "ascending" });
-    setProgramFilter('All');
-    setDepartmentFilter('All');
-    setPrefFilter('All');
+    setFilters(prevFilters => ({
+      ...prevFilters,  // Keep the previous state
+      program: 'All' // Update the program property
+    }));
+    setFilters(prevFilters => ({
+      ...prevFilters,  // Keep the previous state
+      department: 'All' // Update the department property
+    }));
+    setFilters(prevFilters => ({
+      ...prevFilters,  // Keep the previous state
+      preference: 'All' // Update the preference property
+    }));
   };
 
   const handleRenderAllocatedToOthersTable = async () => {
     setAllocated(2);
     setSortConfig({ key: null, direction: "ascending" });
-    setProgramFilter('All');
-    setDepartmentFilter('All');
-    setPrefFilter('All');
+    setFilters(prevFilters => ({
+      ...prevFilters,  // Keep the previous state
+      program: 'All' // Update the program property
+    }));
+    setFilters(prevFilters => ({
+      ...prevFilters,  // Keep the previous state
+      department: 'All' // Update the department property
+    }));
+    setFilters(prevFilters => ({
+      ...prevFilters,  // Keep the previous state
+      preference: 'All' // Update the preference property
+    }));
   };
 
   const handleDownload = () => {
@@ -278,15 +307,17 @@ const CoursePage = () => {
   };
 
   const filterStudents = (studentsList) => {
-    if (prefFilter === "All" && programFilter === "All" && departmentFilter === "All") {
+    if (filters.preference === 'All' && filters.department === 'All' && filters.program === 'All'){
       return studentsList.filter(
         (student) =>
           student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           student.emailId.toLowerCase().includes(searchQuery.toLowerCase())
       );
-    } else {
-      const filteredStudents = []; // Initialize an empty array to collect matching students
-      if (prefFilter !== "All"){
+    }
+    else{
+      let filteredStudents = []; // Initialize an empty array to collect matching students
+
+      if (filters.preference !== "All"){
 
         for (const student of studentsList) {
           let pref = "Not Any";
@@ -298,41 +329,55 @@ const CoursePage = () => {
             }
             count++;
           }
+          count = 1;
           for (const i of student.nonDepartmentPreferences) {
             if (pref !== "Not Any") {
               break;  
             }
             if (i.course === selectedCourse.name) {
-              pref = `Other Preference ${count}`;
+              pref = `Non-Department Preference ${count}`;
               break;
             }
             count++;
           }
-          if (pref === prefFilter && (student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          if (pref === filters.preference && (student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           student.emailId.toLowerCase().includes(searchQuery.toLowerCase()))) {
             filteredStudents.push(student); // Add matching student to the array
           }
         }
       }
-
-      else if (programFilter !== "All"){
-
+      else{
         for (const student of studentsList) {
-          if (student.program === programFilter && (student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          student.emailId.toLowerCase().includes(searchQuery.toLowerCase()))){
+          if (student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          student.emailId.toLowerCase().includes(searchQuery.toLowerCase())){
             filteredStudents.push(student);
           }
         }
       }
 
-      else if (departmentFilter !== "All"){
-        for (const student of studentsList) {
-          if (student.department === departmentFilter && (student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          student.emailId.toLowerCase().includes(searchQuery.toLowerCase()))){
-            filteredStudents.push(student);
+      if (filters.department !== 'All'){
+        let studentsByDepartmentFillter = [];
+
+        for (const student of filteredStudents) {
+
+          if (student.department === filters.department){
+            studentsByDepartmentFillter.push(student);
           }
         }
+        filteredStudents = studentsByDepartmentFillter;
+        
       }
+
+      if (filters.program !== 'All'){
+        let studentsByProgramFillter = [];
+        for (const student of filteredStudents) {
+          if (student.program === filters.program){
+            studentsByProgramFillter.push(student);
+          }
+        }
+        filteredStudents = studentsByProgramFillter;
+      }
+
       return filteredStudents; // Return the array of matching students
     }
   };
@@ -503,15 +548,25 @@ const CoursePage = () => {
   };
 
   const handlePrefFilter = (event) => {
-    setPrefFilter(event.target.value);
+    
+    setFilters(prevFilters => ({
+      ...prevFilters,  // Keep the previous state
+      preference: event.target.value // Update the preference property
+    }));
   };
 
   const handleProgramFilter = (event) => {
-    setProgramFilter(event.target.value);
+    setFilters(prevFilters => ({
+      ...prevFilters,  // Keep the previous state
+      program: event.target.value // Update the program property
+    }));
   };
 
   const handleDepartmentFilter = (event) => {
-    setDepartmentFilter(event.target.value);
+    setFilters(prevFilters => ({
+      ...prevFilters,  // Keep the previous state
+      department: event.target.value // Update the department property
+    }));
   };
 
   const renderCommonHeader = (title, currentRound, handlePrefFilter) => {
@@ -530,11 +585,11 @@ const CoursePage = () => {
               <option value="All">All</option>
               <option value="Dept Preference 1">Dept Preference 1</option>
               <option value="Dept Preference 2">Dept Preference 2</option>
-              <option value="Other Preference 1">Other Preference 1</option>
-              <option value="Other Preference 2">Other Preference 2</option>
-              <option value="Other Preference 3">Other Preference 3</option>
-              <option value="Other Preference 4">Other Preference 4</option>
-              <option value="Other Preference 5">Other Preference 5</option>
+              <option value="Non-Department Preference 1">Non-Department Preference 1</option>
+              <option value="Non-Department Preference 2">Non-Department Preference 2</option>
+              <option value="Non-Department Preference 3">Non-Department Preference 3</option>
+              <option value="Non-Department Preference 4">Non-Department Preference 4</option>
+              <option value="Non-Department Preference 5">Non-Department Preference 5</option>
               <option value="Not Any">Not Any</option>
             </select>
           </div>
@@ -909,11 +964,11 @@ const CoursePage = () => {
                   <option value="All">All</option>
                   <option value="Dept Preference 1">Dept Preference 1</option>
                   <option value="Dept Preference 2">Dept Preference 2</option>
-                  <option value="Other Preference 1">Other Preference 1</option>
-                  <option value="Other Preference 2">Other Preference 2</option>
-                  <option value="Other Preference 3">Other Preference 3</option>
-                  <option value="Other Preference 4">Other Preference 4</option>
-                  <option value="Other Preference 5">Other Preference 5</option>
+                  <option value="Non-Department Preference 1">Non-Department Preference 1</option>
+                  <option value="Non-Department Preference 2">Non-Department Preference 2</option>
+                  <option value="Non-Department Preference 3">Non-Department Preference 3</option>
+                  <option value="Non-Department Preference 4">Non-Department Preference 4</option>
+                  <option value="Non-Department Preference 5">Non-Department Preference 5</option>
                   <option value="Not Any">Not Any</option>
                 </select>
               </div>
