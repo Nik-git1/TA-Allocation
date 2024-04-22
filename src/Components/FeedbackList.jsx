@@ -53,7 +53,7 @@ const FeedbackList = () => {
   };
 
   return (
-    <div>
+    <div className='flex flex-col items-center'>
       <h2 className="text-xl font-bold mb-4">Feedback List</h2>
       {loading ? (
         <p>Loading...</p>
