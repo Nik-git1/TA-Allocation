@@ -165,6 +165,9 @@ const StudentForm = () => {
       setSelectedCourses(updatedSelectedCourses);
     } else {
       updatedFormData[name] = value;
+      if (name == "program" && !value.startsWith("B.Tech")) {
+        updatedFormData["taType"] = "Paid";
+      }
     }
 
     setFormData(updatedFormData);
@@ -339,20 +342,32 @@ const StudentForm = () => {
                 >
                   Program:
                 </label>
-                <select
+                <Select
                   id="program"
                   name="program"
-                  value={formData.program}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded"
-                >
-                  <option value="">Select Program</option>
-                  <option value="B.Tech 3rd Year">B.Tech 3rd Year</option>
-                  <option value="B.Tech 4th Year">B.Tech 4th Year</option>
-                  <option value="M.Tech 1st Year">M.Tech 1st Year</option>
-                  <option value="M.Tech 2nd Year">M.Tech 2nd Year</option>
-                  <option value="PhD">PhD</option>
-                </select>
+                  value={{
+                    value: formData.program ? formData.program : "",
+                    label: formData.program
+                      ? formData.program
+                      : "Select Program",
+                  }}
+                  className="w-full border rounded"
+                  options={[
+                    { value: "B.Tech 3rd Year", label: "B.Tech 3rd Year" },
+                    { value: "B.Tech 4th Year", label: "B.Tech 4th Year" },
+                    { value: "M.Tech 1st Year", label: "M.Tech 1st Year" },
+                    { value: "M.Tech 2nd Year", label: "M.Tech 2nd Year" },
+                    { value: "PhD", label: "PhD" },
+                  ]}
+                  onChange={(selectedOption) =>
+                    handleChange({
+                      target: {
+                        name: "program",
+                        value: selectedOption ? selectedOption.value : "",
+                      },
+                    })
+                  }
+                />
               </div>
 
               {/* Department */}
@@ -363,25 +378,39 @@ const StudentForm = () => {
                 >
                   Department:
                 </label>
-                <select
+                <Select
                   id="department"
                   name="department"
-                  value={formData.department}
-                  onChange={(e) => {
-                    handleChange(e); // Call the general handleChange function
-                    handleDepartmentChange(e); // Call the specific handleDepartmentChange function
+                  value={{
+                    value: formData.department ? formData.department : "",
+                    label: formData.department
+                      ? formData.department
+                      : "Select Department",
                   }}
-                  className="w-full p-2 border rounded"
-                >
-                  <option value="">Select Department</option>
-                  <option value="MATHS">Maths</option>
-                  <option value="CSE">CSE</option>
-                  <option value="ECE">ECE</option>
-                  <option value="HCD">HCD</option>
-                  <option value="CB">CB</option>
-                  <option value="SSH">SSH</option>
-                  {/* Add more department options here */}
-                </select>
+                  className="w-full border rounded"
+                  options={[
+                    { value: "CSE", label: "CSE" },
+                    { value: "MATHS", label: "MATHS" },
+                    { value: "HCD", label: "HCD" },
+                    { value: "ECE", label: "ECE" },
+                    { value: "CB", label: "CB" },
+                    { value: "SSH", label: "SSH" },
+                  ]}
+                  onChange={(selectedOption) => {
+                    handleChange({
+                      target: {
+                        name: "department",
+                        value: selectedOption ? selectedOption.value : "",
+                      },
+                    });
+                    handleDepartmentChange({
+                      target: {
+                        name: "department",
+                        value: selectedOption ? selectedOption.value : "",
+                      },
+                    });
+                  }}
+                />
               </div>
 
               {/* TA Type */}
@@ -392,28 +421,36 @@ const StudentForm = () => {
                 >
                   TA Type:
                 </label>
-                <select
+
+                <Select
                   id="taType"
                   name="taType"
-                  value={formData.taType}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded"
+                  value={{
+                    value: formData.taType ? formData.taType : "",
+                    label: formData.taType
+                      ? formData.taType
+                      : "Select TAship Type",
+                  }}
+                  className="w-full border rounded"
                   disabled={!formData.program.startsWith("B.Tech")}
-                >
-                  {/* Rendering options based on condition */}
-                  {formData.program.startsWith("B.Tech") ? (
-                    <>
-                      <option value="">Select TA Type</option>
-                      <option value="Credit">Credit</option>
-                      <option value="Paid">Paid</option>
-                      <option value="Voluntary">Voluntary</option>
-                    </>
-                  ) : (
-                    <>
-                      <option value="Paid">Paid</option>
-                    </>
-                  )}
-                </select>
+                  options={
+                    formData.program.startsWith("B.Tech")
+                      ? [
+                          { value: "Credit", label: "Credit" },
+                          { value: "Paid", label: "Paid" },
+                          { value: "Voluntary", label: "Voluntary" },
+                        ]
+                      : [{ value: "Paid", label: "Paid" }]
+                  }
+                  onChange={(selectedOption) => {
+                    handleChange({
+                      target: {
+                        name: "taType",
+                        value: selectedOption ? selectedOption.value : "",
+                      },
+                    });
+                  }}
+                />
               </div>
 
               {/* CGPA */}
@@ -538,26 +575,37 @@ const StudentForm = () => {
                     >
                       Grade:
                     </label>
-                    <select
+                    <Select
                       id={`deptGrade-${index}`}
-                      value={pref.grade}
-                      name="grade"
-                      onChange={(e) =>
-                        handleChange(e, index, "departmentPreferences")
+                      options={[
+                        { value: "A+(10)", label: "A+(10)" },
+                        { value: "A(10)", label: "A(10)" },
+                        { value: "A-(9)", label: "A-(9)" },
+                        { value: "B(8)", label: "B(8)" },
+                        { value: "B-(7)", label: "B-(7)" },
+                        { value: "C(6)", label: "C(6)" },
+                        { value: "C-(5)", label: "C-(5)" },
+                        { value: "D(4)", label: "D(4)" },
+                        { value: "Course Not Done", label: "Course Not Done" },
+                      ]}
+                      value={{
+                        value: pref.grade ? pref.grade : "",
+                        label: pref.grade ? pref.grade : "Select Grade",
+                      }}
+                      onChange={(selectedOption) =>
+                        handleChange(
+                          {
+                            target: {
+                              name: "grade",
+                              value: selectedOption ? selectedOption.value : "",
+                            },
+                          },
+                          index,
+                          "departmentPreferences"
+                        )
                       }
-                      className="w-full p-2 border rounded"
-                    >
-                      <option value="">Select Grade</option>
-                      <option value="A+(10)">A+(10)</option>
-                      <option value="A(10)">A(10)</option>
-                      <option value="A-(9)">A-(9)</option>
-                      <option value="B(8)">B(8)</option>
-                      <option value="B-(7)">B-(7)</option>
-                      <option value="C(6)">C(6)</option>
-                      <option value="C-(5)">C-(5)</option>
-                      <option value="D(4)">D(4)</option>
-                      <option valie="Course Not Done"> Course Not Done </option>
-                    </select>
+                      className="w-full"
+                    />
                   </div>
                 ))}
               </div>
@@ -675,7 +723,10 @@ const StudentForm = () => {
                         { value: "D(4)", label: "D(4)" },
                         { value: "Course Not Done", label: "Course Not Done" },
                       ]}
-                      value={{ value: pref.grade, label: pref.grade }}
+                      value={{
+                        value: pref.grade ? pref.grade : "",
+                        label: pref.grade ? pref.grade : "Select Grade",
+                      }}
                       onChange={(selectedOption) =>
                         handleChange(
                           {
@@ -771,10 +822,10 @@ const StudentForm = () => {
                             </div>
                           </div>
                         ) : (
-                          "Select Preferred Course"
+                          "Select Non-Preferred Course"
                         ),
                       }}
-                      className="p-2 border rounded-md mb-2"
+                      className="border rounded-md mb-2"
                     />
                   </div>
                 ))}
