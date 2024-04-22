@@ -329,12 +329,13 @@ const CoursePage = () => {
             }
             count++;
           }
+          count = 1;
           for (const i of student.nonDepartmentPreferences) {
             if (pref !== "Not Any") {
               break;  
             }
             if (i.course === selectedCourse.name) {
-              pref = `Other Preference ${count}`;
+              pref = `Non-Department Preference ${count}`;
               break;
             }
             count++;
@@ -584,11 +585,11 @@ const CoursePage = () => {
               <option value="All">All</option>
               <option value="Dept Preference 1">Dept Preference 1</option>
               <option value="Dept Preference 2">Dept Preference 2</option>
-              <option value="Other Preference 1">Other Preference 1</option>
-              <option value="Other Preference 2">Other Preference 2</option>
-              <option value="Other Preference 3">Other Preference 3</option>
-              <option value="Other Preference 4">Other Preference 4</option>
-              <option value="Other Preference 5">Other Preference 5</option>
+              <option value="Non-Department Preference 1">Non-Department Preference 1</option>
+              <option value="Non-Department Preference 2">Non-Department Preference 2</option>
+              <option value="Non-Department Preference 3">Non-Department Preference 3</option>
+              <option value="Non-Department Preference 4">Non-Department Preference 4</option>
+              <option value="Non-Department Preference 5">Non-Department Preference 5</option>
               <option value="Not Any">Not Any</option>
             </select>
           </div>
@@ -963,11 +964,11 @@ const CoursePage = () => {
                   <option value="All">All</option>
                   <option value="Dept Preference 1">Dept Preference 1</option>
                   <option value="Dept Preference 2">Dept Preference 2</option>
-                  <option value="Other Preference 1">Other Preference 1</option>
-                  <option value="Other Preference 2">Other Preference 2</option>
-                  <option value="Other Preference 3">Other Preference 3</option>
-                  <option value="Other Preference 4">Other Preference 4</option>
-                  <option value="Other Preference 5">Other Preference 5</option>
+                  <option value="Non-Department Preference 1">Non-Department Preference 1</option>
+                  <option value="Non-Department Preference 2">Non-Department Preference 2</option>
+                  <option value="Non-Department Preference 3">Non-Department Preference 3</option>
+                  <option value="Non-Department Preference 4">Non-Department Preference 4</option>
+                  <option value="Non-Department Preference 5">Non-Department Preference 5</option>
                   <option value="Not Any">Not Any</option>
                 </select>
               </div>
