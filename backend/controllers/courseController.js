@@ -187,14 +187,23 @@ const addCourse = asyncHandler( async ( req, res ) =>
             if ( existingCourse )
             {
                 // collidingCourses.push( newCourse );
-                const updatedCourse = await Course.updateOne(
+                if ( newCourse.taRequired )
+                {
+                    // If taRequired is inputted, do nothing, save the provided value
+                } else
+                {
+                    // If taRequired is not inputted, recalculate its value using the formula
+                    newCourse.taRequired = Math.floor( ( newCourse.totalStudents || existingCourse.totalStudents ) / ( newCourse.taStudentRatio || existingCourse.taStudentRatio ) );
+                }
+
+                await Course.updateOne(
                     { _id: existingCourse._id },
                     { $set: newCourse }
                 );
             } else
             {
                 // Add the course to the database
-                const createdCourse = await Course.create( newCourse );
+                await Course.create( newCourse );
             }
         }
 
