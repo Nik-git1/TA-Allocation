@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Swal from "sweetalert2";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import * as Yup from "yup";
 import Select from "react-select";
+import Swal from "sweetalert2";
+import * as Yup from "yup";
 
 import CryptoJS from "crypto-js";
 import ClipLoader from "react-spinners/ClipLoader";
@@ -95,16 +95,17 @@ const StudentForm = () => {
 
   const isAnyFieldEmpty = () => {
     for (const key in formData) {
-      if (formData[key] === "" || formData[key].length === 0) {
+      if (
+        formData[key] &&
+        (formData[key] === "" || formData[key].length === 0)
+      ) {
         return true;
       }
     }
-    return !dataCorrect; 
+    return !dataCorrect;
   };
 
   useEffect(() => {
-   
- 
     axios
       .get(`${API}/api/course`)
       .then((response) => {
@@ -136,7 +137,6 @@ const StudentForm = () => {
       section === "departmentPreferences" ||
       section === "nonDepartmentPreferences"
     ) {
-   
       const prevSelectedCourse = updatedFormData[section][index][name];
       if (name === "grade") {
         updatedFormData[section][index][name] = value;
@@ -201,14 +201,15 @@ const StudentForm = () => {
         return;
       }
       setLoading(true);
+
       const apiUrl =
-        studentExist === null
+        studentExist == null
           ? `${API}/api/student`
           : `${API}/api/student/${studentExist._id}`;
 
       // Send data to server
       const response = await axios({
-        method: studentExist === null ? "post" : "put",
+        method: studentExist == null ? "post" : "put",
         url: apiUrl,
         data: formData, // Changed from studentData to formData
       });
@@ -231,14 +232,13 @@ const StudentForm = () => {
         });
         errorMessage += "</ul>"; // Closing unordered list tag
         console.error("Validation errors:", errorMessage);
-        
+
         Swal.fire({
           icon: "error",
           title: "Validation Error!",
           html: errorMessage, // Display formatted error messages
         });
-      }
-       else {
+      } else {
         console.error("Error submitting student data:", error);
         Swal.fire("Error!", "Failed to submit form", "error");
       }
@@ -824,7 +824,5 @@ const StudentForm = () => {
     </>
   );
 };
-
-
 
 export default StudentForm;

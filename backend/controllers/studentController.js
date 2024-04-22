@@ -245,7 +245,8 @@ const getStudents = asyncHandler( async ( req, res ) =>
     const flatStudents = filteredStudents.map( student => student.flatStudent )
 
     res.status( 200 ).json( flatStudents );
-  } catch {
+  } catch
+  {
     return res
       .status( 500 )
       .json( { message: "Internal server error", error: error.message } );
@@ -272,7 +273,6 @@ const addStudent = asyncHandler( async ( req, res ) =>
     // If it's not an array, convert it to an array with a single element
     newStudents = [ newStudents ];
   }
-
 
   try
   {
@@ -336,7 +336,7 @@ const addStudent = asyncHandler( async ( req, res ) =>
       }
 
       // Check cgpa range
-      if ( newStudent.cgpa < 0 || newStudent.cgpa > 10 )
+      if ( newStudent.cgpa && ( newStudent.cgpa < 0 || newStudent.cgpa > 10 ) )
       {
         invalidStudents.push( {
           student: newStudent,
@@ -472,22 +472,19 @@ const addStudent = asyncHandler( async ( req, res ) =>
               } );
               continue; // Skip this student and move to the next one
             }
+
+            for ( const courseId of newStudent.nonPreferences )
+            {
+              await Course.findOneAndUpdate(
+                { _id: courseId },
+                { $inc: { antiPref: 1 } }
+              );
+            }
           }
           // Add the validated student to the validStudents list
-          newStudent.department = jmDepartment._id;
+          newStudent.department = jmDepartment._id
           validStudents.push( newStudent );
         }
-      }
-    }
-
-    for ( const student of validStudents )
-    {
-      for ( const courseId of student.nonPreferences )
-      {
-        await Course.findOneAndUpdate(
-          { _id: courseId },
-          { $inc: { antiPref: 1 } }
-        );
       }
     }
 
@@ -497,7 +494,10 @@ const addStudent = asyncHandler( async ( req, res ) =>
     {
       try
       {
-        await sendForm( student.emailId, student ); // Call the sendForm function for each student
+        if ( student.departmentPreferences )
+        {
+          await sendForm( student.emailId, student ); // Call the sendForm function for each student
+        }
       } catch ( error )
       {
         console.error( 'Error sending student data via email:', error );
