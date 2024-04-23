@@ -123,6 +123,17 @@ const StudentForm = () => {
       .catch((error) => {
         console.error("Error fetching courses:", error);
       });
+      if (studentExist){
+        for (const i of studentExist.departmentPreferences){
+          selectedCourses.push(i.course);
+        }
+        for (const i of studentExist.nonDepartmentPreferences){
+          selectedCourses.push(i.course);
+        }
+        for (const i of studentExist.nonPreferences){
+          selectedCourses.push(i);
+        }
+      }
   }, []);
 
   const handleChange = (event, index, section) => {
@@ -130,7 +141,7 @@ const StudentForm = () => {
 
     var courseId = courses.find((course) => course.name === value)?._id;
 
-    console.log(name, value);
+
     const updatedFormData = { ...formData };
 
     if (
@@ -172,11 +183,11 @@ const StudentForm = () => {
 
     setFormData(updatedFormData);
 
-    console.log(formData);
+
   };
 
   const handleSubmit = async () => {
-    console.log("in");
+
     event.preventDefault();
     try {
       // Validate form data using Yup

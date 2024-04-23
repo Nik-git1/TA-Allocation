@@ -21,7 +21,7 @@ const FeedbackList = () => {
         response = await axios.get(`http://localhost:5001/api/feedback/all`);
       }
       setFeedbacks(response.data.feedbacks);
-      console.log(feedbacks)
+
       setLoading(false);
     } catch (error) {
       console.error("Error fetching feedbacks:", error);
@@ -35,7 +35,7 @@ const FeedbackList = () => {
 
   const handleSave = async (feedback, rating, description) => {
     if (user && user.role === 'admin') {
-      console.log("Admin cannot edit feedback");
+
       return;
     }
     try {
@@ -43,7 +43,7 @@ const FeedbackList = () => {
         rating,
         description
       });
-      console.log(response.data.message);
+
       setEditableFeedbackId(null); // Resetting editableFeedbackId after saving
       // Update the feedbacks state to reflect changes
       setFeedbacks(prevFeedbacks => prevFeedbacks.map(item => item._id === feedback._id ? { ...item, rating, description } : item));

@@ -62,7 +62,6 @@ const ForgotPassword = () => {
 
       const json = await response.json();
       if (json.success) {
-        console.log("OTP is valid");
         setIsPassword(true);
       } else {
         alert("Invalid OTP.");

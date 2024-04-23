@@ -25,14 +25,14 @@ const Department = () => {
       );
       const data = await response.json();
       setCurrentRound(data.currentRound);
-      console.log(currentRound)
+  
     } catch (error) {
       console.error("Error fetching round status:", error);
     }
   };
 
   useEffect(() => {
-    console.log(user.department);
+
     fetchCurrentRound();
   }, []);
 

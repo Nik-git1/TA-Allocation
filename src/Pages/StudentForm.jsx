@@ -117,7 +117,7 @@ const StudentForm = () => {
   const handleChange = (event, index, section) => {
     const { name, value } = event.target;
     const updatedFormData = { ...formData };
-    console.log(event);
+
 
     if (
       section === "departmentPreferences" ||
@@ -152,7 +152,7 @@ const StudentForm = () => {
 
     setFormData(updatedFormData);
 
-    console.log(formData);
+
   };
 
   const handleSubmit = async () => {

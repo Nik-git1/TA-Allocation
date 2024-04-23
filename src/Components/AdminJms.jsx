@@ -28,7 +28,7 @@ const AdminJms = () => {
 
   const handleEditDepartment = (department) => {
     // Implement edit functionality, e.g., redirect to an edit page
-    console.log(`Editing department: ${department}`);
+
   };
 
   const handleDeleteDepartment = (department) => {
@@ -43,7 +43,7 @@ const AdminJms = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         // Implement delete functionality, e.g., make an API call to delete the department
-        console.log(`Deleting department: ${department}`);
+
         // You can refresh the department list or take other actions after deletion
         Swal.fire('Deleted!', `Department ${department} has been deleted.`, 'success');
       }

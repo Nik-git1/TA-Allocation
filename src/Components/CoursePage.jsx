@@ -83,7 +83,7 @@ const CoursePage = () => {
     setAllocatedToThisCourse(studentsAllocatedToCourse);
 
     setAvailableStudents(studentsAvailableForAllocation);
-    console.log(studentsAllocatedToCourse)
+
   }, [selectedCourse, students, allocated]);
 
   const handleAllocate = (studentId) => {

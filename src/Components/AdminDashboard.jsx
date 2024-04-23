@@ -25,7 +25,7 @@ const Dashboard = () => {
       .then((response) => response.json())
       .then((data) => {
         setCurrentRound(data.currentRound);
-        console.log("Round: ",currentRound)
+
       })
       .catch((error) => console.error("Error fetching round status: " + error));
   };
@@ -98,7 +98,7 @@ const Dashboard = () => {
       .then((response) => response.json())
       .then(() => {
         // Handle success (e.g., show a success message)
-        console.log("All rounds have been reset.");
+
         setCurrentRound(null); // Reset current round information
 
         getRound();
@@ -115,7 +115,7 @@ const Dashboard = () => {
       .then((response) => response.json())
       .then(() => {
         // Handle success (e.g., show a success message)
-        console.log("New semester started.");
+
         setCurrentRound(null); // Reset current round information
 
         getRound();
@@ -150,7 +150,7 @@ const Dashboard = () => {
     fetch("http://localhost:5001/api/feedback/start", { method: "GET" })
       .then((response) => {
         if (response.status === 200) {
-          console.log("Feedback generation initiated successfully");
+
           // Perform any necessary actions after successful feedback generation
           getFeedbackFormStatus(); // Update feedback form status after starting feedback
         } else {
@@ -179,7 +179,7 @@ const Dashboard = () => {
       .post("http://localhost:5001/api/feedback/end")
       .then((response) => {
         if (response.status === 200) {
-          console.log("Feedback form closed successfully");
+
           getFeedbackFormStatus();
           // Perform any necessary actions after successful closing of feedback form
         } else {

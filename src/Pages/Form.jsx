@@ -218,14 +218,14 @@ const StudentForm = () => {
 
     const allValuesNotEmpty = Object.values(studentData).every((value) => {
       if (Array.isArray(value)) {
-        console.log("Array");
+
         if (value.length === 3) {
           return value.every((pref) => pref !== "");
         }
         // If the property is an array, check each element in the array
         return value.every((pref) => pref.course !== "" && pref.grade !== "");
       } else if (typeof value === "object" && value !== null) {
-        console.log("Object");
+
         // If the property is an object (nested object), recursively check its values
         return Object.values(value).every(
           (v) =>

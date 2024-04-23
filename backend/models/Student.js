@@ -141,13 +141,13 @@ studentSchema.virtual( 'flatStudent' ).get( function ()
         allocationStatus: this.allocationStatus,
         allocatedTA: this.allocatedTA ? this.allocatedTA.name : null,
         cgpa: this.cgpa,
-        nonPreferences: this.nonPreferences.map( preference => preference ? preference.name : null ),
+        nonPreferences: this.nonPreferences.map( preference => preference ? preference._id : null ),
         departmentPreferences: this.departmentPreferences.map( preference => ( {
-            course: preference.course ? preference.course.name : null,
+            course: preference.course ? preference.course._id : null,
             grade: preference.grade
         } ) ),
         nonDepartmentPreferences: this.nonDepartmentPreferences.map( preference => ( {
-            course: preference.course ? preference.course.name : null,
+            course: preference.course ? preference.course._id : null,
             grade: preference.grade
         } ) ),
         __v: this.__v

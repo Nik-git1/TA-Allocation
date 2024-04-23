@@ -84,7 +84,7 @@ const LoginPage = () => {
   };
 
   const handleDepartmentLogin = async () => {
-    console.log(email)
+
     // Handle Department (JM) login logic here
     if (email && Otp) {
       const response = await fetch(`${host}/api/login/JM`, {
@@ -134,7 +134,7 @@ const LoginPage = () => {
       });
 
       const json = await response.json();
-      console.log(json)
+
       if (json.success) {
         localStorage.setItem("token", json.authtoken);
         const decodedToken = jwtDecode(json.authtoken); // Decode the JWT token
@@ -326,7 +326,7 @@ const LoginPage = () => {
                   type="button"
                   className={`px-4 py-2 rounded-full cursor-pointer border ${
                     selectedOption === "admin"
-                      ? "bg-[#3dafaa] text-white"
+                      ? "bg-[#3dafaa] text-white mx-1"
                       : "border-[#3dafaa] hover:bg-[#3dafaa] hover:text-white mx-1"
                   } outline-none focus:border-[#3dafaa]`}
                   onClick={() => handleLoginOptionClick("admin")}
@@ -337,7 +337,7 @@ const LoginPage = () => {
                   type="button"
                   className={`px-4 py-2 rounded-full cursor-pointer border ${
                     otpOptionSelected
-                      ? "bg-[#3dafaa] text-white"
+                      ? "bg-[#3dafaa] text-white mx-1"
                       : "border-[#3dafaa] hover:bg-[#3dafaa] hover:text-white mx-1"
                   } outline-none focus:border-[#3dafaa]`}
                   onClick={() => handleLoginOptionClick("professor")}
@@ -348,7 +348,7 @@ const LoginPage = () => {
                   type="button"
                   className={`px-4 py-2 rounded-full cursor-pointer border ${
                     otpOptionSelected
-                      ? "bg-[#3dafaa] text-white"
+                      ? "bg-[#3dafaa] text-white mx-1"
                       : "border-[#3dafaa] hover:bg-[#3dafaa] hover:text-white mx-1"
                   } outline-none focus:border-[#3dafaa]`}
                   onClick={() => handleLoginOptionClick("department")}

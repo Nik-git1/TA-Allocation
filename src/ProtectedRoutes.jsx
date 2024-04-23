@@ -35,12 +35,11 @@ if (loading) {
 
   // Check if the user has one of the allowed roles
   if (user && allowedRoles.includes(user.role)) {
-    console.log("in")
-    console.log(user)
+
     return element;
   } else {
     // Redirect to a login page or another route
-    console.log("fail")
+
     return <Navigate to="/" />;
   }
 };

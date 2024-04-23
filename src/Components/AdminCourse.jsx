@@ -226,7 +226,7 @@ const CourseTable = () => {
     const direction = key === sortConfig.key && sortConfig.direction === "ascending"
         ? "descending"
         : "ascending";
-    console.log(key)
+
     const sorted = [
       ...courses
     ].sort((a, b) => {
