@@ -171,6 +171,13 @@ const allocate = asyncHandler( async ( req, res ) =>
       if ( jm ) userEmailId = jm.emailId;
     } else if ( allocatedBy === 'professor' )
     {
+      if ( currentRound.currentRound != 1 )
+      {
+        return res
+          .status( 400 )
+          .json( { message: "Faculty can only allocated in Round 1" } );
+      }
+
       const professor = await Professor.findById( allocatedByID ).session( session );
       if ( professor ) userEmailId = professor.emailId;
     } else
@@ -219,12 +226,12 @@ const allocate = asyncHandler( async ( req, res ) =>
     io.emit( 'liveLogs', logToEmit )
     io.emit( 'studentUpdated', flatstud )
 
-    const newFeedback = new Feedback({
+    const newFeedback = new Feedback( {
       student: studentId,
       course: courseId,
       professor: course.professor,
       overallGrade: 'S'
-    });
+    } );
 
     // Save the feedback to the database
     const savedFeedback = await newFeedback.save();
@@ -341,8 +348,8 @@ const deallocate = asyncHandler( async ( req, res ) =>
     io.emit( 'studentUpdated', flatstud )
 
     // Find the feedback to delete
-    const feedbackToDelete = await Feedback.deleteOne({ student: studentId, course: courseId });
-    
+    const feedbackToDelete = await Feedback.deleteOne( { student: studentId, course: courseId } );
+
 
     return res
       .status( 200 )

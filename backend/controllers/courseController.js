@@ -405,11 +405,27 @@ const deleteCourse = asyncHandler( async ( req, res ) =>
             );
         }
 
-        // what happens for preferences to this course?
+        await Student.updateMany(
+            {
+                $or: [
+                    { 'departmentPreferences.course': courseId },
+                    { 'nonDepartmentPreferences.course': courseId },
+                    { nonPreferences: courseId }
+                ]
+            },
+            {
+                $set: {
+                    'departmentPreferences.$[elem].course': null,
+                    'departmentPreferences.$[elem].grade': null,
+                    'nonDepartmentPreferences.$[elem].course': null,
+                    'nonDepartmentPreferences.$[elem].grade': null,
+                },
+                $pull: { nonPreferences: courseId }
+            },
+            { arrayFilters: [ { 'elem.course': courseId } ] }
+        );
+
         await Feedback.deleteMany( { course: courseId } )
-        // await Student.updateMany( { 'departmentPreferences.course': courseId }, { 'departmentPreferences.$.course': null } )
-        // await Student.updateMany( { 'nonDepartmentPreferences.course': courseId }, { 'nonDepartmentPreferences.$.course': null } )
-        // await Student.updateMany( { 'nonPreferences': courseId }, { 'nonPreferences': null } )
 
         // Step 4: Delete the course
         await Course.findByIdAndRemove( courseId );
