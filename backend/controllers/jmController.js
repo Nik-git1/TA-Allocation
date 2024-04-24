@@ -114,7 +114,7 @@ const updateJM = asyncHandler( async ( req, res ) =>
     try
     {
         // Step 1: Validate that the jm exists
-        var jm = await JM.exists( { _id: jmId } );
+        var jm = await JM.findById( jmId ).lean();
         if ( !jm )
         {
             return res.status( 404 ).json( { message: 'JM not found' } );

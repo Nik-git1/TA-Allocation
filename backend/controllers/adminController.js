@@ -39,7 +39,7 @@ const addAdmin = asyncHandler( async ( req, res ) =>
         const { emailId, password } = req.body;
 
         // Check if an admin already exists
-        const existingAdmin = await Admin.findOne( {} );
+        const existingAdmin = await Admin.exists( {} );
         if ( existingAdmin )
         {
             return res.status( 400 ).json( { message: 'Admin already exists' } );
@@ -85,7 +85,7 @@ const updateAdmin = asyncHandler( async ( req, res ) =>
         }
 
         // Ensure only one admin exists
-        const existingAdmin = await Admin.findOne( { _id: { $ne: adminId } } );
+        const existingAdmin = await Admin.exists( { _id: { $ne: adminId } } );
         if ( existingAdmin )
         {
             return res.status( 400 ).json( { message: 'Only one admin is allowed' } );

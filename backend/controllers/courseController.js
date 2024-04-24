@@ -62,7 +62,7 @@ const getCourses = asyncHandler( async ( req, res ) =>
     {
         if ( department )
         {
-            const departmentId = await JM.findOne( { department: department } ).select( '_id' );
+            const departmentId = await JM.exists( { department: department } );
             if ( departmentId )
             {
                 filter.department = departmentId._id;
@@ -71,7 +71,7 @@ const getCourses = asyncHandler( async ( req, res ) =>
         if ( professor )
         {
             var profname = professor.split( " (" )[ 0 ];
-            const professorId = await Professor.findOne( { name: profname } ).select( '_id' );
+            const professorId = await Professor.exists( { name: profname } );
             if ( professorId )
             {
                 filter.professor = professorId._id;
@@ -219,7 +219,7 @@ const addCourse = asyncHandler( async ( req, res ) =>
             // Handle "department" reference
             if ( newCourse.department )
             {
-                var jmDepartment = await JM.findOne( { department: newCourse.department } ).select( '_id' );
+                var jmDepartment = await JM.exists( { department: newCourse.department } );
                 if ( jmDepartment )
                 {
                     newCourse.department = jmDepartment._id;
@@ -234,7 +234,7 @@ const addCourse = asyncHandler( async ( req, res ) =>
             if ( newCourse.professor )
             {
                 // var profname = newCourse.professor.split( " (" )[ 0 ];
-                var professor = await Professor.findOne( { name: newCourse.professor } ).select( '_id' );
+                var professor = await Professor.exists( { name: newCourse.professor } );
                 if ( professor )
                 {
                     newCourse.professor = professor._id;
@@ -314,7 +314,7 @@ const updateCourse = asyncHandler( async ( req, res ) =>
 
         if ( updates.department )
         {
-            const jmDepartment = await JM.findOne( { department: updates.department } ).select( '_id' );
+            const jmDepartment = await JM.exists( { department: updates.department } );
             if ( !jmDepartment )
             {
                 return res.status( 400 ).json( { message: 'Invalid Department value' } );
@@ -325,7 +325,7 @@ const updateCourse = asyncHandler( async ( req, res ) =>
         if ( updates.professor )
         {
             var profname = updates.professor.split( " (" )[ 0 ];
-            const professor = await Professor.findOne( { name: profname } ).select( '_id' );
+            const professor = await Professor.exists( { name: profname } );
             if ( !professor )
             {
                 return res.status( 400 ).json( { message: 'Invalid Professor value' } );
