@@ -280,7 +280,7 @@ const StudentForm = () => {
             alt="Sample image"
           />
           <div className=" mx-auto z-10 bg-white px-4 pb-4 border-4 mt-4 border-[#3dafaa] shadow-xl max-h-[97vh] overflow-auto">
-            <div className="flex justify-center sticky top-0 bg-white">
+            <div className="z-30 flex justify-center sticky top-0 bg-white">
               <h2 className="text-3xl font-bold mb-2  text-[#3dafaa]">
                 TA Form
               </h2>
