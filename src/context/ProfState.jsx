@@ -84,17 +84,15 @@ const ProfState = (props) => {
     }
   };
 
-  const deleteProfessor = (professorId) => {
-    axios
-      .delete(`http://localhost:5001/api/professor/${professorId}`)
-      .then(() => {
-        getProfessorsFromBackend(); // Fetch updated professor data after deletion
-        return { status: "Success" };
-      })
-      .catch((error) => {
-        console.error("Error deleting professor:", error);
-        return { status: "Failed", message: "Error deleting professor" };
-      });
+  const deleteProfessor = async (professorId) => {
+    try {
+      await axios.delete(`http://localhost:5001/api/professor/${professorId}`);
+      getProfessorsFromBackend(); // Fetch updated professor data after deletion
+      return { status: "Success" };
+    } catch (error) {
+      console.error("Error deleting professor:", error);
+      return { status: "Failed", message: "Error deleting professor" };
+    }
   };
 
   const updateProfessor = async (professorId, updatedData) => {

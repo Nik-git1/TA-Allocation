@@ -86,17 +86,15 @@ const CourseState = (props) => {
     }
   };
 
-  const deleteCourse = (CourseId) => {
-    axios
-      .delete(`http://localhost:5001/api/course/${CourseId}`)
-      .then((response) => {
-        getCoursesFromBackend(); // Fetch updated student data after deletion
-        return { status: "Success" };
-      })
-      .catch((error) => {
-        console.error("Error deleting course:", error);
-        return { status: "Failed", message: "Error deleting course data" };
-      });
+  const deleteCourse = async (CourseId) => {
+    try {
+      await axios.delete(`http://localhost:5001/api/course/${CourseId}`);
+      getCoursesFromBackend();
+      return { status: "Success" };
+    } catch (error) {
+      console.error("Error deleting course:", error);
+      return { status: "Failed", message: "Error deleting course data" };
+    }
   };
 
   const updateCourse = async (courseId, updatedData) => {

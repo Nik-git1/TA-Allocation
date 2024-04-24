@@ -57,36 +57,70 @@ const addProfessor = asyncHandler( async ( req, res ) =>
         }
 
         var invalidProfessors = [];
+        const requiredFields = [ 'emailId', 'name' ];
 
-        for ( const professor of professorsToAdd )
-        {
-            // Check if all required fields are present
-            const requiredFields = [ 'emailId', 'name' ];
-            const missingFields = requiredFields.filter( ( field ) => !professor[ field ] );
-            if ( missingFields.length > 0 )
+        await Promise.all(
+            professorsToAdd.map( async ( professor ) =>
             {
-                invalidProfessors.push( {
-                    professor: professor,
-                    message: `Missing required fields: ${ missingFields.join( ', ' ) }`,
-                } );
-                continue; // Skip this professor and move to the next one
-            }
+                // Check if all required fields are present
+                const missingFields = requiredFields.filter( ( field ) => !professor[ field ] );
+                if ( missingFields.length > 0 )
+                {
+                    invalidProfessors.push( {
+                        professor: professor,
+                        message: `Missing required fields: ${ missingFields.join( ', ' ) }`,
+                    } );
+                    return;
+                }
 
-            // Check for emailId collisions
-            const existingProfessor = await Professor.exists( { emailId: professor.emailId } );
-            if ( existingProfessor )
-            {
-                invalidProfessors.push( {
-                    professor: professor,
-                    message: 'Email already taken',
-                } );
-                continue; // Skip this professor and move to the next one
-            }
-        }
-
-        professorsToAdd = professorsToAdd.filter( ( professor ) =>
-            invalidProfessors.every( ( invalidProf ) => invalidProf.professor.emailId !== professor.emailId )
+                // Check for emailId collisions
+                const existingProfessor = await Professor.exists( { emailId: professor.emailId } );
+                if ( existingProfessor )
+                {
+                    invalidProfessors.push( {
+                        professor: professor,
+                        message: 'Email already taken',
+                    } );
+                    return;
+                }
+            } )
         );
+
+        professorsToAdd = professorsToAdd.filter(
+            ( professor ) =>
+                invalidProfessors.every( ( invalidProf ) => invalidProf.professor.emailId !== professor.emailId )
+        );
+
+
+        // for ( const professor of professorsToAdd )
+        // {
+        //     // Check if all required fields are present
+        //     const requiredFields = [ 'emailId', 'name' ];
+        //     const missingFields = requiredFields.filter( ( field ) => !professor[ field ] );
+        //     if ( missingFields.length > 0 )
+        //     {
+        //         invalidProfessors.push( {
+        //             professor: professor,
+        //             message: `Missing required fields: ${ missingFields.join( ', ' ) }`,
+        //         } );
+        //         continue; // Skip this professor and move to the next one
+        //     }
+
+        //     // Check for emailId collisions
+        //     const existingProfessor = await Professor.exists( { emailId: professor.emailId } );
+        //     if ( existingProfessor )
+        //     {
+        //         invalidProfessors.push( {
+        //             professor: professor,
+        //             message: 'Email already taken',
+        //         } );
+        //         continue; // Skip this professor and move to the next one
+        //     }
+        // }
+
+        // professorsToAdd = professorsToAdd.filter( ( professor ) =>
+        //     invalidProfessors.every( ( invalidProf ) => invalidProf.professor.emailId !== professor.emailId )
+        // );
 
 
         // Insert valid professors into the database

@@ -82,6 +82,7 @@ const CourseTable = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         const res = await deleteCourse(courseId);
+
         if (res.status === "Success") {
           Swal.fire("Deleted!", "Course has been deleted", "success");
         } else {

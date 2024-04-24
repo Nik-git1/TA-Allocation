@@ -64,16 +64,14 @@ const StudentState = (props) => {
     }
   };
 
-  const deleteStudent = (studentId) => {
-    axios
-      .delete(`http://localhost:5001/api/student/${studentId}`)
-      .then((response) => {
-        return { status: "Success" };
-      })
-      .catch((error) => {
-        console.error("Error deleting student:", error);
-        return { status: "Failed", message: "Error deleting student" };
-      });
+  const deleteStudent = async (studentId) => {
+    try {
+      await axios.delete(`http://localhost:5001/api/student/${studentId}`);
+      return { status: "Success" };
+    } catch (error) {
+      console.error("Error deleting student:", error);
+      return { status: "Failed", message: "Error deleting student" };
+    }
   };
 
   const getStudentsFromBackend = () => {

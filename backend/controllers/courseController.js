@@ -126,75 +126,85 @@ const addCourse = asyncHandler( async ( req, res ) =>
         var invalidCourses = [];
         var validCourses = [];
 
-        // const validateCourse = ( course ) =>
-        // {
-        //     if ( !course.name || !course.code || !course.acronym || !course.department || !course.totalStudents || !course.taStudentRatio )
-        //     {
-        //         throw new Error( 'All required fields must be provided' );
-        //     }
-        //     if ( parseInt( course.taStudentRatio ) < 1 )
-        //     {
-        //         throw new Error( 'TA to Student Ratio should be greater than 1' );
-        //     }
-        // };
+        const jmDepartments = await JM.find( {}, { department: 1 } );
+        const jmDepartmentMap = jmDepartments.reduce( ( acc, department ) =>
+        {
+            acc[ department.department ] = department._id;
+            return acc;
+        }, {} );
 
-        // const departmentIds = await Promise.all( newCourses.map( async ( course ) =>
-        // {
-        //     try
-        //     {
-        //         validateCourse( course );
-        //         if ( course.taAllocated ) { delete course.taAllocated }
-        //         if ( course.professor )
-        //         {
-        //             const professor = await Professor.findOne( { name: course.professor } );
-        //             if ( professor )
-        //             {
-        //                 course.professor = professor._id;
-        //             } else
-        //             {
-        //                 invalidCourses.push( course );
-        //                 return null;
-        //             }
-        //         }
-        //         const jmDepartment = await JM.findOne( { department: course.department } );
-        //         if ( jmDepartment ) { course.department = jmDepartment._id }
-        //         else
-        //         {
-        //             invalidCourses.push( course );
-        //         }
-        //         return jmDepartment ? jmDepartment._id : null;
-        //     } catch ( error )
-        //     {
-        //         invalidCourses.push( course );
-        //         return null;
-        //     }
-        // } ) );
+        const validateCourse = ( course ) =>
+        {
+            if ( !course.name || !course.code || !course.acronym || !course.department || !course.totalStudents || !course.taStudentRatio )
+            {
+                throw new Error( 'All required fields must be provided' );
+            }
+            if ( parseInt( course.taStudentRatio ) < 1 )
+            {
+                throw new Error( 'TA to Student Ratio should be greater than 1' );
+            }
+        };
 
-        // newCourses.forEach( ( course ) =>
-        // {
-        //     if ( !invalidCourses.includes( course ) )
-        //     {
-        //         if ( !course.taRequired || course.taRequired == undefined || course.taRequired == "" )
-        //         {
-        //             course.taRequired = Math.floor( course.totalStudents / course.taStudentRatio );
-        //         }
-        //         validCourses.push( course );
-        //     }
-        // } );
+        await Promise.all( newCourses.map( async ( course ) =>
+        {
+            try
+            {
+                validateCourse( course );
+                if ( course.taAllocated ) { delete course.taAllocated }
+                if ( course.professor )
+                {
+                    const professor = await Professor.exists( { name: course.professor } );
+                    if ( professor )
+                    {
+                        course.professor = professor._id;
+                    } else
+                    {
+                        invalidCourses.push( course );
+                        return;
+                    }
+                }
+
+                const jmDepartmentId = jmDepartmentMap[ course.department ];
+                if ( jmDepartmentId )
+                {
+                    course.department = jmDepartmentId;
+                } else
+                {
+                    invalidCourses.push( course );
+                    return;
+                }
+
+                if ( !course.taRequired || course.taRequired == undefined )
+                {
+                    course.taRequired = Math.floor( course.totalStudents / course.taStudentRatio );
+                }
+                validCourses.push( course );
+
+                // const jmDepartment = await JM.exists( { department: course.department } );
+                // if ( jmDepartment ) { course.department = jmDepartment._id }
+                // else
+                // {
+                //     invalidCourses.push( course );
+                // }
+            } catch ( error )
+            {
+                invalidCourses.push( course );
+            }
+        } ) );
 
 
-        // console.log( validCourses )
+        const bulkOps = validCourses.map( ( course ) => ( {
+            updateOne: {
+                filter: { acronym: course.acronym, professor: course.professor, name: course.name },
+                update: { $set: course },
+                upsert: true
+            }
+        } ) );
 
-        // const bulkOps = validCourses.map( ( course ) => ( {
-        //     updateOne: {
-        //         filter: { acronym: course.acronym, professor: course.professor, name: course.name },
-        //         update: { $set: course },
-        //         upsert: true
-        //     }
-        // } ) );
+        await Course.collection.bulkWrite( bulkOps, { ordered: false } );
 
-        // await Course.bulkWrite( bulkOps );
-
+        ```
+        // OLD CODE TO DO THE SAME THING AS ABOVE
         for ( const newCourse of newCourses )
         {
             // Check if required fields are not empty and have correct values
@@ -280,8 +290,8 @@ const addCourse = asyncHandler( async ( req, res ) =>
         {
             await Course.insertMany( validCourses, { ordered: false } )
         }
+        ```
 
-        // Prepare the response
         const response = {
             message: 'Courses added successfully',
             invalid: invalidCourses,
