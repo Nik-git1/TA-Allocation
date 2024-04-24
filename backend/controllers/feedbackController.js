@@ -81,19 +81,22 @@ const editFeedbackById = asyncHandler(async (req, res) => {
         }
 
         const { id } = req.params;
-        const { rating, description } = req.body;
-
-        console.log(rating)
-        console.log(id)
-        console.log(description)
+        const { overallGrade, regularityInMeeting, attendanceInLectures, preparednessForTutorials, timelinessOfTasks, qualityOfWork, attitudeCommitment, nominatedForBestTA, comments } = req.body;
 
         const feedback = await Feedback.findById(id);
         if (!feedback) {
             return res.status(404).json({ message: "Feedback not found" });
         }
 
-        feedback.rating = rating !== undefined ? rating : feedback.rating;
-        feedback.description = description !== undefined ? description : feedback.description;
+        feedback.overallGrade = overallGrade !== undefined ? overallGrade : feedback.overallGrade;
+        feedback.regularityInMeeting = regularityInMeeting !== undefined ? regularityInMeeting : feedback.regularityInMeeting;
+        feedback.attendanceInLectures = attendanceInLectures !== undefined ? attendanceInLectures : feedback.attendanceInLectures;
+        feedback.preparednessForTutorials = preparednessForTutorials !== undefined ? preparednessForTutorials : feedback.preparednessForTutorials;
+        feedback.timelinessOfTasks = timelinessOfTasks !== undefined ? timelinessOfTasks : feedback.timelinessOfTasks;
+        feedback.qualityOfWork = qualityOfWork !== undefined ? qualityOfWork : feedback.qualityOfWork;
+        feedback.attitudeCommitment = attitudeCommitment !== undefined ? attitudeCommitment : feedback.attitudeCommitment;
+        feedback.nominatedForBestTA = nominatedForBestTA !== undefined ? nominatedForBestTA : feedback.nominatedForBestTA;
+        feedback.comments = comments !== undefined ? comments : feedback.comments;
 
         await feedback.save();
         res.json({ message: "Feedback updated successfully", feedback });
@@ -115,7 +118,6 @@ const getFeedbacksByProfessorId = asyncHandler(async (req, res) => {
             .populate('course') // Populate course details
             .populate('student') // Populate student details
             .populate('professor'); // Populate professor details
-        
         res.json({ feedbacks });
     } catch (error) {
         console.error("Error fetching feedbacks by professor ID:", error);
