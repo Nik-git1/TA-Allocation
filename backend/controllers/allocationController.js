@@ -21,8 +21,6 @@ const transporter = nodemailer.createTransport( {
 const sendDeallocationDetails = asyncHandler(
   async ( email, adminEmail, JMEmail, professorEmail, deallocatedBy ) =>
   {
-    JMEmail = ''//FOR TESTING REDECLARE EMAILS SO THAT REAL USERS DONT GET THE MAIL
-
     console.log( email, adminEmail, JMEmail, professorEmail, deallocatedBy );
     const htmlContent = `
         <html>
@@ -61,8 +59,6 @@ const sendDeallocationDetails = asyncHandler(
 const sendAllocationDetails = asyncHandler(
   async ( email, adminEmail, JMEmail, professorEmail, AllocatedBy ) =>
   {
-    JMEmail = ''//FOR TESTING REDECLARE EMAILS SO THAT REAL USERS DONT GET THE MAIL
-
     console.log( email, adminEmail, JMEmail, professorEmail, AllocatedBy );
     const htmlContent = `
         <html>
@@ -125,6 +121,10 @@ const allocate = asyncHandler( async ( req, res ) =>
 
     let student = await Student.findById( studentId ).session( session );
     let course = await Course.findById( courseId ).session( session );
+
+    const adminEmail = "nikjr7777@gmail.com";
+    const professor = await Professor.findById( course.professor );
+    const department = await JM.findById( course.department );
 
     if ( !student || !course )
     {
@@ -204,6 +204,8 @@ const allocate = asyncHandler( async ( req, res ) =>
     ).exec();
 
     // await Promise.all( [ studentUpdatePromise, courseUpdatePromise ] );
+
+    sendAllocationDetails( student.emailId, adminEmail, department.emailId, professor.emailId, allocatedBy );
 
     const flatstudid = studentUpdate.flatStudentByID
     const flatstud = studentUpdate.flatStudent
@@ -327,7 +329,7 @@ const deallocate = asyncHandler( async ( req, res ) =>
     {
       userEmailId = 'admin';
     }
-    // sendDeallocationDetails(student.emailId, adminEmail, department.emailId, professor.emailId,deallocatedBy );
+    sendDeallocationDetails( student.emailId, adminEmail, department.emailId, professor.emailId, deallocatedBy );
     const logEntry = new LogEntry( {
       student: flatstudid,
       userEmailId: userEmailId,
