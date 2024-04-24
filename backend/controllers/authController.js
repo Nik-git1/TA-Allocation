@@ -115,7 +115,7 @@ const addAdmin = asyncHandler( async ( req, res ) =>
   const { email_id, password } = req.body;
 
   // Check if the admin with the same email already exists
-  const adminExists = await Admin.findOne( { emailId: email_id } );
+  const adminExists = await Admin.exists( { emailId: email_id } );
   if ( adminExists )
   {
     return res.status( 400 ).json( { error: "Admin with this email already exists" } );

@@ -204,9 +204,7 @@ const getStudents = asyncHandler( async ( req, res ) =>
   {
     if ( department )
     {
-      const departmentId = await JM.findOne( { department: department } ).select(
-        "_id"
-      );
+      const departmentId = await JM.exists( { department: department } );
       if ( departmentId )
       {
         filter.department = departmentId._id;
@@ -256,7 +254,7 @@ const getStudents = asyncHandler( async ( req, res ) =>
 // Function to get Course ID by name
 async function getCourseIdByName ( courseName )
 {
-  const course = await Course.findOne( { name: courseName } );
+  const course = await Course.exists( { name: courseName } );
   return course ? course._id : null;
 }
 
@@ -346,7 +344,7 @@ const addStudent = asyncHandler( async ( req, res ) =>
       }
 
       // Check for collision based on emailId or rollNo
-      const existingStudent = await Student.findOne( {
+      const existingStudent = await Student.exists( {
         $or: [ { emailId: newStudent.emailId }, { rollNo: newStudent.rollNo } ],
       } );
 
@@ -360,7 +358,7 @@ const addStudent = asyncHandler( async ( req, res ) =>
       } else
       {
         // Validate the department reference
-        const jmDepartment = await JM.findOne( {
+        const jmDepartment = await JM.exists( {
           department: newStudent.department,
         } );
         if ( !jmDepartment )
@@ -581,7 +579,7 @@ const updateStudent = asyncHandler( async ( req, res ) =>
     // Step 3: Update the department reference based on the department name
     if ( "department" in updates )
     {
-      const jmDepartment = await JM.findOne( { department: updates.department } );
+      const jmDepartment = await JM.exists( { department: updates.department } );
       if ( jmDepartment )
       {
         updates.department = jmDepartment._id;
