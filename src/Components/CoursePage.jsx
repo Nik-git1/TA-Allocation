@@ -34,7 +34,6 @@ const CoursePage = () => {
     key: null,
     direction: "ascending",
   });
-
   const [sorted, setSorted] = useState([]);
 
   const fetchCurrentRound = async () => {
@@ -463,14 +462,19 @@ const CoursePage = () => {
             <td className="border p-2">{pref}</td>
           </>
         )}
-        <td className="border p-2">
-          <button
-            className="bg-red-500 text-white px-4 py-2 rounded cursor-pointer font-bold"
-            onClick={() => handleDeallocate(student._id)}
-          >
-            Deallocate
-          </button>
-        </td>
+        {user.role === 'professor' && (currentRound === null || currentRound > 1)
+          ?
+          null
+          :
+          <td className="border p-2">
+            <button
+              className="bg-red-500 text-white px-4 py-2 rounded cursor-pointer font-bold"
+              onClick={() => handleDeallocate(student._id)}
+            >
+              Deallocate
+            </button>
+          </td>
+        }
       </tr>
     );
   };
@@ -505,24 +509,29 @@ const CoursePage = () => {
                   <td className="border p-2">{pref}</td>
                 </>
               )}
-              <td className="border p-2">
-                <button
-                  className={`${
-                    student.allocationStatus === 1 &&
-                    student.allocatedTA !== selectedCourse.name
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-[#3dafaa] cursor-pointer"
-                  } text-white px-4 py-2 rounded font-bold`}
-                  onClick={() => handleAllocate(student._id)}
-                  disabled={
-                    student.allocationStatus === 1 &&
-                    student.allocatedTA !== selectedCourse.name &&
-                    currentRound === null
-                  }
-                >
-                  Allocate
-                </button>
-              </td>
+              {user.role === 'professor' && (currentRound === null || currentRound > 1)
+                ?
+                  null
+                : 
+                <td className="border p-2">
+                  <button
+                    className={`${
+                      student.allocationStatus === 1 &&
+                      student.allocatedTA !== selectedCourse.name
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-[#3dafaa] cursor-pointer"
+                    } text-white px-4 py-2 rounded font-bold`}
+                    onClick={() => handleAllocate(student._id)}
+                    disabled={
+                      student.allocationStatus === 1 &&
+                      student.allocatedTA !== selectedCourse.name &&
+                      currentRound === null
+                    }
+                  >
+                    Allocate
+                  </button>
+                </td>
+              }
             </tr>
           ) : null
         ) : null}
@@ -838,7 +847,12 @@ const CoursePage = () => {
                       </th>
                     </>
                   )}
-                  <th className="border p-2">Action</th>
+                  {user.role === 'professor' && (currentRound === null || currentRound > 1)
+                    ?
+                    null
+                    :
+                    <th className="border p-2">Action</th>
+                  }
                 </tr>
               </thead>
               <tbody>
@@ -963,7 +977,12 @@ const CoursePage = () => {
                       </th>
                     </>
                   )}
-                  <th className="border p-2 ">Action</th>
+                  {user.role === 'professor' && (currentRound === null || currentRound > 1)
+                    ?
+                    null
+                    :
+                    <th className="border p-2">Action</th>
+                  }
                 </tr>
               </thead>
               <tbody>

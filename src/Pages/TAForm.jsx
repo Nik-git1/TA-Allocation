@@ -210,6 +210,27 @@ const StudentForm = () => {
         alert("Form Closed");
         return;
       }
+      
+      for (const pref of formData.departmentPreferences){
+        if(pref.course === "" || pref.grade === ""){
+          alert("Please fill in all Department Preferences");
+          return
+        }
+      }
+      for(const pref of formData.nonDepartmentPreferences){
+        if(pref.course === "" || pref.grade === ""){
+          alert("Please fill in all Non-Department Preferences");
+          return
+        }
+      }
+
+      for (const pref of formData.nonPreferences){
+        if (pref === ""){
+          alert("Please fill in all Non-Preferences");
+          return
+        }
+      }
+      
       setLoading(true);
 
       const apiUrl =
