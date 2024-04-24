@@ -19,7 +19,8 @@ const feedbackSchema = new mongoose.Schema({
     overallGrade: {
         type: String,
         enum: ['S', 'X'],
-        required: true
+        required: true,
+        default: 'S'
     },
     regularityInMeeting: {
         type: String,

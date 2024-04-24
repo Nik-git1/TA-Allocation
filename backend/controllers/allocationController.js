@@ -123,8 +123,8 @@ const allocate = asyncHandler( async ( req, res ) =>
         .json( { message: "No ongoing round for allocation." } );
     }
 
-    var student = await Student.findById( studentId ).session( session );
-    var course = await Course.findById( courseId ).session( session );
+    let student = await Student.findById( studentId ).session( session );
+    let course = await Course.findById( courseId ).session( session );
 
     if ( !student || !course )
     {
@@ -218,6 +218,16 @@ const allocate = asyncHandler( async ( req, res ) =>
 
     io.emit( 'liveLogs', logToEmit )
     io.emit( 'studentUpdated', flatstud )
+
+    const newFeedback = new Feedback({
+      student: studentId,
+      course: courseId,
+      professor: course.professor,
+      overallGrade: 'S'
+    });
+
+    // Save the feedback to the database
+    const savedFeedback = await newFeedback.save();
 
     return res.status( 200 ).json( { message: "Student allocated successfully" } );
   } catch ( error )
@@ -329,6 +339,10 @@ const deallocate = asyncHandler( async ( req, res ) =>
 
     io.emit( 'liveLogs', logToEmit )
     io.emit( 'studentUpdated', flatstud )
+
+    // Find the feedback to delete
+    const feedbackToDelete = await Feedback.deleteOne({ student: studentId, course: courseId });
+    
 
     return res
       .status( 200 )

@@ -132,6 +132,7 @@ const Department = () => {
         lastRoundValue = await lastCompletedRound(); // Wait for lastCompletedRound to finish
       }
       const response = await fetch("http://localhost:5001/api/al/getAllAllocation");
+      
       if (response.status == 200) {
         const res = await response.json();
         const ws = XLSX.utils.json_to_sheet(res.data);
