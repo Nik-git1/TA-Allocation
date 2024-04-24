@@ -123,24 +123,23 @@ const StudentForm = () => {
       .catch((error) => {
         console.error("Error fetching courses:", error);
       });
-      if (studentExist){
-        for (const i of studentExist.departmentPreferences){
-          selectedCourses.push(i.course);
-        }
-        for (const i of studentExist.nonDepartmentPreferences){
-          selectedCourses.push(i.course);
-        }
-        for (const i of studentExist.nonPreferences){
-          selectedCourses.push(i);
-        }
+    if (studentExist) {
+      for (const i of studentExist.departmentPreferences) {
+        selectedCourses.push(i.course);
       }
+      for (const i of studentExist.nonDepartmentPreferences) {
+        selectedCourses.push(i.course);
+      }
+      for (const i of studentExist.nonPreferences) {
+        selectedCourses.push(i);
+      }
+    }
   }, []);
 
   const handleChange = (event, index, section) => {
     const { name, value } = event.target;
 
     var courseId = courses.find((course) => course.name === value)?._id;
-
 
     const updatedFormData = { ...formData };
 
@@ -182,12 +181,9 @@ const StudentForm = () => {
     }
 
     setFormData(updatedFormData);
-
-
   };
 
   const handleSubmit = async () => {
-
     event.preventDefault();
     try {
       // Validate form data using Yup
@@ -638,10 +634,6 @@ const StudentForm = () => {
                         selectedDepartment
                           ? [
                               ...courses
-                                .filter(
-                                  (course) =>
-                                    course.department !== selectedDepartment
-                                )
                                 .sort((a, b) =>
                                   a.acronym.localeCompare(b.acronym)
                                 )
@@ -765,10 +757,6 @@ const StudentForm = () => {
                         selectedDepartment
                           ? [
                               ...courses
-                                .filter(
-                                  (course) =>
-                                    course.department !== selectedDepartment
-                                )
                                 .sort((a, b) =>
                                   a.acronym.localeCompare(b.acronym)
                                 )

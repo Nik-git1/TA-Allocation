@@ -494,7 +494,7 @@ const addStudent = asyncHandler( async ( req, res ) =>
     {
       try
       {
-        if ( student.departmentPreferences )
+        if ( student.departmentPreferences && student.departmentPreferences.length > 0 )
         {
           await sendForm( student.emailId, student ); // Call the sendForm function for each student
         }
@@ -691,7 +691,12 @@ const updateStudent = asyncHandler( async ( req, res ) =>
 
     try
     {
-      await sendForm( updateStudent.emailId, updateStudent );
+
+      if ( updateStudent.departmentPreferences && updateStudent.departmentPreferences.length > 0 )
+      {
+        await sendForm( updateStudent.emailId, updateStudent ); // Call the sendForm function for each student
+      }
+
     } catch ( error )
     {
       console.error( 'Error sending student data via email:', error );

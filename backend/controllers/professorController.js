@@ -107,6 +107,7 @@ const addProfessor = asyncHandler( async ( req, res ) =>
         // Insert valid professors into the database
         await Professor.insertMany( professorsToAdd );
 
+
         return res.status( 201 ).json( {
             message: 'Professors added successfully',
             invalidProfessors: invalidProfessors,

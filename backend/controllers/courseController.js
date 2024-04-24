@@ -215,6 +215,9 @@ const addCourse = asyncHandler( async ( req, res ) =>
             invalid_prof: invalidProfCourses,
         };
 
+        console.log( 'invalid dept: ', invalidDeptCourses )
+        console.log( 'invalid prof: ', invalidProfCourses )
+
         return res.status( 201 ).json( response );
     } catch ( error )
     {
@@ -229,6 +232,8 @@ const updateCourse = asyncHandler( async ( req, res ) =>
 { //update tareq according to the changes
     const courseId = req.params.id;
     const updates = req.body;
+
+    console.log( updates );
 
     try
     {
@@ -269,7 +274,7 @@ const updateCourse = asyncHandler( async ( req, res ) =>
             }
 
             // Check if taRequired is updated
-            if ( updates.taRequired )
+            if ( updates.taRequired && course.taRequired != updates.taRequired )
             {
                 // If taRequired is updated, do nothing, save the provided value
             } else

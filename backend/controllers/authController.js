@@ -37,7 +37,7 @@ const sendOtp = asyncHandler( async ( req, res ) =>
 {
   const { email_id } = req.body;
   const findStudent = await Student.findOne( { emailId: email_id } );
-  const flatenedStudents = findStudent?.flatStudent
+  const flatenedStudents = findStudent?.flatStudentByID
   let department = "";
   if ( flatenedStudents )
   {
