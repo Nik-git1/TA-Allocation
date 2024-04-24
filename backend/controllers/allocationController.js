@@ -412,37 +412,41 @@ const getAllAllcation = asyncHandler( async ( req, res ) =>
   {
     const allocation = []
     // Fetch courses where taAllocated array has at least one element
-    const courses = await Course.find({ "taAllocated.0": { $exists: true } });
-    for (const course of courses) {
-      
-     
-      for (const s of course.taAllocated){
+    const courses = await Course.find( { "taAllocated.0": { $exists: true } } );
+    for ( const course of courses )
+    {
+
+
+      for ( const s of course.taAllocated )
+      {
 
         let allocatedStudent = {}
-        try{
-          const studentdetails = await Student.find({"_id": s});
-          allocatedStudent['Roll No.'] = studentdetails[0].rollNo;
-          allocatedStudent['Name'] = studentdetails[0].name;
-          allocatedStudent['Program'] = studentdetails[0].program;
-          allocatedStudent['Department'] = studentdetails[0].department;
-          allocatedStudent['TA Type'] = studentdetails[0].taType;
-          allocatedStudent['Course'] = course.name;
-          allocation.push(allocatedStudent);
+        try
+        {
+          const studentdetails = await Student.find( { "_id": s } );
+          allocatedStudent[ 'Roll No.' ] = studentdetails[ 0 ].rollNo;
+          allocatedStudent[ 'Name' ] = studentdetails[ 0 ].name;
+          allocatedStudent[ 'Program' ] = studentdetails[ 0 ].program;
+          allocatedStudent[ 'Department' ] = studentdetails[ 0 ].department.department;
+          allocatedStudent[ 'TA Type' ] = studentdetails[ 0 ].taType;
+          allocatedStudent[ 'Course' ] = course.name;
+          allocation.push( allocatedStudent );
 
-        } catch (error) {
+        } catch ( error )
+        {
           res.status( 500 ).json( { message: "Allocated student not in the database", error: error.message } );
         }
       }
-      
-    }
-    
-    res.status(200).json({ success: true, data: allocation });
 
-  } catch (error)   
+    }
+
+    res.status( 200 ).json( { success: true, data: allocation } );
+
+  } catch ( error )   
   {
     res.status( 500 ).json( { message: "Internal server error", error: error.message } );
   }
-});
+} );
 
 
 

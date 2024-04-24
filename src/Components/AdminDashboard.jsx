@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
-import DashboardCardList from "./DashboardCards"; // Import your DashboardCardList component
 import axios from "axios";
+import React, { useEffect, useState } from "react";
+import Swal from "sweetalert2";
+import DashboardCardList from "./DashboardCards"; // Import your DashboardCardList component
 
 const Dashboard = () => {
   const [currentRound, setCurrentRound] = useState(null);
   const [formOpened, setFormOpened] = useState(true);
-  const [feedbackForm, setFeedbackForm] = useState(false)
+  const [feedbackForm, setFeedbackForm] = useState(false);
   useEffect(() => {
     // Fetch the current round status from your backend when the component mounts
     getRound();
@@ -25,7 +26,6 @@ const Dashboard = () => {
       .then((response) => response.json())
       .then((data) => {
         setCurrentRound(data.currentRound);
-
       })
       .catch((error) => console.error("Error fetching round status: " + error));
   };
@@ -46,12 +46,12 @@ const Dashboard = () => {
       .then((response) => {
         if (response.status === 201) {
           return response.json();
-        } if (response.status === 400) {
-          alert('An ongoing round already exists.')
-          return response.json();
         }
-        else{
-          alert('Internal server error')
+        if (response.status === 400) {
+          alert("An ongoing round already exists.");
+          return response.json();
+        } else {
+          alert("Internal server error");
           return response.json();
         }
       })
@@ -60,7 +60,7 @@ const Dashboard = () => {
         setCurrentRound(data.currentRound);
         getRound();
       })
-      .catch((error) => { 
+      .catch((error) => {
         console.error("Error starting a new round: " + error);
       });
   };
@@ -69,16 +69,15 @@ const Dashboard = () => {
     // Send a POST request to end the current round
     fetch("http://localhost:5001/api/rd/endround", { method: "POST" })
       .then((response) => {
-        if (response.status === 200){
-          return response.json()
+        if (response.status === 200) {
+          return response.json();
         }
-        if (response.status === 400){
-          alert('No ongoing round found')
-          return response.json()
-        }
-        else {
-          alert('Internal server error')
-          return
+        if (response.status === 400) {
+          alert("No ongoing round found");
+          return response.json();
+        } else {
+          alert("Internal server error");
+          return;
         }
       })
       .then(() => {
@@ -88,7 +87,7 @@ const Dashboard = () => {
       })
       .catch((error) => {
         alert(error.message);
-        console.error("Error ending the current round: " + error)
+        console.error("Error ending the current round: " + error);
       });
   };
 
@@ -110,47 +109,63 @@ const Dashboard = () => {
   };
 
   const startNewSemester = () => {
-    // Send a DELETE request to start a new semester
-    fetch("http://localhost:5001/api/rd/semester", { method: "DELETE" })
-      .then((response) => response.json())
-      .then(() => {
-        // Handle success (e.g., show a success message)
+    try {
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes",
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          const res = await fetch("http://localhost:5001/api/new/semester", {
+            method: "DELETE",
+          });
+          setCurrentRound(null); // Reset current round information
+          getRound();
 
-        setCurrentRound(null); // Reset current round information
-
-        getRound();
-      })
-      .catch((error) => {
-        // Handle errors (e.g., show an error message)
-        console.error("Error starting a new semester: " + error);
+          if (res.status === "Success") {
+            Swal.fire("Success", "New Semester Started", "success");
+          } else {
+            Swal.fire("Oops!", res.error, "error");
+          }
+        }
       });
+    } catch (e) {
+      console.error("Error starting new semester: ", e.message);
+    }
   };
 
   const openForm = async () => {
-    const response = await fetch(`http://localhost:5001/api/form/changeState`, { method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ state: true}) }); 
-        // Reload the page after the form state is changed
-        window.location.reload();
-  }
+    const response = await fetch(`http://localhost:5001/api/form/changeState`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ state: true }),
+    });
+    // Reload the page after the form state is changed
+    window.location.reload();
+  };
 
   const closeForm = async () => {
-    const response = await fetch(`http://localhost:5001/api/form/changeState`, { method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ state: false}) }); 
-        // Reload the page after the form state is changed
-        window.location.reload();
-  }
+    const response = await fetch(`http://localhost:5001/api/form/changeState`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ state: false }),
+    });
+    // Reload the page after the form state is changed
+    window.location.reload();
+  };
 
   const startFeedback = () => {
     fetch("http://localhost:5001/api/feedback/start", { method: "GET" })
       .then((response) => {
         if (response.status === 200) {
-
           // Perform any necessary actions after successful feedback generation
           getFeedbackFormStatus(); // Update feedback form status after starting feedback
         } else {
@@ -161,7 +176,7 @@ const Dashboard = () => {
         console.error("Error initiating feedback generation:", error);
       });
   };
-  
+
   const getFeedbackFormStatus = () => {
     axios
       .get("http://localhost:5001/api/feedback/status")
@@ -173,13 +188,12 @@ const Dashboard = () => {
         console.error("Error fetching feedback form status:", error);
       });
   };
-  
+
   const closeFeedbackForm = () => {
     axios
       .post("http://localhost:5001/api/feedback/end")
       .then((response) => {
         if (response.status === 200) {
-
           getFeedbackFormStatus();
           // Perform any necessary actions after successful closing of feedback form
         } else {
@@ -190,7 +204,6 @@ const Dashboard = () => {
         console.error("Error closing feedback form:", error);
       });
   };
-  
 
   return (
     <div>
@@ -214,16 +227,22 @@ const Dashboard = () => {
           {formOpened ? "Form is opened" : "Form is closed"}
         </div>
       </div>
-  
+
       <div className="flex">
         <p className="font-bold text-2xl">Ongoing Round:</p>
-        <p className="text-2xl ml-2">{currentRound === null ? 'No Round is going on' : currentRound}</p>
+        <p className="text-2xl ml-2">
+          {currentRound === null ? "No Round is going on" : currentRound}
+        </p>
       </div>
-  
+
       <div className="flex mt-3">
         <button
           onClick={toggleRound}
-          className={currentRound === null ? "bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 mr-4 rounded focus:outline-none focus:shadow-outline w-32" : "w-32 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 mr-4 rounded focus:outline-none focus:shadow-outline"}
+          className={
+            currentRound === null
+              ? "bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 mr-4 rounded focus:outline-none focus:shadow-outline w-32"
+              : "w-32 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 mr-4 rounded focus:outline-none focus:shadow-outline"
+          }
         >
           {currentRound === null ? "Start Round" : "End Round"}
         </button>
@@ -235,7 +254,6 @@ const Dashboard = () => {
         </button>
         <button
           onClick={startNewSemester}
-          disabled
           className="bg-black text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-4"
         >
           New Semester
@@ -256,13 +274,11 @@ const Dashboard = () => {
           </button>
         )}
       </div>
-  
+
       {/* Include your DashboardCardList component here */}
       <DashboardCardList />
     </div>
   );
-  
-  
 };
 
 export default Dashboard;
