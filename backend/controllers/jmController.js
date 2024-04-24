@@ -2,8 +2,6 @@ const asyncHandler = require( 'express-async-handler' );
 const JM = require( "../models/JM" );
 const Course = require( "../models/Course" );
 const Student = require( "../models/Student" );
-const argon2 = require( 'argon2' );
-
 
 //@desc Get department by ID
 //@route GET /api/department/:id
@@ -11,7 +9,7 @@ const argon2 = require( 'argon2' );
 const getJM = asyncHandler( async ( req, res ) =>
 {
 
-    const jm = await JM.findById( req.params.id, { password: 0 } );
+    const jm = await JM.findById( req.params.id );
 
     if ( !jm || jm.length === 0 )
     {
@@ -35,7 +33,7 @@ const getJMs = asyncHandler( async ( req, res ) =>
         if ( department ) filter.department = new RegExp( department, 'i' );
         if ( emailId ) filter.emailId = new RegExp( emailId, 'i' );
 
-        const filteredJMs = await JM.find( filter, { password: 0 } );
+        const filteredJMs = await JM.find( filter );
         res.status( 200 ).json( filteredJMs );
 
     } catch ( error )
@@ -64,7 +62,7 @@ const addJM = asyncHandler( async ( req, res ) =>
         for ( const jm of jmsToAdd )
         {
             // Check if all required fields are present
-            const requiredFields = [ 'emailId', 'password', 'department' ];
+            const requiredFields = [ 'emailId', 'department' ];
             const missingFields = requiredFields.filter( ( field ) => !jm[ field ] );
             if ( missingFields.length > 0 )
             {
@@ -76,26 +74,12 @@ const addJM = asyncHandler( async ( req, res ) =>
             }
 
             // Check for emailId collisions
-            const existingJM = await JM.findOne( { emailId: jm.emailId } );
+            const existingJM = await JM.exists( { emailId: jm.emailId } );
             if ( existingJM )
             {
                 invalidJMs.push( {
                     department: jm,
                     message: 'Email already taken',
-                } );
-                continue; // Skip this jm and move to the next one
-            }
-
-            // Hash the password using Argon2 before saving
-            try
-            {
-                const hash = await argon2.hash( jm.password );
-                jm.password = hash;
-            } catch ( error )
-            {
-                invalidJMs.push( {
-                    department: jm,
-                    message: 'Error hashing the password',
                 } );
                 continue; // Skip this jm and move to the next one
             }
@@ -107,7 +91,7 @@ const addJM = asyncHandler( async ( req, res ) =>
         );
 
         // Insert valid jms into the database
-        await JM.insertMany( jmsToAdd );
+        await JM.insertMany( jmsToAdd, { ordered: false } );
 
         return res.status( 201 ).json( {
             message: 'JMs added successfully',
@@ -130,7 +114,7 @@ const updateJM = asyncHandler( async ( req, res ) =>
     try
     {
         // Step 1: Validate that the jm exists
-        var jm = await JM.findById( jmId );
+        var jm = await JM.exists( { _id: jmId } );
         if ( !jm )
         {
             return res.status( 404 ).json( { message: 'JM not found' } );
@@ -139,19 +123,11 @@ const updateJM = asyncHandler( async ( req, res ) =>
         // Step 2: Check if emailId is being updated and if it collides with an existing email
         if ( 'emailId' in updates && updates.emailId !== jm.emailId )
         {
-            const existingJM = await JM.findOne( { emailId: updates.emailId } );
+            const existingJM = await JM.exists( { emailId: updates.emailId } );
             if ( existingJM )
             {
                 return res.status( 400 ).json( { message: 'Email already taken' } );
             }
-        }
-
-        // Step 3: Check if password is being updated and perform necessary security checks
-        if ( 'password' in updates )
-        {
-            // Hash the new password
-            const hash = await argon2.hash( updates.password );
-            updates.password = hash;
         }
 
         // Step 4: Update the jm with the validated values

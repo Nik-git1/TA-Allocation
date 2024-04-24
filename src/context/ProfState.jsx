@@ -87,7 +87,7 @@ const ProfState = (props) => {
   const deleteProfessor = (professorId) => {
     axios
       .delete(`http://localhost:5001/api/professor/${professorId}`)
-      .then((response) => {
+      .then(() => {
         getProfessorsFromBackend(); // Fetch updated professor data after deletion
         return { status: "Success" };
       })

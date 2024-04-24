@@ -41,7 +41,6 @@ const sendOtp = asyncHandler( async ( req, res ) =>
   let department = "";
   if ( flatenedStudents )
   {
-    // department = await JM.findById( findStudent.department, "department" );
     department = flatenedStudents.department
   }
   let otp = otpGenerator.generate( 6, {
@@ -175,41 +174,6 @@ const adminLogin = asyncHandler( async ( req, res ) =>
   res.json( { success, authtoken } );
 } );
 
-const JMLogin = asyncHandler( async ( req, res ) =>
-{
-  const { email_id, password } = req.body;
-  let user = await JM.findOne( { emailId: email_id } );
-  if ( !user )
-  {
-    return res.status( 400 ).json( { success: false, error: "Please enter valid credentials" } );
-  }
-
-  const passwordMatch = await argon2.verify( user.password, password );
-
-  if ( !passwordMatch )
-  {
-    return res.status( 400 ).json( { success: false, error: "Please enter valid credentials" } );
-  }
-
-
-  // Find if the professor teaches any courses
-  const professorId = user._id; // Get the professor's ID
-  const coursesTaught = await Course.find( { professor: professorId } );
-
-  const data = {
-    user: {
-      id: user.id,
-      department: user.department,
-      role: "jm" // Include the department in the token
-    },
-  };
-
-  const authtoken = jwt.sign( data, JWT_SECRET );
-  const success = true;
-
-  res.json( { success, authtoken } );
-} );
-
 const JMotp = asyncHandler( async ( req, res ) =>
 {
   const { email_id, enteredOTP } = req.body;
@@ -244,37 +208,6 @@ const JMotp = asyncHandler( async ( req, res ) =>
   res.json( { success, authtoken, message: 'OTP verified successfully' } );
 } );
 
-const ProfessorLogin = asyncHandler( async ( req, res ) =>
-{
-  const { email_id, password } = req.body;
-  let user = await Professor.findOne( { emailId: email_id } );
-  if ( !user )
-  {
-    return res.status( 400 ).json( { success: false, error: "Please enter valid credentials" } );
-  }
-
-  const passwordMatch = await argon2.verify( user.password, password );
-
-  if ( !passwordMatch )
-  {
-    return res.status( 400 ).json( { success: false, error: "Please enter valid credentials" } );
-  }
-
-  // Find if the professor teaches any courses
-  const professorId = user._id; // Get the professor's ID
-  const data = {
-    user: {
-      id: user.id,
-      department: user.department,
-      role: 'professor'
-    },
-  };
-  const authtoken = jwt.sign( data, JWT_SECRET );
-  const success = true;
-
-  res.json( { success, authtoken, name: user.name } );
-} );
-
 
 const Professorotp = asyncHandler( async ( req, res ) =>
 {
@@ -293,8 +226,6 @@ const Professorotp = asyncHandler( async ( req, res ) =>
     return res.status( 400 ).json( { error: "Invalid Email ID" } );
   }
 
-  console.log( user )
-
   // Find if the professor teaches any courses
   const data = {
     user: {
@@ -303,6 +234,7 @@ const Professorotp = asyncHandler( async ( req, res ) =>
       role: 'professor'
     },
   };
+
   const authtoken = jwt.sign( data, JWT_SECRET );
   const success = true;
 
@@ -348,4 +280,4 @@ const forgotPassword = async ( req, res ) =>
 }
 
 
-module.exports = { Professorotp, JMotp, adminLogin, ProfessorLogin, JMLogin, sendOtp, handleTAlogin, addAdmin, verifyOtp, forgotPassword };
+module.exports = { Professorotp, JMotp, adminLogin, sendOtp, handleTAlogin, addAdmin, verifyOtp, forgotPassword };

@@ -219,7 +219,7 @@ const addCourse = asyncHandler( async ( req, res ) =>
             // Handle "department" reference
             if ( newCourse.department )
             {
-                var jmDepartment = await JM.findOne( { department: newCourse.department } );
+                var jmDepartment = await JM.findOne( { department: newCourse.department } ).select( '_id' );
                 if ( jmDepartment )
                 {
                     newCourse.department = jmDepartment._id;
@@ -234,7 +234,7 @@ const addCourse = asyncHandler( async ( req, res ) =>
             if ( newCourse.professor )
             {
                 // var profname = newCourse.professor.split( " (" )[ 0 ];
-                var professor = await Professor.findOne( { name: newCourse.professor } );
+                var professor = await Professor.findOne( { name: newCourse.professor } ).select( '_id' );
                 if ( professor )
                 {
                     newCourse.professor = professor._id;
@@ -278,7 +278,7 @@ const addCourse = asyncHandler( async ( req, res ) =>
 
         if ( validCourses.length > 0 )
         {
-            await Course.insertMany( validCourses )
+            await Course.insertMany( validCourses, { ordered: false } )
         }
 
         // Prepare the response
@@ -314,7 +314,7 @@ const updateCourse = asyncHandler( async ( req, res ) =>
 
         if ( updates.department )
         {
-            const jmDepartment = await JM.findOne( { department: updates.department } );
+            const jmDepartment = await JM.findOne( { department: updates.department } ).select( '_id' );
             if ( !jmDepartment )
             {
                 return res.status( 400 ).json( { message: 'Invalid Department value' } );
@@ -325,7 +325,7 @@ const updateCourse = asyncHandler( async ( req, res ) =>
         if ( updates.professor )
         {
             var profname = updates.professor.split( " (" )[ 0 ];
-            const professor = await Professor.findOne( { name: profname } );
+            const professor = await Professor.findOne( { name: profname } ).select( '_id' );
             if ( !professor )
             {
                 return res.status( 400 ).json( { message: 'Invalid Professor value' } );

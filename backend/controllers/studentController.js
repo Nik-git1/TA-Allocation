@@ -489,7 +489,7 @@ const addStudent = asyncHandler( async ( req, res ) =>
     }
 
     // Insert valid students into the database
-    const returnedStudents = await Student.insertMany( validStudents );
+    const returnedStudents = await Student.insertMany( validStudents, { ordered: false } );
     for ( const student of validStudents )
     {
       try
