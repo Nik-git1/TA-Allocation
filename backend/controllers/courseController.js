@@ -123,9 +123,77 @@ const addCourse = asyncHandler( async ( req, res ) =>
     }
     try
     {
-        // var collidingCourses = [];
-        var invalidDeptCourses = [];
-        var invalidProfCourses = [];
+        var invalidCourses = [];
+        var validCourses = [];
+
+        // const validateCourse = ( course ) =>
+        // {
+        //     if ( !course.name || !course.code || !course.acronym || !course.department || !course.totalStudents || !course.taStudentRatio )
+        //     {
+        //         throw new Error( 'All required fields must be provided' );
+        //     }
+        //     if ( parseInt( course.taStudentRatio ) < 1 )
+        //     {
+        //         throw new Error( 'TA to Student Ratio should be greater than 1' );
+        //     }
+        // };
+
+        // const departmentIds = await Promise.all( newCourses.map( async ( course ) =>
+        // {
+        //     try
+        //     {
+        //         validateCourse( course );
+        //         if ( course.taAllocated ) { delete course.taAllocated }
+        //         if ( course.professor )
+        //         {
+        //             const professor = await Professor.findOne( { name: course.professor } );
+        //             if ( professor )
+        //             {
+        //                 course.professor = professor._id;
+        //             } else
+        //             {
+        //                 invalidCourses.push( course );
+        //                 return null;
+        //             }
+        //         }
+        //         const jmDepartment = await JM.findOne( { department: course.department } );
+        //         if ( jmDepartment ) { course.department = jmDepartment._id }
+        //         else
+        //         {
+        //             invalidCourses.push( course );
+        //         }
+        //         return jmDepartment ? jmDepartment._id : null;
+        //     } catch ( error )
+        //     {
+        //         invalidCourses.push( course );
+        //         return null;
+        //     }
+        // } ) );
+
+        // newCourses.forEach( ( course ) =>
+        // {
+        //     if ( !invalidCourses.includes( course ) )
+        //     {
+        //         if ( !course.taRequired || course.taRequired == undefined || course.taRequired == "" )
+        //         {
+        //             course.taRequired = Math.floor( course.totalStudents / course.taStudentRatio );
+        //         }
+        //         validCourses.push( course );
+        //     }
+        // } );
+
+
+        // console.log( validCourses )
+
+        // const bulkOps = validCourses.map( ( course ) => ( {
+        //     updateOne: {
+        //         filter: { acronym: course.acronym, professor: course.professor, name: course.name },
+        //         update: { $set: course },
+        //         upsert: true
+        //     }
+        // } ) );
+
+        // await Course.bulkWrite( bulkOps );
 
         for ( const newCourse of newCourses )
         {
@@ -157,7 +225,7 @@ const addCourse = asyncHandler( async ( req, res ) =>
                     newCourse.department = jmDepartment._id;
                 } else
                 {
-                    invalidDeptCourses.push( newCourse );
+                    invalidCourses.push( newCourse );
                     continue; // Skip adding this course
                 }
             }
@@ -172,7 +240,7 @@ const addCourse = asyncHandler( async ( req, res ) =>
                     newCourse.professor = professor._id;
                 } else
                 {
-                    invalidProfCourses.push( newCourse );
+                    invalidCourses.push( newCourse );
                     // newCourse.professor = null; // Assign null if professor not found
                     continue; // Skip adding this course
                 }
@@ -203,20 +271,21 @@ const addCourse = asyncHandler( async ( req, res ) =>
             } else
             {
                 // Add the course to the database
-                await Course.create( newCourse );
+                validCourses.push( newCourse );
+                // await Course.create( newCourse );
             }
+        }
+
+        if ( validCourses.length > 0 )
+        {
+            await Course.insertMany( validCourses )
         }
 
         // Prepare the response
         const response = {
             message: 'Courses added successfully',
-            // collide: collidingCourses,
-            invalid_dept: invalidDeptCourses,
-            invalid_prof: invalidProfCourses,
+            invalid: invalidCourses,
         };
-
-        console.log( 'invalid dept: ', invalidDeptCourses )
-        console.log( 'invalid prof: ', invalidProfCourses )
 
         return res.status( 201 ).json( response );
     } catch ( error )

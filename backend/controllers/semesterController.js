@@ -36,7 +36,6 @@ const newSemester = asyncHandler( async ( req, res ) =>
             active: false
         }, { new: true } ).session( session );
 
-
         await session.commitTransaction();
         // session.endSession();
 

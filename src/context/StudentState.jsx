@@ -88,7 +88,7 @@ const StudentState = (props) => {
       });
   };
 
-  const getStudentsFromFile = (event) => {
+  const getStudentsFromFile = (event, setLoading) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
@@ -116,6 +116,7 @@ const StudentState = (props) => {
 
         axios
           .post("http://localhost:5001/api/student", students)
+          .then(setLoading(false))
           .catch((error) => {
             console.error("Error sending data to the backend:", error);
           });

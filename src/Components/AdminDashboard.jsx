@@ -125,11 +125,11 @@ const Dashboard = () => {
           });
           setCurrentRound(null); // Reset current round information
           getRound();
-
-          if (res.status === "Success") {
-            Swal.fire("Success", "New Semester Started", "success");
+          if (res.status === 200) {
+            await Swal.fire("Success", "New Semester Started", "success");
+            window.location.reload();
           } else {
-            Swal.fire("Oops!", res.error, "error");
+            Swal.fire("Oops!", "Server Error", "error");
           }
         }
       });
