@@ -8,13 +8,15 @@ const ProfState = (props) => {
   const [professors, setProfessors] = useState(initProfessors);
   //   const [selectedProfessor, setSelectedProfessor] = useState(null); //might be redundant
 
+  const API = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
     getProfessorsFromBackend();
   }, []);
 
   const getProfessorsFromBackend = () => {
     axios
-      .get("http://localhost:5001/api/professor") // Replace with your actual API endpoint
+      .get(`${API}/api/professor`) // Replace with your actual API endpoint
       .then((response) => {
         let professorsFromBackend = response.data;
         setProfessors(professorsFromBackend);
@@ -27,7 +29,7 @@ const ProfState = (props) => {
   const filterProfessorsByDepartment = async (department) => {
     try {
       const response = await axios.get(
-        `http://localhost:5001/api/professor?department=${department}`
+        `${API}/api/professor?department=${department}`
       );
       if (response.status === 200) {
         const filteredProfessors = response.data;
@@ -68,13 +70,16 @@ const ProfState = (props) => {
         });
 
         axios
-          .post("http://localhost:5001/api/professor", professors)
+          .post(`${API}/api/professor`, professors)
           .then(() => {
             getProfessorsFromBackend();
             setLoading(false);
+            window.location.reload();
           })
           .catch((error) => {
             console.error("Error sending data to the backend:", error);
+            setLoading(false);
+            window.location.reload();
           });
       };
       reader.onerror = (error) => {
@@ -86,7 +91,7 @@ const ProfState = (props) => {
 
   const deleteProfessor = async (professorId) => {
     try {
-      await axios.delete(`http://localhost:5001/api/professor/${professorId}`);
+      await axios.delete(`${API}/api/professor/${professorId}`);
       getProfessorsFromBackend(); // Fetch updated professor data after deletion
       return { status: "Success" };
     } catch (error) {
@@ -98,7 +103,7 @@ const ProfState = (props) => {
   const updateProfessor = async (professorId, updatedData) => {
     try {
       const response = await axios.put(
-        `http://localhost:5001/api/professor/${professorId}`,
+        `${API}/api/professor/${professorId}`,
         updatedData
       );
       if (response.status === 200) {

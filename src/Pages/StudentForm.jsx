@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Swal from "sweetalert2";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import * as Yup from "yup";
 import Select from "react-select";
+import Swal from "sweetalert2";
+import * as Yup from "yup";
 
 import CryptoJS from "crypto-js";
 import ClipLoader from "react-spinners/ClipLoader";
-import { AiOutlineSearch } from "react-icons/ai";
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
@@ -31,6 +30,7 @@ const StudentForm = () => {
   const encryptedEmail = location.state?.encryptedEmail || "NA";
   const studentExistDepartment = location.state?.department || "";
   const studentExist = location.state?.studentExist;
+  const API = import.meta.env.VITE_API_URL;
   const studentExistData = studentExist || {
     name: "",
     rollNo: "",
@@ -96,7 +96,7 @@ const StudentForm = () => {
   useEffect(() => {
     // Fetch course data from the backend API
     axios
-      .get("http://localhost:5001/api/course")
+      .get(`${API}/api/course`)
       .then((response) => {
         setCourses(response.data);
       })
@@ -105,7 +105,7 @@ const StudentForm = () => {
       });
 
     axios
-      .get("http://localhost:5001/api/form")
+      .get(`${API}/api/form`)
       .then((response) => {
         setFormOpened(response.data.state);
       })
@@ -117,7 +117,6 @@ const StudentForm = () => {
   const handleChange = (event, index, section) => {
     const { name, value } = event.target;
     const updatedFormData = { ...formData };
-
 
     if (
       section === "departmentPreferences" ||
@@ -151,8 +150,6 @@ const StudentForm = () => {
     }
 
     setFormData(updatedFormData);
-
-
   };
 
   const handleSubmit = async () => {
@@ -185,8 +182,8 @@ const StudentForm = () => {
       setLoading(true);
       const apiUrl =
         studentExist === null
-          ? "http://localhost:5001/api/student"
-          : `http://localhost:5001/api/student/${studentExist._id}`;
+          ? `${API}/api/student`
+          : `${API}/api/student/${studentExist._id}`;
 
       // Send data to server
       const response = await axios({
@@ -374,7 +371,6 @@ const StudentForm = () => {
                   onChange={handleChange}
                   className="w-full p-2 border rounded"
                   // disabled={!formData.program || !formData.program.startsWith("B.Tech")}
-
                 >
                   {/* Rendering options based on condition */}
                   {formData.program.startsWith("B.Tech") ? (

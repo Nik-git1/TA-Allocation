@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   AiOutlineSearch,
   AiOutlineSortAscending,
@@ -36,9 +36,11 @@ const CoursePage = () => {
   });
   const [sorted, setSorted] = useState([]);
 
+  const API = import.meta.env.VITE_API_URL;
+
   const fetchCurrentRound = async () => {
     try {
-      const response = await fetch("http://localhost:5001/api/rd/currentround");
+      const response = await fetch(`${API}/api/rd/currentround`);
       const data = await response.json();
       setCurrentRound(data.currentRound);
     } catch (error) {
@@ -87,7 +89,7 @@ const CoursePage = () => {
     } else {
       // Make a POST request to allocate the student
       axios
-        .post("http://localhost:5001/api/al/allocation", {
+        .post(`${API}/api/al/allocation`, {
           studentId,
           courseId: selectedCourse._id,
           allocatedByID: user.id,
@@ -190,7 +192,7 @@ const CoursePage = () => {
   const handleDeallocate = (studentId) => {
     // Make a POST request to deallocate the student
     axios
-      .post("http://localhost:5001/api/al/deallocation", {
+      .post(`${API}/api/al/deallocation`, {
         studentId: studentId,
         deallocatedByID: user.id,
         deallocatedBy: user.role,
@@ -462,10 +464,8 @@ const CoursePage = () => {
             <td className="border p-2">{pref}</td>
           </>
         )}
-        {user.role === 'professor' && (currentRound === null || currentRound > 1)
-          ?
-          null
-          :
+        {user.role === "professor" &&
+        (currentRound === null || currentRound > 1) ? null : (
           <td className="border p-2">
             <button
               className="bg-red-500 text-white px-4 py-2 rounded cursor-pointer font-bold"
@@ -474,7 +474,7 @@ const CoursePage = () => {
               Deallocate
             </button>
           </td>
-        }
+        )}
       </tr>
     );
   };
@@ -509,10 +509,8 @@ const CoursePage = () => {
                   <td className="border p-2">{pref}</td>
                 </>
               )}
-              {user.role === 'professor' && (currentRound === null || currentRound > 1)
-                ?
-                  null
-                : 
+              {user.role === "professor" &&
+              (currentRound === null || currentRound > 1) ? null : (
                 <td className="border p-2">
                   <button
                     className={`${
@@ -531,7 +529,7 @@ const CoursePage = () => {
                     Allocate
                   </button>
                 </td>
-              }
+              )}
             </tr>
           ) : null
         ) : null}
@@ -847,12 +845,10 @@ const CoursePage = () => {
                       </th>
                     </>
                   )}
-                  {user.role === 'professor' && (currentRound === null || currentRound > 1)
-                    ?
-                    null
-                    :
+                  {user.role === "professor" &&
+                  (currentRound === null || currentRound > 1) ? null : (
                     <th className="border p-2">Action</th>
-                  }
+                  )}
                 </tr>
               </thead>
               <tbody>
@@ -977,12 +973,10 @@ const CoursePage = () => {
                       </th>
                     </>
                   )}
-                  {user.role === 'professor' && (currentRound === null || currentRound > 1)
-                    ?
-                    null
-                    :
+                  {user.role === "professor" &&
+                  (currentRound === null || currentRound > 1) ? null : (
                     <th className="border p-2">Action</th>
-                  }
+                  )}
                 </tr>
               </thead>
               <tbody>

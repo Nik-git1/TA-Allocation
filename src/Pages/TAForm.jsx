@@ -59,7 +59,7 @@ const StudentForm = () => {
     program: studentExistData.program,
     department: studentExistDepartment,
     taType: studentExistData.taType,
-    cgpa: studentExistData.cgpa,
+    cgpa: studentExistData.cgpa.toFixed(2).padStart(5, "0"),
     departmentPreferences:
       studentExistData.departmentPreferences.length === 0
         ? [
@@ -210,27 +210,27 @@ const StudentForm = () => {
         alert("Form Closed");
         return;
       }
-      
-      for (const pref of formData.departmentPreferences){
-        if(pref.course === "" || pref.grade === ""){
+
+      for (const pref of formData.departmentPreferences) {
+        if (pref.course === "" || pref.grade === "") {
           alert("Please fill in all Department Preferences");
-          return
+          return;
         }
       }
-      for(const pref of formData.nonDepartmentPreferences){
-        if(pref.course === "" || pref.grade === ""){
+      for (const pref of formData.nonDepartmentPreferences) {
+        if (pref.course === "" || pref.grade === "") {
           alert("Please fill in all Non-Department Preferences");
-          return
+          return;
         }
       }
 
-      for (const pref of formData.nonPreferences){
-        if (pref === ""){
+      for (const pref of formData.nonPreferences) {
+        if (pref === "") {
           alert("Please fill in all Non-Preferences");
-          return
+          return;
         }
       }
-      
+
       setLoading(true);
 
       const apiUrl =

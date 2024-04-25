@@ -70,13 +70,16 @@ const CourseState = (props) => {
         });
 
         axios
-          .post("http://localhost:5001/api/course", courses)
+          .post(`${API}/api/course`, courses)
           .then(() => {
             getCoursesFromBackend();
             setLoading(false);
+            window.location.reload();
           })
           .catch((error) => {
             console.error("Error sending data to the backend:", error);
+            setLoading(false);
+            window.location.reload();
           });
       };
       reader.onerror = (error) => {
@@ -88,7 +91,7 @@ const CourseState = (props) => {
 
   const deleteCourse = async (CourseId) => {
     try {
-      await axios.delete(`http://localhost:5001/api/course/${CourseId}`);
+      await axios.delete(`${API}/api/course/${CourseId}`);
       getCoursesFromBackend();
       return { status: "Success" };
     } catch (error) {
@@ -100,7 +103,7 @@ const CourseState = (props) => {
   const updateCourse = async (courseId, updatedData) => {
     try {
       const response = await axios.put(
-        `http://localhost:5001/api/course/${courseId}`,
+        `${API}/api/course/${courseId}`,
         updatedData
       );
       if (response.status === 200) {

@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Swal from "sweetalert2";
-import { useLocation } from "react-router-dom";
 import CryptoJS from "crypto-js";
+import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import ClipLoader from "react-spinners/ClipLoader";
-import { AiOutlineSearch } from "react-icons/ai";
+import Swal from "sweetalert2";
 
 import Select from "react-select";
 
@@ -15,6 +14,9 @@ const StudentForm = () => {
   const encryptedEmail = location.state?.encryptedEmail || "NA";
   const studentExistDepartment = location.state?.department || "";
   const studentExist = location.state?.studentExist;
+
+  const API = import.meta.env.VITE_API_URL;
+
   const studentExistData = studentExist || {
     name: "",
     rollNo: "",
@@ -81,7 +83,7 @@ const StudentForm = () => {
   useEffect(() => {
     // Fetch course data from the backend API
     axios
-      .get("http://localhost:5001/api/course")
+      .get(`${API}/api/course`)
       .then((response) => {
         setCourses(response.data);
       })
@@ -90,7 +92,7 @@ const StudentForm = () => {
       });
 
     axios
-      .get("http://localhost:5001/api/form")
+      .get(`${API}/api/form`)
       .then((response) => {
         setFormOpened(response.data.state);
       })
@@ -218,14 +220,12 @@ const StudentForm = () => {
 
     const allValuesNotEmpty = Object.values(studentData).every((value) => {
       if (Array.isArray(value)) {
-
         if (value.length === 3) {
           return value.every((pref) => pref !== "");
         }
         // If the property is an array, check each element in the array
         return value.every((pref) => pref.course !== "" && pref.grade !== "");
       } else if (typeof value === "object" && value !== null) {
-
         // If the property is an object (nested object), recursively check its values
         return Object.values(value).every(
           (v) =>
@@ -245,7 +245,7 @@ const StudentForm = () => {
       if (studentExist == null) {
         // Send a POST request to the API endpoint
         await axios
-          .post("http://localhost:5001/api/student", studentData)
+          .post(`${API}/api/student`, studentData)
           .then((response) => {
             setLoading(false);
             Swal.fire(
@@ -268,7 +268,7 @@ const StudentForm = () => {
 
         await axios
           .put(
-            `http://localhost:5001/api/student/${studentExist._id}`,
+            `${API}/api/student/${studentExist._id}`,
             studentData
           )
           .then((response) => {

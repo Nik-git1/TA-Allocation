@@ -2,9 +2,11 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const SideBar = () => {
+  const API = import.meta.env.VITE_API_URL;
+
   const handleLogout = () => {
     localStorage.removeItem("token");
-    window.location.replace("http://localhost:5173");
+    window.location.replace(API);
   };
   return (
     <div className="bg-[#3dafaa] h-screen text-center max-w-[95%] mt-4">

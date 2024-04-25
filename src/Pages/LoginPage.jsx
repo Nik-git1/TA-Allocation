@@ -1,11 +1,11 @@
-import React, { useState, useContext, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
-import { jwtDecode } from "jwt-decode";
-import AuthContext from "../context/AuthContext";
-import DepartmentContext from "../context/DepartmentContext";
-import CourseContext from "../context/CourseContext";
-import ClipLoader from "react-spinners/ClipLoader";
 import CryptoJS from "crypto-js";
+import { jwtDecode } from "jwt-decode";
+import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
+import ClipLoader from "react-spinners/ClipLoader";
+import AuthContext from "../context/AuthContext";
+import CourseContext from "../context/CourseContext";
+import DepartmentContext from "../context/DepartmentContext";
 const LoginPage = () => {
   const [selectedOption, setSelectedOption] = useState("");
   const [email, setEmail] = useState("");
@@ -15,7 +15,7 @@ const LoginPage = () => {
   const [OtpSent, setOtpSent] = useState(false);
   const [Otp, setOtp] = useState("");
   const navigate = useNavigate();
-  const host = "http://localhost:5001";
+  const host = import.meta.env.VITE_API_URL;
   const { login } = useContext(AuthContext);
   const { setSelectedDepartment } = useContext(DepartmentContext);
   const { setSelectedCourse } = useContext(CourseContext);

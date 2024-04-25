@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ClipLoader } from "react-spinners";
 
 const ForgotPassword = () => {
@@ -8,7 +8,10 @@ const ForgotPassword = () => {
   const [Otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [isPassword, setIsPassword] = useState(false);
-  const host = "http://localhost:5001";
+
+  const API = import.meta.env.VITE_API_URL;
+
+  const host = `${API}`;
 
   const startLoader = () => {
     setLoading(true);
@@ -38,7 +41,7 @@ const ForgotPassword = () => {
       if (json.success) {
         setOtpSent(true);
         setTimeout(() => {
-            stopLoader();
+          stopLoader();
         }, 1500);
       } else {
         stopLoader();
@@ -73,24 +76,24 @@ const ForgotPassword = () => {
 
   const handleNewPassword = async (event) => {
     event.preventDefault();
-    try{
-        const response = await fetch(`${host}/api/login/forgotpassword`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email: email, password: password }),
-        });
-  
-        const json = await response.json();
-        if (json.success) {
-          window.location.replace("http://localhost:5173");
-        } else {
-          throw new Error(json.message);
-        }
-      } catch(error){
-        alert(error.message);
+    try {
+      const response = await fetch(`${host}/api/login/forgotpassword`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: email, password: password }),
+      });
+
+      const json = await response.json();
+      if (json.success) {
+        window.location.replace(API);
+      } else {
+        throw new Error(json.message);
       }
+    } catch (error) {
+      alert(error.message);
+    }
   };
 
   const handleSubmit = () => {
@@ -126,12 +129,12 @@ const ForgotPassword = () => {
                 />
               </div>
               <button
-                    type="submit"
-                    className="w-full my-5 py-2 bg-[#3dafaa] shadow-lg shadow-[#3dafaa]/50 hover:shadow-[#3dafaa]/40 text-white font-semibold rounded-lg"
-                    onClick={handleNewPassword}
-                    >
-                    Update
-                </button>
+                type="submit"
+                className="w-full my-5 py-2 bg-[#3dafaa] shadow-lg shadow-[#3dafaa]/50 hover:shadow-[#3dafaa]/40 text-white font-semibold rounded-lg"
+                onClick={handleNewPassword}
+              >
+                Update
+              </button>
             </>
           ) : (
             <>

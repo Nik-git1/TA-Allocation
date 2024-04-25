@@ -4,7 +4,9 @@ import io from "socket.io-client";
 import * as XLSX from "xlsx";
 import StudentContext from "./StudentContext";
 
-const socket = io("http://localhost:5001");
+const API = import.meta.env.VITE_API_URL;
+
+const socket = io(`${API}`);
 
 const StudentState = (props) => {
   const [students, setStudents] = useState([]);
@@ -46,7 +48,7 @@ const StudentState = (props) => {
   const updateStudent = async (studentId, updatedData) => {
     try {
       const response = await axios.put(
-        `http://localhost:5001/api/student/${studentId}`,
+        `${API}/api/student/${studentId}`,
         updatedData
       );
       if (response.status != 200) {
@@ -66,7 +68,7 @@ const StudentState = (props) => {
 
   const deleteStudent = async (studentId) => {
     try {
-      await axios.delete(`http://localhost:5001/api/student/${studentId}`);
+      await axios.delete(`${API}/api/student/${studentId}`);
       return { status: "Success" };
     } catch (error) {
       console.error("Error deleting student:", error);
@@ -76,7 +78,7 @@ const StudentState = (props) => {
 
   const getStudentsFromBackend = () => {
     axios
-      .get("http://localhost:5001/api/student")
+      .get(`${API}/api/student`)
       .then((response) => {
         let studentsFromBackend = response.data;
         setStudents(studentsFromBackend);
@@ -113,10 +115,15 @@ const StudentState = (props) => {
         });
 
         axios
-          .post("http://localhost:5001/api/student", students)
-          .then(setLoading(false))
+          .post(`${API}/api/student`, students)
+          .then(() => {
+            setLoading(false);
+            window.location.reload();
+          })
           .catch((error) => {
             console.error("Error sending data to the backend:", error);
+            setLoading(false);
+            window.location.reload();
           });
       };
       reader.onerror = (error) => {
@@ -128,7 +135,7 @@ const StudentState = (props) => {
 
   const getLogsFromBackend = () => {
     axios
-      .get("http://localhost:5001/api/al/logs") // Replace with your actual API endpoint for logs
+      .get(`${API}/api/al/logs`) // Replace with your actual API endpoint for logs
       .then((response) => {
         const logsFromBackend = response.data;
         setLogs(logsFromBackend);

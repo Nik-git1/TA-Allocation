@@ -1,11 +1,11 @@
-import React, { useState, useContext, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
-import { jwtDecode } from "jwt-decode";
-import AuthContext from "../context/AuthContext";
-import DepartmentContext from "../context/DepartmentContext";
-import CourseContext from "../context/CourseContext";
-import ClipLoader from "react-spinners/ClipLoader";
 import CryptoJS from "crypto-js";
+import { jwtDecode } from "jwt-decode";
+import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
+import ClipLoader from "react-spinners/ClipLoader";
+import AuthContext from "../context/AuthContext";
+import CourseContext from "../context/CourseContext";
+import DepartmentContext from "../context/DepartmentContext";
 
 const LoginPage = () => {
   const [selectedOption, setSelectedOption] = useState("");
@@ -16,7 +16,7 @@ const LoginPage = () => {
   const [OtpSent, setOtpSent] = useState(false);
   const [Otp, setOtp] = useState("");
   const navigate = useNavigate();
-  const host = "http://localhost:5001";
+  const host = import.meta.env.VITE_API_URL;
   const { login } = useContext(AuthContext);
   const { setSelectedDepartment } = useContext(DepartmentContext);
   const { setSelectedCourse } = useContext(CourseContext);
@@ -84,7 +84,6 @@ const LoginPage = () => {
   };
 
   const handleDepartmentLogin = async () => {
-
     // Handle Department (JM) login logic here
     if (email && Otp) {
       const response = await fetch(`${host}/api/login/JM`, {
@@ -95,7 +94,6 @@ const LoginPage = () => {
         body: JSON.stringify({ email_id: email, enteredOTP: Otp }),
       });
 
-  
       const json = await response.json();
 
       if (json.success) {
@@ -111,10 +109,10 @@ const LoginPage = () => {
         navigate("/department");
       } else {
         alert("Invalid OTP or Email ID");
-        setOtpSent(false)
-        setEmail("")
-        setOtp("")
-        setotpOptionSelected(false); 
+        setOtpSent(false);
+        setEmail("");
+        setOtp("");
+        setotpOptionSelected(false);
       }
     } else {
       alert("Please fill in both email and password fields.");
@@ -122,7 +120,6 @@ const LoginPage = () => {
   };
 
   const handleProfessorLogin = async () => {
-  
     // Handle Professor login logic here
     if (email && Otp) {
       const response = await fetch(`${host}/api/login/Professor`, {
@@ -148,16 +145,15 @@ const LoginPage = () => {
         navigate("/professor", { state: { name: json.name } });
       } else {
         alert("Invalid OTP or Email ID");
-        setOtpSent(false)
-        setEmail("")
-        setOtp("")
-        setotpOptionSelected(false); 
+        setOtpSent(false);
+        setEmail("");
+        setOtp("");
+        setotpOptionSelected(false);
       }
     } else {
       alert("Please fill in both email and password fields.");
     }
   };
-
 
   const handleSendOTP = async () => {
     if (email) {
@@ -189,7 +185,7 @@ const LoginPage = () => {
         }, 1600);
       } else {
         stopLoader();
-        setEmail("")
+        setEmail("");
         alert("Failed to send OTP.");
       }
     } else {
@@ -198,7 +194,6 @@ const LoginPage = () => {
   };
   const handleTAlogin = async () => {
     if (email && Otp) {
-
       const pattern = /@iiitd\.ac\.in$/;
 
       if (pattern.test(email)) {
@@ -209,7 +204,7 @@ const LoginPage = () => {
           },
           body: JSON.stringify({ email: email, enteredOTP: Otp }),
         });
-  
+
         const json = await response.json();
         if (json.success) {
           localStorage.setItem("token", json.authtoken);
@@ -231,8 +226,8 @@ const LoginPage = () => {
           // Redirect to the appropriate page after OTP verification
         } else {
           alert("Invalid OTP.");
-          setEmail("")
-  
+          setEmail("");
+
           setotpOptionSelected(false); // Reset the form state
         }
       } else {
@@ -251,27 +246,27 @@ const LoginPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     // if (signInButton) {
-      switch (selectedOption) {
-        case "admin":
-          handleAdminLogin();
-          break;
-        case "department":
-          // For JM and Department, skip password check and directly send OTP
-          handleDepartmentLogin();
-          break;
-        case "professor":
-          // For Professor, skip password check and directly send OTP
-          handleProfessorLogin();
-          break;
-        case "TA":
-          handleTAlogin();
-          break;
-        default:
-          alert("Please select an option: Admin, Department, Faculty.");
-          break;
-      }
+    switch (selectedOption) {
+      case "admin":
+        handleAdminLogin();
+        break;
+      case "department":
+        // For JM and Department, skip password check and directly send OTP
+        handleDepartmentLogin();
+        break;
+      case "professor":
+        // For Professor, skip password check and directly send OTP
+        handleProfessorLogin();
+        break;
+      case "TA":
+        handleTAlogin();
+        break;
+      default:
+        alert("Please select an option: Admin, Department, Faculty.");
+        break;
+    }
     // }
   };
 
@@ -310,7 +305,6 @@ const LoginPage = () => {
                   handleLoginOptionClick("TA");
                 }
               }}
-              
               disabled={OtpSent}
             >
               {otpOptionSelected ? "Back to Main Page" : "TA Form"}
@@ -419,23 +413,21 @@ const LoginPage = () => {
             </>
           ) : loading ? null : (
             <>
-            <button
-              type="submit"
-              className="w-full my-5 py-2 bg-[#3dafaa] shadow-lg shadow-[#3dafaa]/50 hover:shadow-[#3dafaa]/40 text-white font-semibold rounded-lg"
-              onClick={OtpSent ? handleSubmit : handleSendOTP}
-            >
-              {OtpSent ? "Verify OTP" : "Send OTP"}
-            </button>
-            {OtpSent ? (
-              <div className="flex">
-                <p className="mr-1 text-gray-500">OTP sended to</p>
-                <p className="text-red-500">{email}</p>
-              </div>
-            ) : null}
-            
-          </>
+              <button
+                type="submit"
+                className="w-full my-5 py-2 bg-[#3dafaa] shadow-lg shadow-[#3dafaa]/50 hover:shadow-[#3dafaa]/40 text-white font-semibold rounded-lg"
+                onClick={OtpSent ? handleSubmit : handleSendOTP}
+              >
+                {OtpSent ? "Verify OTP" : "Send OTP"}
+              </button>
+              {OtpSent ? (
+                <div className="flex">
+                  <p className="mr-1 text-gray-500">OTP sended to</p>
+                  <p className="text-red-500">{email}</p>
+                </div>
+              ) : null}
+            </>
           )}
-          
         </form>
       </div>
     </div>

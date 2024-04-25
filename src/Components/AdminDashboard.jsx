@@ -7,12 +7,15 @@ const Dashboard = () => {
   const [currentRound, setCurrentRound] = useState(null);
   const [formOpened, setFormOpened] = useState(true);
   const [feedbackForm, setFeedbackForm] = useState(false);
+
+  const API = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
     // Fetch the current round status from your backend when the component mounts
     getRound();
     getFeedbackFormStatus();
     axios
-      .get("http://localhost:5001/api/form")
+      .get(`${API}/api/form`)
       .then((response) => {
         setFormOpened(response.data.state);
       })
@@ -22,7 +25,7 @@ const Dashboard = () => {
   }, []);
 
   const getRound = () => {
-    fetch("http://localhost:5001/api/rd/currentround")
+    fetch(`${API}/api/rd/currentround`)
       .then((response) => response.json())
       .then((data) => {
         setCurrentRound(data.currentRound);
@@ -42,7 +45,7 @@ const Dashboard = () => {
 
   const startNewRound = () => {
     // Send a POST request to start a new round
-    fetch("http://localhost:5001/api/rd/startround", { method: "POST" })
+    fetch(`${API}/api/rd/startround`, { method: "POST" })
       .then((response) => {
         if (response.status === 201) {
           return response.json();
@@ -67,7 +70,7 @@ const Dashboard = () => {
 
   const endCurrentRound = () => {
     // Send a POST request to end the current round
-    fetch("http://localhost:5001/api/rd/endround", { method: "POST" })
+    fetch(`${API}/api/rd/endround`, { method: "POST" })
       .then((response) => {
         if (response.status === 200) {
           return response.json();
@@ -93,7 +96,7 @@ const Dashboard = () => {
 
   const resetRounds = () => {
     // Send a POST request to reset rounds
-    fetch("http://localhost:5001/api/rd/resetrounds", { method: "POST" })
+    fetch(`${API}/api/rd/resetrounds`, { method: "POST" })
       .then((response) => response.json())
       .then(() => {
         // Handle success (e.g., show a success message)
@@ -120,7 +123,7 @@ const Dashboard = () => {
         confirmButtonText: "Yes",
       }).then(async (result) => {
         if (result.isConfirmed) {
-          const res = await fetch("http://localhost:5001/api/new/semester", {
+          const res = await fetch(`${API}/api/new/semester`, {
             method: "DELETE",
           });
           setCurrentRound(null); // Reset current round information
@@ -139,7 +142,7 @@ const Dashboard = () => {
   };
 
   const openForm = async () => {
-    const response = await fetch(`http://localhost:5001/api/form/changeState`, {
+    const response = await fetch(`${API}/api/form/changeState`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -151,7 +154,7 @@ const Dashboard = () => {
   };
 
   const closeForm = async () => {
-    const response = await fetch(`http://localhost:5001/api/form/changeState`, {
+    const response = await fetch(`${API}/api/form/changeState`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -163,7 +166,7 @@ const Dashboard = () => {
   };
 
   const startFeedback = () => {
-    fetch("http://localhost:5001/api/feedback/start", { method: "GET" })
+    fetch(`${API}/api/feedback/start`, { method: "GET" })
       .then((response) => {
         if (response.status === 200) {
           // Perform any necessary actions after successful feedback generation
@@ -179,7 +182,7 @@ const Dashboard = () => {
 
   const getFeedbackFormStatus = () => {
     axios
-      .get("http://localhost:5001/api/feedback/status")
+      .get(`${API}/api/feedback/status`)
       .then((response) => {
         setFeedbackForm(response.data.active);
         // Log the updated feedback form status
@@ -191,7 +194,7 @@ const Dashboard = () => {
 
   const closeFeedbackForm = () => {
     axios
-      .post("http://localhost:5001/api/feedback/end")
+      .post(`${API}/api/feedback/end`)
       .then((response) => {
         if (response.status === 200) {
           getFeedbackFormStatus();

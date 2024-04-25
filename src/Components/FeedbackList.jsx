@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
+import React, { useContext, useEffect, useState } from 'react';
 import AuthContext from '../context/AuthContext';
 
 const FeedbackList = () => {
@@ -9,6 +9,8 @@ const FeedbackList = () => {
   const [editableFeedbackId, setEditableFeedbackId] = useState(null);
   const [editedFeedback, setEditedFeedback] = useState({});
 
+  const API = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
     fetchFeedbacks();
   }, [user]);
@@ -17,9 +19,9 @@ const FeedbackList = () => {
     try {
       let response;
       if (user && user.role === 'professor') {
-        response = await axios.get(`http://localhost:5001/api/feedback/professor/${user.id}`);
+        response = await axios.get(`${API}/api/feedback/professor/${user.id}`);
       } else {
-        response = await axios.get(`http://localhost:5001/api/feedback/all`);
+        response = await axios.get(`${API}/api/feedback/all`);
       }
       setFeedbacks(response.data.feedbacks);
       setLoading(false);
@@ -37,7 +39,7 @@ const FeedbackList = () => {
 
   const handleSave = async (feedback) => {
     try {
-      const response = await axios.put(`http://localhost:5001/api/feedback/${feedback._id}`, {
+      const response = await axios.put(`${API}/api/feedback/${feedback._id}`, {
         overallGrade: editedFeedback.overallGrade,
         regularityInMeeting: editedFeedback.regularityInMeeting,
         attendanceInLectures: editedFeedback.attendanceInLectures,
