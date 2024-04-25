@@ -6,6 +6,7 @@ const JM = require( "../models/JM" );
 const nodemailer = require( 'nodemailer' );
 const LogEntry = require( "../models/LogEntry" );
 const Feedback = require( "../models/Feedback" );
+const validateStudents = require( "../middleware/StudentValidator" );
 
 const transporter = nodemailer.createTransport( {
   service: 'Gmail',
@@ -274,234 +275,38 @@ const addStudent = asyncHandler( async ( req, res ) =>
 
   try
   {
-    var invalidStudents = [];
-    var validStudents = [];
 
-    // Iterate through the new student entries
-    for ( const newStudent of newStudents )
-    {
-      // Check if all required fields are present
-      const requiredFields = [
-        "name",
-        "emailId",
-        "rollNo",
-        "program",
-        "department",
-      ];
-      const missingFields = requiredFields.filter(
-        ( field ) => !newStudent[ field ]
-      );
-
-      if ( missingFields.length > 0 )
-      {
-        invalidStudents.push( {
-          student: newStudent,
-          message: `Missing required fields: ${ missingFields.join( ", " ) }`,
-        } );
-        continue; // Skip this student and move to the next one
-      }
-
-
-      // Validate program against enum list
-      const validPrograms = [
-        "B.Tech 3rd Year",
-        "B.Tech 4th Year",
-        "M.Tech 1st Year",
-        "M.Tech 2nd Year",
-        "PhD",
-      ];
-      if ( !validPrograms.includes( newStudent.program ) )
-      {
-        invalidStudents.push( {
-          student: newStudent,
-          message: "Invalid program value",
-        } );
-        continue; // Skip this student and move to the next one
-      }
-
-      const validTypes = [
-        "Credit",
-        "Paid",
-        "Voluntary"
-      ]
-      if ( newStudent.taType && !validTypes.includes( newStudent.taType ) )
-      {
-        invalidStudents.push( {
-          student: newStudent,
-          message: "Invalid TA Type value"
-        } );
-        continue;
-      }
-
-      // Check cgpa range
-      if ( newStudent.cgpa && ( newStudent.cgpa < 0 || newStudent.cgpa > 10 ) )
-      {
-        invalidStudents.push( {
-          student: newStudent,
-          message: "CGPA out of range (0-10)",
-        } );
-        continue; // Skip this student and move to the next one
-      }
-
-      // Check for collision based on emailId or rollNo
-      const existingStudent = await Student.exists( {
-        $or: [ { emailId: newStudent.emailId }, { rollNo: newStudent.rollNo } ],
-      } );
-
-      if ( existingStudent )
-      {
-        // If a collision exists, add it to the invalidStudents list
-        invalidStudents.push( {
-          student: newStudent,
-          message: "Duplicate emailId or rollNo",
-        } );
-      } else
-      {
-        // Validate the department reference
-        const jmDepartment = await JM.exists( {
-          department: newStudent.department,
-        } );
-        if ( !jmDepartment )
-        {
-          invalidStudents.push( {
-            student: newStudent,
-            message: "Invalid department name",
-          } );
-        } else
-        {
-          // Remove attributes that should not be provided during creation
-          if ( newStudent.allocatedTA )
-          {
-            delete newStudent.allocatedTA;
-          }
-          if ( newStudent.allocationStatus !== null && newStudent.allocationStatus !== undefined )
-          {
-            delete newStudent.allocationStatus;
-          }
-
-          // Validate departmentPreferences
-
-          if (
-            newStudent.departmentPreferences &&
-            newStudent.nonDepartmentPreferences &&
-            newStudent.nonPreferences ) // wrapper check
-          {
-            if ( newStudent.departmentPreferences.length > 2 )
-            {
-              invalidStudents.push( {
-                student: newStudent,
-                message: "More than allowed department preferences entered",
-              } );
-              continue; // Skip this student and move to the next one
-            }
-
-            // Validate nonDepartmentPreferences
-            if ( newStudent.nonDepartmentPreferences.length > 5 )
-            {
-              invalidStudents.push( {
-                student: newStudent,
-                message: "More than allowed other preferences entered",
-              } );
-              continue; // Skip this student and move to the next one
-            }
-
-            // Validate nonPreferences
-            if ( newStudent.nonPreferences.length > 3 )
-            {
-              invalidStudents.push( {
-                student: newStudent,
-                message: "More than allowed non preferences entered",
-              } );
-              continue; // Skip this student and move to the next one
-            }
-            // Check for valid grade values
-            // const validGrades = [ 'A+(10)', 'A(10)', 'A-(9)', 'B(8)', 'B-(7)', 'C(6)', 'C-(5)', 'D(4)', 'Course Not Done' ]
-
-            // const deptgrade = await Promise.all(
-            //   newStudent.departmentPreference.map( async ( pref ) =>
-            //   {
-            //     return validGrades.includes( pref.grade );
-            //   } )
-            // )
-
-            // const othergrade = await Promise.all(
-            //   newStudent.nonDepartmentPreference.map( async ( pref ) =>
-            //   {
-            //     return validGrades.includes( pref.grade );
-            //   } )
-            // )
-
-            // if ( deptgrade.includes( false ) )
-            // {
-            //   invalidStudents.push( {
-            //     student: newStudent,
-            //     message: "Invalid Grade value in departmental preferences"
-            //   } );
-            //   continue;
-            // }
-
-            // if ( othergrade.includes( false ) )
-            // {
-            //   invalidStudents.push( {
-            //     student: newStudent,
-            //     message: "Invalid Grade value in other preferences"
-            //   } );
-            //   continue;
-            // }
-
-            // Check if all courses in departmentPreferences are from the same department as the student
-
-            const departmentMatch = await Promise.all(
-              newStudent.departmentPreferences.map( async ( pref ) =>
-              {
-                const course = await mongoose
-                  .model( "Course" )
-                  .findById( pref.course );
-                return course && course.department.equals( jmDepartment._id );
-              } )
-            );
-
-            if ( departmentMatch.includes( false ) )
-            {
-              invalidStudents.push( {
-                student: newStudent,
-                message:
-                  "Course department must match student department for all courses in department preferences",
-              } );
-              continue; // Skip this student and move to the next one
-            }
-
-            for ( const courseId of newStudent.nonPreferences )
-            {
-              await Course.findOneAndUpdate(
-                { _id: courseId },
-                { $inc: { antiPref: 1 } }
-              );
-            }
-          }
-          // Add the validated student to the validStudents list
-          newStudent.department = jmDepartment._id
-          validStudents.push( newStudent );
-        }
-      }
-    }
+    const { validStudents, invalidStudents } = await validateStudents( newStudents )
 
     // Insert valid students into the database
     const returnedStudents = await Student.insertMany( validStudents, { ordered: false } );
-    for ( const student of validStudents )
+
+    const sendEmails = async ( students ) =>
     {
+      const validStudentsWithEmails = students.filter( student => student.departmentPreferences && student.departmentPreferences.length > 0 );
+      const emailPromises = validStudentsWithEmails.map( async ( student ) =>
+      {
+        try
+        {
+          await sendForm( student.emailId, student );
+        } catch ( error )
+        {
+          console.error( 'Error sending student data via email:', error );
+          throw new Error( error )
+        }
+      } );
+
       try
       {
-        if ( student.departmentPreferences && student.departmentPreferences.length > 0 )
-        {
-          await sendForm( student.emailId, student ); // Call the sendForm function for each student
-        }
+        await Promise.all( emailPromises );
+        console.log( 'All emails sent successfully' );
       } catch ( error )
       {
-        console.error( 'Error sending student data via email:', error );
-        // Handle the error as needed
+        console.error( 'Error sending emails:', error );
       }
-    }
+    };
+
+    sendEmails( validStudents );
 
     const populatedStudents = await Student.find( { _id: { $in: returnedStudents.map( student => student._id ) } } )
     const flatenedStudents = populatedStudents.map( student => student.flatStudent )
