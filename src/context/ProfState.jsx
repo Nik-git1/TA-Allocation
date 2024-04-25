@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
 import ProfContext from "./ProfContext";
 
@@ -71,14 +72,54 @@ const ProfState = (props) => {
 
         axios
           .post(`${API}/api/professor`, professors)
-          .then(() => {
-            getProfessorsFromBackend();
+          .then(async (response) => {
             setLoading(false);
+
+            let tableHtml = `
+                    <table class="min-w-max w-full table-auto">
+                      <thead>
+                        <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                          <th class="py-3 px-6 text-left">Message</th>
+                          <th class="py-3 px-6 text-left">Name</th>
+                          <th class="py-3 px-6 text-left">Email ID</th>
+                        </tr>
+                      </thead>
+                      <tbody class="text-gray-600 text-sm font-light">
+                  `;
+            response.data.invalidProfessors.forEach((prof) => {
+              tableHtml += `
+                      <tr class="border-b border-gray-200 hover:bg-gray-100">
+                        <td class="py-3 px-6 text-left whitespace-nowrap">${prof.message}</td>
+                        <td class="py-3 px-6 text-left whitespace-nowrap">${prof.professor.name}</td>
+                        <td class="py-3 px-6 text-left whitespace-nowrap">${prof.professor.emailId}</td>
+                      </tr>
+                    `;
+            });
+            tableHtml += `
+                      </tbody>
+                    </table>
+                  `;
+
+            if (response.data.invalidProfessors.length > 0) {
+              await Swal.fire({
+                title: "Failed to import some professors",
+                allowOutsideClick: false,
+                html: tableHtml,
+                width: "80%",
+              });
+            }
+
+            // getProfessorsFromBackend();
             window.location.reload();
           })
-          .catch((error) => {
+          .catch(async (error) => {
             console.error("Error sending data to the backend:", error);
             setLoading(false);
+            await Swal.fire({
+              title: "Internal Server Error",
+              text: error,
+              icon: "error",
+            });
             window.location.reload();
           });
       };

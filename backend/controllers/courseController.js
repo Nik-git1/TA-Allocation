@@ -145,40 +145,46 @@ const addCourse = asyncHandler( async ( req, res ) =>
             }
         };
 
-        await Promise.all( newCourses.map( async ( course ) =>
+        await Promise.all( newCourses.map( async ( newCourse ) =>
         {
             try
             {
-                validateCourse( course );
-                if ( course.taAllocated ) { delete course.taAllocated }
-                if ( course.professor )
+                validateCourse( newCourse );
+                if ( newCourse.taAllocated ) { delete newCourse.taAllocated }
+                if ( newCourse.professor )
                 {
-                    const professor = await Professor.exists( { name: course.professor } );
+                    const professor = await Professor.exists( { name: newCourse.professor } );
                     if ( professor )
                     {
-                        course.professor = professor._id;
+                        newCourse.professor = professor._id;
                     } else
                     {
-                        invalidCourses.push( course );
+                        invalidCourses.push( {
+                            course: newCourse,
+                            message: "Professor not found"
+                        } );
                         return;
                     }
                 }
 
-                const jmDepartmentId = jmDepartmentMap[ course.department ];
+                const jmDepartmentId = jmDepartmentMap[ newCourse.department ];
                 if ( jmDepartmentId )
                 {
-                    course.department = jmDepartmentId;
+                    newCourse.department = jmDepartmentId;
                 } else
                 {
-                    invalidCourses.push( course );
+                    invalidCourses.push( {
+                        course: newCourse,
+                        message: "Invalid department"
+                    } );
                     return;
                 }
 
-                if ( !course.taRequired || course.taRequired == undefined )
+                if ( !newCourse.taRequired || newCourse.taRequired == undefined )
                 {
-                    course.taRequired = Math.floor( course.totalStudents / course.taStudentRatio );
+                    newCourse.taRequired = Math.floor( newCourse.totalStudents / newCourse.taStudentRatio );
                 }
-                validCourses.push( course );
+                validCourses.push( newCourse );
 
                 // const jmDepartment = await JM.exists( { department: course.department } );
                 // if ( jmDepartment ) { course.department = jmDepartment._id }
@@ -188,10 +194,12 @@ const addCourse = asyncHandler( async ( req, res ) =>
                 // }
             } catch ( error )
             {
-                invalidCourses.push( course );
+                invalidCourses.push( {
+                    course: newCourse,
+                    message: error.message
+                } );
             }
         } ) );
-
 
         const bulkOps = validCourses.map( ( course ) => ( {
             updateOne: {
@@ -201,103 +209,15 @@ const addCourse = asyncHandler( async ( req, res ) =>
             }
         } ) );
 
-        await Course.collection.bulkWrite( bulkOps, { ordered: false } );
-
-        ```
-        // OLD CODE TO DO THE SAME THING AS ABOVE
-        for ( const newCourse of newCourses )
+        if ( bulkOps.length > 0 )
         {
-            // Check if required fields are not empty and have correct values
-            if ( !newCourse.name || !newCourse.code || !newCourse.acronym || !newCourse.department || !newCourse.totalStudents || !newCourse.taStudentRatio )
-            {
-                return res.status( 400 ).json( { message: 'All required fields must be provided' } );
-            }
-
-            if ( parseInt( newCourse.taStudentRatio ) < 1 )
-            {
-                return res.status( 400 ).json( { message: 'TA to Student Ratio should be greater than 1' } );
-            }
-
-            if ( newCourse.taAllocated )
-            {
-                delete newCourse.taAllocated;
-            }
-
-            // Calculate taRequired
-            // newCourse.taRequired = Math.floor( newCourse.totalStudents / newCourse.taStudentRatio );
-
-            // Handle "department" reference
-            if ( newCourse.department )
-            {
-                var jmDepartment = await JM.exists( { department: newCourse.department } );
-                if ( jmDepartment )
-                {
-                    newCourse.department = jmDepartment._id;
-                } else
-                {
-                    invalidCourses.push( newCourse );
-                    continue; // Skip adding this course
-                }
-            }
-
-            // Handle "professor" reference
-            if ( newCourse.professor )
-            {
-                // var profname = newCourse.professor.split( " (" )[ 0 ];
-                var professor = await Professor.exists( { name: newCourse.professor } );
-                if ( professor )
-                {
-                    newCourse.professor = professor._id;
-                } else
-                {
-                    invalidCourses.push( newCourse );
-                    // newCourse.professor = null; // Assign null if professor not found
-                    continue; // Skip adding this course
-                }
-            }
-
-            // Check for collisions based on the index
-            const existingCourse = await Course.findOne( {
-                acronym: newCourse.acronym,
-                professor: newCourse.professor,
-                name: newCourse.name,
-            } );
-            if ( existingCourse )
-            {
-                // collidingCourses.push( newCourse );
-                if ( newCourse.taRequired )
-                {
-                    // If taRequired is inputted, do nothing, save the provided value
-                } else
-                {
-                    // If taRequired is not inputted, recalculate its value using the formula
-                    newCourse.taRequired = Math.floor( ( newCourse.totalStudents || existingCourse.totalStudents ) / ( newCourse.taStudentRatio || existingCourse.taStudentRatio ) );
-                }
-
-                await Course.updateOne(
-                    { _id: existingCourse._id },
-                    { $set: newCourse }
-                );
-            } else
-            {
-                // Add the course to the database
-                validCourses.push( newCourse );
-                // await Course.create( newCourse );
-            }
+            await Course.collection.bulkWrite( bulkOps, { ordered: false } );
         }
 
-        if ( validCourses.length > 0 )
-        {
-            await Course.insertMany( validCourses, { ordered: false } )
-        }
-        ```
-
-        const response = {
+        return res.status( 201 ).json( {
             message: 'Courses added successfully',
-            invalid: invalidCourses,
-        };
-
-        return res.status( 201 ).json( response );
+            invalidCourses: invalidCourses,
+        } );
     } catch ( error )
     {
         return res.status( 500 ).json( { message: 'Internal server error', error: error.message } );

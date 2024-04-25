@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
+import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
 import StudentContext from "./StudentContext";
 
@@ -116,12 +117,59 @@ const StudentState = (props) => {
 
         axios
           .post(`${API}/api/student`, students)
-          .then(() => {
+          .then(async (response) => {
             setLoading(false);
+
+            let tableHtml = `
+                    <table class="min-w-max w-full table-auto">
+                      <thead>
+                        <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                          <th class="py-3 px-6 text-left">Message</th>
+                          <th class="py-3 px-6 text-left">Name</th>
+                          <th class="py-3 px-6 text-left">Roll No</th>
+                          <th class="py-3 px-6 text-left">Email ID</th>
+                          <th class="py-3 px-6 text-left">Department</th>
+                          <th class="py-3 px-6 text-left">Program</th>
+                          <th class="py-3 px-6 text-left">CGPA</th>
+                        </tr>
+                      </thead>
+                      <tbody class="text-gray-600 text-sm font-light">
+                  `;
+            response.data.invalidStudents.forEach((student) => {
+              tableHtml += `
+                      <tr class="border-b border-gray-200 hover:bg-gray-100">
+                        <td class="py-3 px-6 text-left whitespace-nowrap">${student.message}</td>
+                        <td class="py-3 px-6 text-left whitespace-nowrap">${student.student.name}</td>
+                        <td class="py-3 px-6 text-left whitespace-nowrap">${student.student.rollNo}</td>
+                        <td class="py-3 px-6 text-left whitespace-nowrap">${student.student.emailId}</td>
+                        <td class="py-3 px-6 text-left whitespace-nowrap">${student.student.department}</td>
+                        <td class="py-3 px-6 text-left whitespace-nowrap">${student.student.program}</td>
+                        <td class="py-3 px-6 text-left whitespace-nowrap">${student.student.cgpa}</td>
+                      </tr>
+                    `;
+            });
+            tableHtml += `
+                      </tbody>
+                    </table>
+                  `;
+
+            if (response.data.invalidStudents.length > 0) {
+              await Swal.fire({
+                title: "Failed to import some students",
+                allowOutsideClick: false,
+                html: tableHtml,
+                width: "80%",
+              });
+            }
             window.location.reload();
           })
-          .catch((error) => {
+          .catch(async (error) => {
             console.error("Error sending data to the backend:", error);
+            await Swal.fire({
+              title: "Internal Server Error",
+              text: error,
+              icon: "error",
+            });
             setLoading(false);
             window.location.reload();
           });

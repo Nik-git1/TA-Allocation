@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import Swal from "sweetalert2";
 import * as XLSX from "xlsx";
 import CourseContext from "./CourseContext";
 
@@ -71,14 +72,58 @@ const CourseState = (props) => {
 
         axios
           .post(`${API}/api/course`, courses)
-          .then(() => {
-            getCoursesFromBackend();
+          .then(async (response) => {
+            // getCoursesFromBackend();
             setLoading(false);
+
+            let tableHtml = `
+                    <table class="min-w-max w-full table-auto">
+                      <thead>
+                        <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                          <th class="py-3 px-6 text-left">Message</th>
+                          <th class="py-3 px-6 text-left">Name</th>
+                          <th class="py-3 px-6 text-left">Code</th>
+                          <th class="py-3 px-6 text-left">Acronym</th>
+                          <th class="py-3 px-6 text-left">Department</th>
+                        </tr>
+                      </thead>
+                      <tbody class="text-gray-600 text-sm font-light">
+                  `;
+            response.data.invalidCourses.forEach((course) => {
+              tableHtml += `
+                      <tr class="border-b border-gray-200 hover:bg-gray-100">
+                        <td class="py-3 px-6 text-left whitespace-nowrap">${course.message}</td>
+                        <td class="py-3 px-6 text-left whitespace-nowrap">${course.course.name}</td>
+                        <td class="py-3 px-6 text-left whitespace-nowrap">${course.course.code}</td>
+                        <td class="py-3 px-6 text-left whitespace-nowrap">${course.course.acronym}</td>
+                        <td class="py-3 px-6 text-left whitespace-nowrap">${course.course.department}</td>
+                      </tr>
+                    `;
+            });
+            tableHtml += `
+                      </tbody>
+                    </table>
+                  `;
+
+            if (response.data.invalidCourses.length > 0) {
+              await Swal.fire({
+                title: "Failed to import some courses",
+                allowOutsideClick: false,
+                html: tableHtml,
+                width: "80%",
+              });
+            }
+
             window.location.reload();
           })
-          .catch((error) => {
+          .catch(async (error) => {
             console.error("Error sending data to the backend:", error);
             setLoading(false);
+            await Swal.fire({
+              title: "Internal Server Error",
+              text: error,
+              icon: "error",
+            });
             window.location.reload();
           });
       };
