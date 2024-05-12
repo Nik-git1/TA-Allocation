@@ -59,7 +59,7 @@ const StudentForm = () => {
     program: studentExistData.program,
     department: studentExistDepartment,
     taType: studentExistData.taType,
-    cgpa: studentExistData.cgpa.toFixed(2).padStart(5, "0"),
+    cgpa: studentExistData.cgpa,
     departmentPreferences:
       studentExistData.departmentPreferences.length === 0
         ? [
